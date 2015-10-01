@@ -1,0 +1,26 @@
+{
+  "name": "realtime-game-dev-ts",
+  "version": "0.0.0",
+  "description": "Realtime Game Framework",
+  "main": "app.js",
+  "dependencies": {
+    "angular": "^1.4.7",
+    "bootstrap": "^3.3.5",
+    "express": "^4.13.3",
+    "lodash": "^3.10.1",
+    "socket.io": "^1.3.7",
+    "socket.io-client": "^1.3.7",
+    "systemjs": "^0.19.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "TypeScript",
+    "Angular",
+    "Game"
+  ],
+  "author": "",
+  "license": "MIT"
+}
