@@ -6,6 +6,7 @@ import { RoomService } from './RoomService';
 
 export class ConnectionController {
 	private clients:Array<Client> = [];
+	private clientid:number = 0;
 	
 	private roomSrv:RoomService = new RoomService();
 	
@@ -18,13 +19,15 @@ export class ConnectionController {
 		client.socket = socket;
 		this.clients.push(client);
 		socket.emit('connected');
+		client.name = 'Player ' + this.clientid;
+		this.clientid++;
 		
 		socket.on('disconnect', () => this.closeConnection(client));
 		socket.on('personalinfo', (data:{name:string}) => this.personalInfo(client, data));
 		socket.on('joinroom', (data:{name:string}) => this.roomSrv.joinRoom(client, data));
 		socket.on('leaveroom', () => this.roomSrv.leaveRoom(client));
 		
-		console.log('Connected ' + (this.clients.length - 1));
+		console.log('Connected ' + client.name);
 	}
 	
 	private closeConnection(client:Client) : void {

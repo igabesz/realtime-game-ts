@@ -8,6 +8,10 @@ export class RoomService {
 	constructor() { }
 	
 	public joinRoom(client:Client, data:{name:string}) : void {
+		if(client.player !== undefined) {
+			console.log(client.name + ' is already in a room');
+			return;
+		}
 		let room:Room = this.findRoomByName(data.name);
 		client.player = new Player();
 		if(room === undefined) {
@@ -24,10 +28,11 @@ export class RoomService {
 	}
 	
 	public leaveRoom(client:Client) : void {
-		let room:Room = client.player.room;
-		if(room === undefined) {
-			// error
+		if(client.player === undefined || client.player.room === undefined) {
+			console.log(client.name + 'is already in a room');
+			return;
 		}
+		let room:Room = client.player.room;
 		room.players.splice(room.players.indexOf(client.player));
 		if(room.players.length == 0) {
 			this.rooms.splice(this.rooms.indexOf(room));

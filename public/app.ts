@@ -15,13 +15,17 @@ mainModule.run(['SocketService', (socketService: SocketService) => {
 mainModule.controller('MainController', MainController);
 
 
+
 /** Test Directive */
+import { TestController } from './TestController'; 
+
+mainModule.controller('TestController', TestController);
 
 mainModule.directive('test', function() {
   return {
     restrict: 'E',
     template: `
-	<div ng-controller="MainController as ctrl" style="margin-top: 200px;">
+	<div ng-controller="TestController as ctrl" style="margin-top: 200px;">
 		<textarea type="text" ng-model="testData" style="width:600px;height:150px;"></textarea>
 		<button ng-click="ctrl.sendTestData()">Send</button>
 	</div>
