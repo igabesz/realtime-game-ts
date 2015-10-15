@@ -46,21 +46,4 @@ export class MainController {
 		console.log('right');
 		this.socketService.move('right');
 	};
-	
-	/** Test */
-	sendTestData() : void {
-		let text:string = (<any>this.$scope).testData;
-		(<any>this.$scope).testData = "";
-		let rows:string[] = text.split('\n');
-		for(let i:number = 0; i < rows.length; i++) {
-			let row:string = rows[i];
-			let index:number = row.indexOf('\t')
-			if(index != -1){
-				let event:string = row.substring(0, index);
-				let dataStr:string = row.substring(index + 1);
-				let item = JSON.parse(dataStr);
-				this.socketService.sendTestData(event, item);
-			}
-		}
-	}
 }
