@@ -24,8 +24,7 @@ export class ConnectionController {
 		
 		socket.on('disconnect', () => this.closeConnection(client));
 		socket.on('personalinfo', (data:{name:string}) => this.personalInfo(client, data));
-		socket.on('joinroom', (data:{name:string}) => this.roomSrv.joinRoom(client, data));
-		socket.on('leaveroom', () => this.roomSrv.leaveRoom(client));
+		this.roomSrv.addHandlers(client);
 		
 		console.log('Connected ' + client.name);
 	}

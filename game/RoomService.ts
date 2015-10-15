@@ -7,8 +7,13 @@ export class RoomService {
 	
 	constructor() { }
 	
+	public addHandlers(client:Client) {
+		client.socket.on('joinroom', (data:{name:string}) => this.joinRoom(client, data));
+		client.socket.on('leaveroom', () => this.leaveRoom(client));
+	}
+	
 	public joinRoom(client:Client, data:{name:string}) : void {
-		if(client.player !== undefined) {
+		if(client.player !== undefined || client.player.room === undefined) {
 			console.log(client.name + ' is already in a room');
 			return;
 		}
@@ -41,7 +46,7 @@ export class RoomService {
 			room.host = room.players[0];
 		}
 		client.socket.leave(room.id);
-		client.player.room = undefined;
+		client.player = undefined;
 		console.log(client.name + ' left the room: ' + room.id);
 	}
 	
