@@ -26,6 +26,7 @@ export class ConnectionController {
 		socket.on('personalinfo', (data:{name:string}) => this.personalInfo(client, data));
 		this.roomSrv.addHandlers(client);
 		
+		client.socket.emit('test', 'Login success');
 		console.log('Connected ' + client.name);
 	}
 	

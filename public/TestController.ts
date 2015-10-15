@@ -1,4 +1,4 @@
-import { SocketService } from './SocketService';
+import * as SocketIO from 'socket.io-client';
 import * as _ from 'lodash';
 
 
@@ -10,15 +10,16 @@ interface ITestScope extends ng.IScope {
 
 export class TestController {
 	static $inject = ['$scope', 'SocketService'];
+	private socket: SocketIOClient.Socket;
 	
 	constructor(
-		private $scope: ITestScope, 
-		private socketService: SocketService
+		private $scope: ITestScope
 	) {
-		
+		this.socket = SocketIO.connect();
+		this.socket.on('test', (msg) => console.info(msg));
 	}
 	
-	sendTestData() : void {
+	public sendTestData() : void {
 		let text:string = this.$scope.testData;
 		this.$scope.testData = "";
 		let rows:string[] = text.split('\n');
@@ -29,8 +30,14 @@ export class TestController {
 				let event:string = row.substring(0, index);
 				let dataStr:string = row.substring(index + 1);
 				let item = JSON.parse(dataStr);
-				this.socketService.sendTestData(event, item);
+				this.send(event, item);
 			}
 		}
 	}
+	
+	private send(event:string, data:any) : void {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(event, data);
+		console.info(event, data);
+	} 
 }
