@@ -13,9 +13,11 @@ export class RoomService {
 		if(room === undefined) {
 			room = new Room(data.name, client.player);
 			this.rooms.push(room);
+			console.log(client.name + ' created a new room: ' + room.id);
 		}
 		else {
 			room.players.push(client.player);
+			console.log(client.name + ' joined a room: ' + room.id);
 		}
 		client.player.room = room;
 		client.socket.join(data.name);
@@ -26,9 +28,7 @@ export class RoomService {
 		if(room === undefined) {
 			// error
 		}
-		else {
-			room.players.splice(room.players.indexOf(client.player));
-		}
+		room.players.splice(room.players.indexOf(client.player));
 		if(room.players.length == 0) {
 			this.rooms.splice(this.rooms.indexOf(room));
 		}
@@ -37,6 +37,7 @@ export class RoomService {
 		}
 		client.socket.leave(room.id);
 		client.player.room = undefined;
+		console.log(client.name + ' left the room: ' + room.id);
 	}
 	
 	public startRoom(client:Client) {

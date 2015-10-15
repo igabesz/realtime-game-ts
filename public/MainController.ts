@@ -48,9 +48,19 @@ export class MainController {
 	};
 	
 	/** Test */
-	sendTestData(event:string, data:string) : void {
-		this.socketService.sendTestData(event, data);
-		(<any>this.$scope).testEvent = "";
+	sendTestData() : void {
+		let text:string = (<any>this.$scope).testData;
 		(<any>this.$scope).testData = "";
+		let rows:string[] = text.split('\n');
+		for(let i:number = 0; i < rows.length; i++) {
+			let row:string = rows[i];
+			let index:number = row.indexOf('\t')
+			if(index != -1){
+				let event:string = row.substring(0, index);
+				let dataStr:string = row.substring(index + 1);
+				let item = JSON.parse(dataStr);
+				this.socketService.sendTestData(event, item);
+			}
+		}
 	}
 }

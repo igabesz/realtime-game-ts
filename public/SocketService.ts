@@ -53,7 +53,7 @@ export class SocketService {
 	}
 	
 	/** Test helper */
-	sendTestData(event:string, data:string) : void {
+	sendTestData(event:string, data:any) : void {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
 		this.socket.emit(event, data);
 		console.info(event, data);

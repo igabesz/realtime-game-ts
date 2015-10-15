@@ -20,6 +20,7 @@ export class ConnectionController {
 		socket.emit('connected');
 		
 		socket.on('disconnect', () => this.closeConnection(client));
+		socket.on('personalinfo', (data:{name:string}) => this.personalInfo(client, data));
 		socket.on('joinroom', (data:{name:string}) => this.roomSrv.joinRoom(client, data));
 		socket.on('leaveroom', () => this.roomSrv.leaveRoom(client));
 		
@@ -32,8 +33,13 @@ export class ConnectionController {
 		if(client.player !== undefined) {
 			this.roomSrv.leaveRoom(client);
 		}
-		console.log('Disconnected ' + index);
-	}	
+		console.log('Disconnected ' + client.name);
+	}
+	
+	private personalInfo(client:Client, data:{name:string}) : void {
+		client.name = data.name;
+		console.log('Client renamed to "' + client.name + '"');
+	}
 	
 	public sendToAll(event:string, ...message:any[]) : void {
 		this.ioServer.emit(event, message);
@@ -45,6 +51,7 @@ export class ConnectionController {
 }
 
 export class Client {
+	public name:string;
 	public socket:SocketIO.Socket;
 	public player:Player;
 }

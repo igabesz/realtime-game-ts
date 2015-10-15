@@ -21,10 +21,9 @@ mainModule.directive('test', function() {
   return {
     restrict: 'E',
     template: `
-	<div ng-controller="MainController as ctrl">
-		<input type="text" ng-model="testEvent"/>
-		<input type="text" ng-model="testData"/>
-		<button ng-click="ctrl.sendTestData(testEvent, testData)">Send</button>
+	<div ng-controller="MainController as ctrl" style="margin-top: 200px;">
+		<textarea type="text" ng-model="testData" style="width:600px;height:150px;"></textarea>
+		<button ng-click="ctrl.sendTestData()">Send</button>
 	</div>
 	`
   }
