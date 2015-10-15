@@ -45,5 +45,5 @@ export class MainController {
 	right() {
 		console.log('right');
 		this.socketService.move('right');
-	};
+	}
 }
