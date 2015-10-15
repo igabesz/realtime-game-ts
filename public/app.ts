@@ -15,3 +15,17 @@ mainModule.run(['SocketService', (socketService: SocketService) => {
 mainModule.controller('MainController', MainController);
 
 
+/** Test Directive */
+
+mainModule.directive('test', function() {
+  return {
+    restrict: 'E',
+    template: `
+	<div ng-controller="MainController as ctrl">
+		<input type="text" ng-model="testEvent"/>
+		<input type="text" ng-model="testData"/>
+		<button ng-click="ctrl.sendTestData(testEvent, testData)">Send</button>
+	</div>
+	`
+  }
+});

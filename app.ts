@@ -2,10 +2,7 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-import { StateService } from './game/StateService';
-import { MoveController } from './game/MoveController';
-import { TurnService } from './game/TurnService';
-import { MainController } from './game/MainController';
+import { ConnectionController } from './game/ConnectionController';
 
 // Creating Express and SocketIO server
 var app = express();
@@ -22,7 +19,7 @@ app.use(express.static('node_modules'));
 app.use(express.static('public'));
 
 // Instantiating services and controllers
-let mainCtrl = new MainController(io);
+let connectionCtrl = new ConnectionController(io);
 
 // Starting server
 let port:number = 80;

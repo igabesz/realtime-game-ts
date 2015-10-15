@@ -9,7 +9,7 @@ export class ConnectionController {
 	
 	private roomSrv:RoomService = new RoomService();
 	
-	constructor(private ioServer: SocketIO.Server) {;
+	constructor(private ioServer: SocketIO.Server) {
 		this.ioServer.on('connection', (socket:SocketIO.Socket) => this.openConnection(socket));
 	}
 	

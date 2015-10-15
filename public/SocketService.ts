@@ -51,4 +51,11 @@ export class SocketService {
 		if (!this.socket) { return console.error('Cannot attach event handler -- not initialized'); }
 		this.socket.on(name, handler);
 	}
+	
+	/** Test helper */
+	sendTestData(event:string, data:string) : void {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(event, data);
+		console.info(event, data);
+	} 
 }

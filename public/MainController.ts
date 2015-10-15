@@ -46,4 +46,11 @@ export class MainController {
 		console.log('right');
 		this.socketService.move('right');
 	};
+	
+	/** Test */
+	sendTestData(event:string, data:string) : void {
+		this.socketService.sendTestData(event, data);
+		(<any>this.$scope).testEvent = "";
+		(<any>this.$scope).testData = "";
+	}
 }
