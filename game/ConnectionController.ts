@@ -2,13 +2,17 @@ import * as socketIO from 'socket.io';
 import { Room } from './Room';
 import { Player } from './Player';
 import { RoomService } from './RoomService';
-//import { MovementController } from './MovementController';
+import { SimulationService } from './SimulationService';
+import { MovementController } from './MovementController';
 
 export class ConnectionController {
 	private clients:Array<Client> = [];
 	private clientid:number = 0;
 	
-	private roomSrv:RoomService = new RoomService();
+	private roomService:RoomService = new RoomService(this);
+	private simulationService:SimulationService = new SimulationService(this.roomService, this);
+	
+	private movementController:MovementController = new MovementController();
 	
 	constructor(private ioServer: SocketIO.Server) {
 		this.ioServer.on('connection', (socket:SocketIO.Socket) => this.openConnection(socket));
@@ -24,9 +28,10 @@ export class ConnectionController {
 		
 		socket.on('disconnect', () => this.closeConnection(client));
 		socket.on('personalinfo', (data:{name:string}) => this.personalInfo(client, data));
-		this.roomSrv.addHandlers(client);
+		this.roomService.addHandlers(client);
+		this.movementController.addHandlers(client);
 		
-		client.socket.emit('test', 'Login success');
+		this.sendToClient(client, 'login', 'Login success');
 		console.log('Connected ' + client.name);
 	}
 	
@@ -34,7 +39,7 @@ export class ConnectionController {
 		let index:number = this.clients.indexOf(client);
 		this.clients.splice(index, 1);
 		if(client.player !== undefined) {
-			this.roomSrv.leaveRoom(client);
+			this.roomService.leaveRoom(client);
 		}
 		console.log('Disconnected ' + client.name);
 	}
@@ -46,10 +51,20 @@ export class ConnectionController {
 	
 	public sendToAll(event:string, ...message:any[]) : void {
 		this.ioServer.emit(event, message);
+		/** Test only */
+		this.ioServer.emit('test', message);
 	}
 	
 	public sendToRoom(room:Room, event:string, ...message:any[]) : void {
 		this.ioServer.to(room.id).emit(event, message);
+		/** Test only */
+		this.ioServer.to(room.id).emit('test', message);
+	}
+	
+	public sendToClient(client:Client, event:string, ...message:any[]) : void {
+		client.socket.emit(event, message);
+		/** Test only */
+		client.socket.emit('test', message);
 	}
 }
 

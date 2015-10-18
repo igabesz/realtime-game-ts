@@ -1,30 +1,39 @@
 import { Room } from './Room';
 import { Player } from './Player';
-import { Client } from './ConnectionController';
+import { Client, ConnectionController } from './ConnectionController';
 
 export class RoomService {
 	private rooms:Array<Room> = [];
 	
-	constructor() { }
+	constructor(private connectionCtrl:ConnectionController) { }
 	
 	public addHandlers(client:Client) {
 		client.socket.on('joinroom', (data:{name:string}) => this.joinRoom(client, data));
+		client.socket.on('startroom', () => this.startRoom(client));
 		client.socket.on('leaveroom', () => this.leaveRoom(client));
 	}
 	
 	public joinRoom(client:Client, data:{name:string}) : void {
-		if(client.player !== undefined || client.player.room === undefined) {
+		if(client.player !== undefined && client.player.room !== undefined) {
+			this.connectionCtrl.sendToClient(client, 'joinroom', 'You are already in a room');
 			console.log(client.name + ' is already in a room');
 			return;
 		}
 		let room:Room = this.findRoomByName(data.name);
-		client.player = new Player();
 		if(room === undefined) {
+		client.player = new Player();
 			room = new Room(data.name, client.player);
 			this.rooms.push(room);
 			console.log(client.name + ' created a new room: ' + room.id);
+				this.connectionCtrl.sendToClient(client, 'joinroom', 'You have created a new room:' + room.id);
 		}
 		else {
+			if(room.started) {
+				console.log(room.id + ' is already started');
+				this.connectionCtrl.sendToClient(client, 'joinroom', 'The room is already started');
+				return;
+			}
+			client.player = new Player();
 			room.players.push(client.player);
 			console.log(client.name + ' joined a room: ' + room.id);
 		}
@@ -55,6 +64,7 @@ export class RoomService {
 		if(room.started === false && room.host === client.player) {
 			room.started = true;
 		}
+		console.log(room.id + ' has been started')
 	}
 	
 	private findRoomByName(name:string) : Room {
