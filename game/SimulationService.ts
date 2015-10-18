@@ -37,11 +37,26 @@ export class SimulationService {
 		for(let i:number = 0 ; i < players.length; i++) {
 			let player:Player = players[i];
 			
-			// TO-DO speed calc
+			if(player.button.up) {
+				player.speed.x += player.ship.acc * Math.cos(player.position.angle);
+				player.speed.y += player.ship.acc * Math.sin(player.position.angle);
+			}
+			if(player.button.down) {
+				player.speed.x -= player.ship.acc * Math.cos(player.position.angle);
+				player.speed.y -= player.ship.acc * Math.sin(player.position.angle);
+			}
+			if(player.button.left) {
+				player.speed.turn += player.ship.turnacc;
+			}
+			if(player.button.right) {
+				player.speed.turn += player.ship.turnacc;
+			}
 			
 			player.position.x += player.speed.x * deltaTime;
 			player.position.y += player.speed.y * deltaTime;
-			player.position.angle += player.speed.angle * deltaTime;
+			player.position.angle += player.speed.turn * deltaTime;
+			
+			// TO-DO normalize angle and turn between 0 and 2*PI
 		}
 	}
 	
