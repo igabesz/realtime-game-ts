@@ -46,16 +46,27 @@ export class SimulationService {
 			}
 			if(player.button.left) {
 				player.speed.turn += player.ship.turnacc;
+				while(player.speed.turn >= 2 * Math.PI) {
+					player.speed.turn -= 2 * Math.PI;
+				}
 			}
 			if(player.button.right) {
-				player.speed.turn += player.ship.turnacc;
+				player.speed.turn -= player.ship.turnacc;
+				while(player.speed.turn <= 2 * Math.PI) {
+					player.speed.turn += 2 * Math.PI;
+				}
 			}
 			
 			player.position.x += player.speed.x * deltaTime;
 			player.position.y += player.speed.y * deltaTime;
 			player.position.angle += player.speed.turn * deltaTime;
 			
-			// TO-DO normalize angle and turn between 0 and 2*PI
+			while(player.position.angle >= 2 * Math.PI) {
+				player.position.angle -= 2 * Math.PI;
+			}
+			while(player.position.angle <= 2 * Math.PI) {
+				player.position.angle += 2 * Math.PI;
+			}
 		}
 	}
 	

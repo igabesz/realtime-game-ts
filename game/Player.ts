@@ -1,5 +1,5 @@
 import { Room } from './Room';
-import { IShip } from './IShip';
+import { IShip, GeneralShip } from './Ship';
 
 export class Player {
 	private static idcounter = 0;
@@ -8,15 +8,13 @@ export class Player {
 	public position:Position = new Position();
 	public speed:Speed = new Speed();
 	public button:Buttons = new Buttons();
-	public ship:IShip;
+	public ship:IShip = new GeneralShip();
 }
 
 export class Position {
 	public x: number = 0;
 	public y: number = 0;
 	public angle: number = 0;
-	
-	constructor() { }
 }
 
 export class Speed {
