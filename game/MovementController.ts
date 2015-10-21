@@ -7,12 +7,14 @@ class MoveRequest {
 }
 
 export class MovementController {
+	
 	public addHandlers(client:Client) {
 		client.socket.on('move', (request:MoveRequest) => this.move(client, request));
 	}
 	
 	private move(client:Client, request:MoveRequest) : void {
 		let pressed:boolean;
+		// decide if it a keypress or keyrelease
 		if(request.action === 'pressed') {
 			pressed = true;
 		}

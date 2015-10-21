@@ -1,6 +1,7 @@
 import { Room } from './Room';
 import { IShip, GeneralShip } from './Ship';
 
+/** Player model */
 export class Player {
 	private static idcounter = 0;
 	public id:number = Player.idcounter++;

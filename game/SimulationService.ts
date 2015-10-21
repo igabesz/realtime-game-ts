@@ -13,14 +13,17 @@ export class SimulationService {
 	private time:Date = new Date();
 	
 	constructor(private roomService:RoomService, private connectionController:ConnectionController) {
+		// start timer
 		this.timer = setInterval(() => this.step(), 20);
 	 } 
 	
 	private step() : void {
+		// calculate time since last update
 		let now:Date = new Date();
 		let deltaTime:number = (now.getTime() - this.time.getTime());
 		this.time = now;
 		
+		// update every started room then send the new positions
 		let rooms:Array<Room> = this.roomService.getRooms();
 		for(let i:number = 0 ; i < rooms.length; i++) {
 			let room:Room = rooms[i];
@@ -33,9 +36,11 @@ export class SimulationService {
 	
 	private simulateRoom(room:Room, deltaTime:number) {
 		let players:Player[] = room.players;
+		// for each player
 		for(let i:number = 0 ; i < players.length; i++) {
 			let player:Player = players[i];
 			
+			// calculate speed
 			if(player.button.up) {
 				player.speed.x += player.ship.acc * Math.cos(player.position.angle);
 				player.speed.y += player.ship.acc * Math.sin(player.position.angle);
@@ -44,6 +49,8 @@ export class SimulationService {
 				player.speed.x -= player.ship.acc * Math.cos(player.position.angle);
 				player.speed.y -= player.ship.acc * Math.sin(player.position.angle);
 			}
+			
+			// calcluate turn speed
 			if(player.button.left) {
 				player.speed.turn += player.ship.turnacc;
 				while(player.speed.turn >= 2 * Math.PI) {
@@ -57,10 +64,12 @@ export class SimulationService {
 				}
 			}
 			
+			// calculate position
 			player.position.x += player.speed.x * deltaTime;
 			player.position.y += player.speed.y * deltaTime;
-			player.position.angle += player.speed.turn * deltaTime;
 			
+			// calculate angle
+			player.position.angle += player.speed.turn * deltaTime;
 			while(player.position.angle >= 2 * Math.PI) {
 				player.position.angle -= 2 * Math.PI;
 			}

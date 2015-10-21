@@ -1,9 +1,12 @@
+/** Ship interface */
 export interface IShip {
 	width:number;
 	height:number;
 	acc:number;
 	turnacc:number;
 }
+
+/** Ship types */
 
 export class GeneralShip {
 	public width:number = 10;
