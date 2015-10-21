@@ -18,7 +18,6 @@ export class RoomService {
 		// if the player is in a room
 		if(client.player !== undefined && client.player.room !== undefined) {
 			this.connectionCtrl.sendToClient(client, 'joinroom', 'You are already in a room');
-			console.log(client.name + ' is already in a room');
 			return;
 		}
 		
@@ -42,7 +41,6 @@ export class RoomService {
 			}
 			client.player = new Player();
 			room.players.push(client.player);
-			console.log(client.name + ' joined a room: ' + room.id);
 		}
 		// add player to the room
 		client.player.room = room;
@@ -53,7 +51,6 @@ export class RoomService {
 		// validation
 		// if the player is in a room
 		if(client.player === undefined || client.player.room === undefined) {
-			console.log(client.name + 'is already in a room');
 			return;
 		}
 		
@@ -72,7 +69,6 @@ export class RoomService {
 		// leave room
 		client.socket.leave(room.id);
 		client.player = undefined;
-		console.log(client.name + ' left the room: ' + room.id);
 	}
 	
 	public startRoom(client:Client) {
@@ -80,7 +76,6 @@ export class RoomService {
 		if(room.started === false && room.host === client.player) {
 			room.started = true;
 		}
-		console.log(room.id + ' has been started')
 	}
 	
 	private findRoomByName(name:string) : Room {

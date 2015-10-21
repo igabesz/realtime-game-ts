@@ -39,7 +39,6 @@ export class ConnectionController {
 		
 		// welcome user
 		this.sendToClient(client, 'login', 'Login success');
-		console.log('Connected ' + client.name);
 	}
 	
 	private closeConnection(client:Client) : void {
@@ -58,18 +57,21 @@ export class ConnectionController {
 	
 	public sendToAll(event:string, ...message:any[]) : void {
 		this.ioServer.emit(event, message);
+		console.log('All: ' + event);
 		/** Test only */
 		this.ioServer.emit('test', { title:'All ' + event, body: message});
 	}
 	
 	public sendToRoom(room:Room, event:string, ...message:any[]) : void {
 		this.ioServer.to(room.id).emit(event, message);
+		console.log('Room ' + room.id + ': ' + event);
 		/** Test only */
 		this.ioServer.to(room.id).emit('test', { title:'Room ' + event, body: message});
 	}
 	
 	public sendToClient(client:Client, event:string, ...message:any[]) : void {
 		client.socket.emit(event, message);
+		console.log('Client ' + client.name + ': ' + event);
 		/** Test only */
 		client.socket.emit('test', { title:'Client ' + event, body: message});
 	}
