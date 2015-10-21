@@ -2,10 +2,7 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-import { StateService } from './game/StateService';
-import { MoveController } from './game/MoveController';
-import { TurnService } from './game/TurnService';
-
+import { ConnectionController } from './game/ConnectionController';
 
 // Creating Express and SocketIO server
 var app = express();
@@ -22,19 +19,12 @@ app.use(express.static('node_modules'));
 app.use(express.static('public'));
 
 // Instantiating services and controllers
-// Later you need to do this per parallel games
-let stateSvc = new StateService();
-let moveCtrl = new MoveController(stateSvc);
-let turnSvc = new TurnService(stateSvc, (msg, data) => io.emit(msg, data));
-
-io.on('connection', function (socket) {
-  // TODO: Make a cleaner solution for this. E.g. create a ConnectionController
-  socket.emit('state', stateSvc.state);
-  // ConnectionController
-  socket.on('move', (data) => moveCtrl.move(data));
-});
+let connectionCtrl = new ConnectionController(io);
 
 // Starting server
-server.listen(80);
+let port:number = 80;
+server.listen(port);
 // Starting TurnService
-turnSvc.start(33);
+//turnSvc.start(33);
+
+console.log("Server started on http://localhost:" + port + "/");
