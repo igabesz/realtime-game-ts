@@ -1,6 +1,5 @@
 import { Room } from './Room';
-import { Player } from './Player';
-import { Position } from './Position';
+import { Player, Position } from './Player';
 import { RoomService } from './RoomService';
 import { ConnectionController } from './ConnectionController';
 
@@ -65,7 +64,7 @@ export class SimulationService {
 		for(let i:number = 0; i < room.players.length; i++) {
 			let player:Player = room.players[i];
 			response.push({
-				name: 'asd',
+				name: 'asd', // TO-DO add client name
 				position: player.position
 			});
 		}
