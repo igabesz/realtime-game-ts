@@ -14,9 +14,14 @@ mainModule.run(['SocketService', (socketService: SocketService) => {
 // Registering controllers
 mainModule.controller('MainController', MainController);
 
-
-
 /** Test Directive */
+/** You can enter commands to send the server over Socket.IO
+ * Enter data into the text are then press Send.
+ * data should be formatted as: eventname:javascriptObject
+ * example: joinroom:{"name":"myroom"}
+ * Every valid line will be sent. User is warned for every object that is not parsable. (console.warn) 
+ * Server response will be logged (console.log)
+ */
 import { TestController } from './TestController'; 
 
 mainModule.controller('TestController', TestController);
