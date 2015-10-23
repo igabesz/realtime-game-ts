@@ -18,6 +18,10 @@ body {
     background: transparent;
 }
 
+body.loading, body.loading * {
+    cursor:progress !important;
+}
+
 body, input, button {
     font-family: 'Source Sans Pro', sans-serif;
 }
@@ -27,7 +31,6 @@ body, input, button {
     width: 400px;
     min-height: 400px;
     margin: 2% auto 0 auto;
-    margin-top: 15%;
 }
 .login .heading {
     text-align: center;
@@ -108,3 +111,69 @@ body, input, button {
     -webkit-transform: translateY(-3px);
     transform: translateY(-3px);
 }
+
+
+
+/********************************************************************/
+
+a {
+    text-decoration: none;
+    color: #1ab188;
+    -webkit-transition: .5s ease;
+    transition: .5s ease;
+}
+
+a:hover {
+    color: #179b77;
+}
+
+.tab-group {
+    list-style: none;
+    padding: 0;
+    max-width: 500px;
+    margin: 0 0 40px 0;
+    margin-left: 10em;
+}
+.tab-group:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.tab-group li a {
+    display: block;
+    text-decoration: none;
+    padding: 15px;
+    background: rgba(160, 179, 176, 0.25);
+    color: #a0b3b0;
+    font-size: 20px;
+    float: left;
+    width: 50%;
+    text-align: center;
+    cursor: pointer;
+    -webkit-transition: .5s ease;
+    transition: .5s ease;
+}
+.tab-group li a:hover {
+    background: #179b77;
+    color: #ffffff;
+}
+.tab-group .active a {
+    background: #1ab188;
+    color: #ffffff;
+}
+
+.tab-content > div:last-child {
+    display: none;
+}
+
+.tab {
+    padding: 40px auto;
+    max-width: 800px;
+    margin: 40px auto;
+    margin-top: 15%;
+}
+.forgot {
+    margin-top: -20px;
+    text-align: right;
+}
+
