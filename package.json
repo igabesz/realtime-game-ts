@@ -6,13 +6,15 @@
   "dependencies": {
     "angular": "^1.4.7",
     "bootstrap": "^3.3.5",
+    "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "lodash": "^3.10.1",
+    "mongodb": "^2.0.43",
+    "password-hash": "^0.12.7",
+    "path": "^0.12.7",
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7",
-    "systemjs": "^0.19.3",
-    "mongodb": "^2.0.43"
-    "path": "^0.12.7"
+    "systemjs": "^0.19.3"
   },
   "devDependencies": {},
   "scripts": {

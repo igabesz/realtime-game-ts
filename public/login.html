@@ -13,32 +13,216 @@
 
     <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
 
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+
     <link rel="stylesheet" href="login.css">
     <title>SpaceGame</title>
 </head>
 <body>
-<div ng-controller="LoginController as login" class="ng-cloak">
-    <div class="login">
-        <div class="heading">
-            <h2>Sign in</h2>
-            <form action="http://localhost:80/login" method="post">
 
-                <div class="input-group input-group-lg">
-                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                    <input type="text" class="form-control" placeholder="Username or email">
-                </div>
 
-                <div class="input-group input-group-lg">
-                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                    <input type="password" class="form-control" placeholder="Password">
-                </div>
+<div class="tab">
 
-                <button type="submit" class="float">Login</button>
-            </form>
+    <ul class="tab-group">
+        <li class="tab active"><a href="#login"  notifymessage="Login with your username and password" notifytype="">Login</a></li>
+        <li class="tab"><a href="#signup" notifymessage="Hint: passwords must be at least 6 characters long" notifytype="info">Sign Up</a></li>
+    </ul>
+
+    <div>
+        <div class="" id="notifyable" style="display:block; width: 50%; margin: 0 auto; opacity: 1; ">
+        </div>
+    </div>
+
+    <div class="tab-content">
+        <div id="login" class="login">
+            <div class="heading">
+                <form id="loginform">
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" class="form-control" name="username" autocomplete="off" placeholder="Username" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" name="password" autocomplete="off" placeholder="Password" required>
+                    </div>
+
+                    <button type="submit" class="float">Log in</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="signup" class="login">
+            <div class="heading">
+                <form id="signupform">
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                        <input type="text" name="email" class="form-control" placeholder="Email" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="p1" name="password" class="form-control" placeholder="Password" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="p2" name="passwordconfirm" class="form-control" placeholder="Password Confirm" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <button type="submit" class="float">Sign up</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 
+
 </body>
+
+<script>
+    window.onload = function () {
+        document.getElementById("p1").onchange = validatePassword;
+        document.getElementById("p2").onchange = validatePassword;
+    }
+    function validatePassword(){
+        var pass2=document.getElementById("p2").value;
+        var pass1=document.getElementById("p1").value;
+        if(pass1!=pass2)
+            document.getElementById("p2").setCustomValidity("Passwords Don't Match");
+        else
+            document.getElementById("p2").setCustomValidity('');
+    }
+
+    function checkSubmitForm(form){
+        if(form.password.value != "" && form.password.value === form.passwordconfirm.value){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+
+        checkSession();
+
+        $('.tab a').on('click', function (e) {
+
+            e.preventDefault();
+
+            $(this).parent().addClass('active');
+            $(this).parent().siblings().removeClass('active');
+
+            target = $(this).attr('href');
+
+            $('.tab-content > div').not(target).hide();
+
+            $(target).fadeIn(600);
+
+            notify($(this).attr("notifymessage"), $(this).attr("notifytype"));
+
+        });
+
+        $("#loginform").submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/',
+                type: 'POST',
+                dataType: 'json',
+                data: $('form#loginform').serialize(),
+                success: handleLoginSuccess
+            });
+            return false;
+        });
+
+        $("#signupform").submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/signedup',
+                type: 'POST',
+                dataType: 'json',
+                data: $('form#signupform').serialize(),
+                success: handleSigninSuccess
+            });
+            return false;
+        });
+
+        function handleLoginSuccess(data) {
+            if(data.status === "success"){
+                notify(data.message, "success");
+                localStorage["token"] = data.authtoken;
+                localStorage["user"] = data.user;
+            } else {
+                notify(data.message, "error");
+            }
+        }
+
+        function handleSigninSuccess(data) {
+            if(data.status === "success"){
+                notify("Successfully signed up the user: " + data.user, "success");
+            } else {
+                notify("User already exists with username: " + data.user, "error");
+            }
+        }
+
+        function notify(notifyString, type){
+
+            $("#notifyable").removeClass();
+            var outputNotify = "";
+            switch (type) {
+                case "error":
+                    outputNotify += '<span class="glyphicon glyphicon-remove-sign" style="color:red"></span> ';
+                    $("#notifyable").addClass("alert alert-danger");
+                    break;
+                case "success":
+                    outputNotify += '<span class="glyphicon glyphicon-ok-sign" style="color:green"></span> ';
+                    $("#notifyable").addClass("alert alert-success");
+                    break;
+                case "info":
+                    $("#notifyable").addClass("alert alert-info");
+                    break;
+                default:
+                    $("#notifyable").addClass("alert alert-info");
+            }
+            outputNotify += notifyString;
+            $("#notifyable").html(outputNotify);
+
+            animateNotify();
+        }
+
+        function animateNotify(){
+            $("#notifyable").animate({opacity:1});
+            setTimeout(function(){
+                $("#notifyable").animate({opacity:0});
+            }, 4500);
+        }
+
+        function checkSession(){
+            var user = localStorage["user"];
+            var token = localStorage["token"];
+
+            if(user != undefined && token != undefined) {
+                $.ajax({
+                    url: '/session/' + user + '/' + token,
+                    type: 'GET',
+                    dataType: 'html',
+                    success: handleSessionSuccess
+                });
+            }
+        }
+
+        function handleSessionSuccess(data){
+            document.write(data);
+        }
+    });
+</script>
 </html>
