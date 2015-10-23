@@ -2,42 +2,38 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-<<<<<<< HEAD
 import * as mongoDb from 'mongodb';
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
-=======
->>>>>>> parent of d2b0533... basic inital server with rest
+
 
 var app = express();
 var server = (<any>http).Server(app);
 var io = socketIO(server);
+var router = express.Router();
 
-<<<<<<< HEAD
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var Db = mongoDb.Db;
 var MongoServer = require('mongodb').Server;
-var db = new Db('spacegame', new MongoServer('localhost', 27017));
+var db = new Db('routerme', new MongoServer('localhost', 27017));
 
 var port = 80;
 server.listen(port);
 console.log("Server is running on port: " + port);
-=======
 server.listen(80);
->>>>>>> parent of d2b0533... basic inital server with rest
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/public/login.html'));
 });
 
 app.use(express.static('node_modules'));
-<<<<<<< HEAD
 app.use(express.static(__dirname + '/public'));
 app.use('/', router);
+app.use(express.static('public'));
 
 var users;
 db.open(function(err, db) {
@@ -49,27 +45,25 @@ db.open(function(err, db) {
     }
 
 });
-=======
-app.use(express.static('public'));
->>>>>>> parent of d2b0533... basic inital server with rest
+
+
 
 let state = {
   player: {
     x: 0,
-    y: 0,
+    y: 0
   }
 };
 
-<<<<<<< HEAD
 class User {
 
-    constructor(
-        private username: string,
-        private password: string,
-        private email: string,
-        private token: string
-    ) {}
-=======
+    constructor(private username:string,
+                private password:string,
+                private email:string,
+                private token:string) {
+    }
+}
+
 class MoveController {
   move(data: {direction: string }) {
     switch (data.direction) {
@@ -81,7 +75,6 @@ class MoveController {
       break;
     }
   }
->>>>>>> parent of d2b0533... basic inital server with rest
 }
 
 io.on('connection', function (socket) {
@@ -93,7 +86,6 @@ io.on('connection', function (socket) {
 setInterval(() => {
   io.emit('state', state);
 }, 100);
-<<<<<<< HEAD
 
 
 router.get('/login', function(req, res, next) {
@@ -210,6 +202,5 @@ var generate_key = function() {
     var sha = crypto.createHash('sha256');
     sha.update(Math.random().toString());
     return sha.digest('hex');
-};
-=======
->>>>>>> parent of d2b0533... basic inital server with rest
+}
+

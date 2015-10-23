@@ -161,6 +161,7 @@
                 notify(data.message, "success");
                 localStorage["token"] = data.authtoken;
                 localStorage["user"] = data.user;
+                checkSession();
             } else {
                 notify(data.message, "error");
             }
