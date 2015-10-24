@@ -165,6 +165,34 @@ router.get('/session/:user/:token', function(req, res, next) {
     });
 });
 
+router.get('/auth/:user/:token', function(req, res, next) {
+    console.log('Token validation request for user: ' + req.params.user);
+
+    var criteria = {};
+    criteria.username = req.params.user;
+
+    users.find(criteria).toArray(function(err, docs){
+
+        if(docs != null && docs.length != 0){
+
+            var user = getSingleResult(docs);
+            if(user.token === req.params.token){
+
+                res.json({status: "success"});
+                console.log("Database: Token successfully validated");
+            }
+            else{
+                res.json({status: "error"});
+                console.log("Database: Token validation error: tokens don't match");
+            }
+        }else{
+            res.json({status: "error"});
+            console.log("Database: Token validation error: " + criteria.username + " can not be found in database!");
+        }
+    });
+});
+
+
 function saveUser(User, Response){
     if(!users) {
         console.log('MongoDb connection error!');
