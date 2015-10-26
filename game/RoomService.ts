@@ -1,42 +1,49 @@
 import { Room } from './Room';
 import { Player } from './Player';
 import { Client, ConnectionController } from './ConnectionController';
+import { JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, JoinRoomRequest } from '../common/Message';
 
 export class RoomService {
 	private rooms:Array<Room> = [];
 	
 	constructor(private connectionCtrl:ConnectionController) { }
 	
-	public addHandlers(client:Client) {
-		client.socket.on('joinroom', (data:{name:string}) => this.joinRoom(client, data));
-		client.socket.on('startroom', () => this.startRoom(client));
-		client.socket.on('leaveroom', () => this.leaveRoom(client));
+	public addListeners(client:Client) {
+		client.socket.on(JOIN_ROOM_EVENT, (request:JoinRoomRequest) => this.joinRoom(client, request));
+		client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
+		client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
 	}
 	
-	public joinRoom(client:Client, data:{name:string}) : void {
+	public removeListeners(client:Client) {
+		client.socket.removeAllListeners(JOIN_ROOM_EVENT);
+		client.socket.removeAllListeners(START_ROOM_EVENT);
+		client.socket.removeAllListeners(LEAVE_ROOM_EVENT);
+	}
+	
+	private joinRoom(client:Client, request:JoinRoomRequest) : void {
 		// validation
 		// if the player is in a room
-		if(client.player !== undefined && client.player.room !== undefined) {
-			this.connectionCtrl.sendToClient(client, 'joinroom', 'You are already in a room');
+		if(client.isInRoom()) {
+			this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'You are already in a room');
 			return;
 		}
 		
 		// join
-		let room:Room = this.findRoomByName(data.name);
+		let room:Room = this.findRoomByName(request.roomName);
 		
 		// check if the room exists
 		if(room === undefined) {
 			client.player = new Player();
-			room = new Room(data.name, client.player);
+			room = new Room(request.roomName, client.player);
 			this.rooms.push(room);
 			console.log(client.name + ' created a new room: ' + room.id);
-				this.connectionCtrl.sendToClient(client, 'joinroom', 'You have created a new room:' + room.id);
+				this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'You have created a new room:' + room.id);
 		}
 		else {
 			// check if the room is already started
 			if(room.started) {
 				console.log(room.id + ' is already started');
-				this.connectionCtrl.sendToClient(client, 'joinroom', 'The room is already started');
+				this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'The room is already started');
 				return;
 			}
 			client.player = new Player();
@@ -44,13 +51,13 @@ export class RoomService {
 		}
 		// add player to the room
 		client.player.room = room;
-		client.socket.join(data.name);
+		client.socket.join(request.roomName);
 	}
 	
 	public leaveRoom(client:Client) : void {
 		// validation
 		// if the player is in a room
-		if(client.player === undefined || client.player.room === undefined) {
+		if(!client.isInRoom()) {
 			return;
 		}
 		
@@ -71,7 +78,10 @@ export class RoomService {
 		client.player = undefined;
 	}
 	
-	public startRoom(client:Client) {
+	private startRoom(client:Client) {
+		if(!client.isInRoom()) {
+			return;
+		}
 		let room:Room = client.player.room;
 		if(room.started === false && room.host === client.player) {
 			room.started = true;

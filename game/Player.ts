@@ -1,5 +1,6 @@
 import { Room } from './Room';
 import { IShip, GeneralShip } from './Ship';
+import { Position, KeyAction } from '../common/Message';
 
 /** Player model */
 export class Player {
@@ -12,12 +13,6 @@ export class Player {
 	public ship:IShip = new GeneralShip();
 }
 
-export class Position {
-	public x: number = 0;
-	public y: number = 0;
-	public angle: number = 0;
-}
-
 export class Speed {
 	public x: number = 0;
 	public y: number = 0;
@@ -25,8 +20,8 @@ export class Speed {
 }
 
 export class Buttons {
-	public left: boolean = false;
-	public right: boolean = false;
-	public up: boolean = false;
-	public down: boolean = false;
+	public left: KeyAction = KeyAction.released;
+	public right: KeyAction = KeyAction.released;
+	public up: KeyAction = KeyAction.released;
+	public down: KeyAction = KeyAction.released;
 }
