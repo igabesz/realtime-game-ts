@@ -1,12 +1,8 @@
 import { Room } from './Room';
-import { Player, Position } from './Player';
+import { Player, } from './Player';
 import { RoomService } from './RoomService';
 import { ConnectionController } from './ConnectionController';
-
-class PositionResponse {
-	public name:string;
-	public position:Position;
-}
+import { Position, PlayerPosition, PositionResponse, POSITION_EVENT } from '../common/Message';
 
 export class SimulationService {
 	private timer:NodeJS.Timer;
@@ -80,14 +76,14 @@ export class SimulationService {
 	}
 	
 	private sendPosition(room:Room) {
-		let response:Array<PositionResponse> = []; 
+		let response:PositionResponse = new PositionResponse();
 		for(let i:number = 0; i < room.players.length; i++) {
 			let player:Player = room.players[i];
-			response.push({
-				name: 'asd', // TO-DO add client name
-				position: player.position
-			});
+			let playerPosition:PlayerPosition = new PlayerPosition();
+			playerPosition.name = 'asd'; // TO-DO add client name
+			playerPosition.position = player.position; 
+			response.data.push(playerPosition);
 		}
-		this.connectionController.sendToRoom(room, 'position', response);
+		this.connectionController.sendToRoom(room, POSITION_EVENT, response);
 	}
 }

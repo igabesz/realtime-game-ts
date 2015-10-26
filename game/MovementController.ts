@@ -1,31 +1,32 @@
 import { Player } from './Player';
 import { Client, ConnectionController } from './ConnectionController';
+import { MovementRequest, Direction, MOVEMENT_EVENT } from '../common/Message';
 
-class MoveRequest {
-	public direction:string;
-	public action:string;
-}
 
 export class MovementController {
 	
-	public addHandlers(client:Client) {
-		client.socket.on('move', (request:MoveRequest) => this.move(client, request));
+	public addListeners(client:Client) {
+		client.socket.on(MOVEMENT_EVENT, (request:MovementRequest) => this.move(client, request));
 	}
 	
-	private move(client:Client, request:MoveRequest) : void {
-		let pressed:boolean;
-		// decide if it a keypress or keyrelease
-		if(request.action === 'pressed') {
-			pressed = true;
+	public removeListeners(client:Client) {
+		client.socket.removeAllListeners(MOVEMENT_EVENT);
+	}
+	
+	private move(client:Client, request:MovementRequest) : void {		
+		switch(request.direction) {
+			case Direction.left:
+				client.player.button.left = request.action;
+				break;
+			case Direction.right:
+				client.player.button.right = request.action;
+				break;
+			case Direction.up:
+				client.player.button.up = request.action;
+				break;
+			case Direction.down:
+				client.player.button.down = request.action;
+				break;
 		}
-		else if(request.action === 'released') {
-			pressed = false;
-		}
-		else {
-			throw 'Failed to recognize action';
-		}
-		
-		// REVIEW not sure if it is a nice solution
-		client.player.button[request.direction] = pressed;
 	}
 }
