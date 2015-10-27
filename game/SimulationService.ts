@@ -80,7 +80,7 @@ export class SimulationService {
 		for(let i:number = 0; i < room.players.length; i++) {
 			let player:Player = room.players[i];
 			let playerPosition:PlayerPosition = new PlayerPosition();
-			playerPosition.name = 'asd'; // TO-DO add client name
+			playerPosition.name = player.name;
 			playerPosition.position = player.position; 
 			response.data.push(playerPosition);
 		}

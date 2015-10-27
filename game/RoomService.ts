@@ -1,7 +1,7 @@
 import { Room } from './Room';
 import { Player } from './Player';
 import { Client, ConnectionController } from './ConnectionController';
-import { JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, JoinRoomRequest } from '../common/Message';
+import { JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, JoinRoomRequest, Response } from '../common/Message';
 
 export class RoomService {
 	private rooms:Array<Room> = [];
@@ -21,71 +21,81 @@ export class RoomService {
 	}
 	
 	private joinRoom(client:Client, request:JoinRoomRequest) : void {
+		let response:Response = new Response();
 		// validation
 		// if the player is in a room
 		if(client.isInRoom()) {
-			this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'You are already in a room');
-			return;
-		}
-		
-		// join
-		let room:Room = this.findRoomByName(request.roomName);
-		
-		// check if the room exists
-		if(room === undefined) {
-			client.player = new Player();
-			room = new Room(request.roomName, client.player);
-			this.rooms.push(room);
-			console.log(client.name + ' created a new room: ' + room.id);
-				this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'You have created a new room:' + room.id);
+			response.errors.push('You are already in a room');
 		}
 		else {
+			// join
+			let room:Room = this.findRoomByName(request.roomName);
+			
+			// check if the room exists
+			if(room === undefined) {
+				room = new Room(request.roomName, client.player);
+				this.rooms.push(room);
+			}
 			// check if the room is already started
 			if(room.started) {
-				console.log(room.id + ' is already started');
-				this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, 'The room is already started');
-				return;
+				response.errors.push('The room is already started');
+		
 			}
-			client.player = new Player();
-			room.players.push(client.player);
+			// add player to the room
+			else {
+				room.players.push(client.player);
+				client.player.room = room;
+				client.socket.join(request.roomName);
+			}
 		}
-		// add player to the room
-		client.player.room = room;
-		client.socket.join(request.roomName);
+		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
 	}
 	
 	public leaveRoom(client:Client) : void {
+		let response:Response = new Response();
 		// validation
 		// if the player is in a room
 		if(!client.isInRoom()) {
-			return;
+			response.errors.push('You are not in a room yet');
 		}
-		
-		// remove from room
-		let room:Room = client.player.room;
-		room.players.splice(room.players.indexOf(client.player));
-		
-		// destroy room if empty
-		if(room.players.length == 0) {
-			this.rooms.splice(this.rooms.indexOf(room));
+		else {
+			// remove from room
+			let room:Room = client.player.room;
+			room.players.splice(room.players.indexOf(client.player));
+			
+			// destroy room if empty
+			if(room.players.length == 0) {
+				this.rooms.splice(this.rooms.indexOf(room));
+			}
+			// promote new host if needed
+			else if(room.host === client.player) {
+				room.host = room.players[0];
+			}
+			// leave room
+			client.socket.leave(room.id);
+			client.player = undefined;
 		}
-		// promote new host if needed
-		else if(room.host === client.player) {
-			room.host = room.players[0];
-		}
-		// leave room
-		client.socket.leave(room.id);
-		client.player = undefined;
+		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
 	}
 	
 	private startRoom(client:Client) {
+		let response:Response = new Response();
 		if(!client.isInRoom()) {
-			return;
+			response.errors.push('You are not in a room yet');
 		}
-		let room:Room = client.player.room;
-		if(room.started === false && room.host === client.player) {
-			room.started = true;
+		else {
+			let room:Room = client.player.room;
+			if(room.started) {
+				response.errors.push('The room is already started');
+			}
+			else if(room.host === client.player) {
+				response.errors.push('You are not the host');
+			}
+			else {
+				room.started = true;
+			}
 		}
+		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
 	}
 	
 	private findRoomByName(name:string) : Room {

@@ -4,8 +4,7 @@ import { Position, KeyAction } from '../common/Message';
 
 /** Player model */
 export class Player {
-	private static idcounter = 0;
-	public id:number = Player.idcounter++;
+	public name:string;
 	public room:Room;
 	public position:Position = new Position();
 	public speed:Speed = new Speed();

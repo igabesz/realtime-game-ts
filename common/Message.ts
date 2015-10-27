@@ -1,13 +1,33 @@
 
+/** General */
+
+/** simple message */
+export class Message {
+	
+}
+
+/** request from client to server, response expected */
+export class Request extends Message {
+	
+}
+
+/** response from server to client, after a request */
+export class Response extends Message {
+	public errors:Array<string> = [];
+	public get success() : boolean {
+		return this.errors.length === 0;
+	}
+}
+
 /** ConnectionController */
 
 export const PERSONAL_INFO_EVENT:string = 'personalinfo';
 
-export class PersonalInfoRequest {
+export class PersonalInfoRequest extends Request {
 	public token:string;
 }
 
-export class PersonalInfoResponse {
+export class PersonalInfoResponse extends Response {
 	public name:string;
 }
 
@@ -15,7 +35,7 @@ export class PersonalInfoResponse {
 
 export const POSITION_EVENT:string = 'position';
 
-export class PositionResponse {
+export class PositionResponse extends Message {
 	public data:Array<PlayerPosition>;
 }
 
@@ -38,7 +58,7 @@ export const JOIN_ROOM_EVENT:string = 'joinroom';
 export const LEAVE_ROOM_EVENT:string = 'leaveroom';
 export const START_ROOM_EVENT:string = 'startroom';
 
-export class JoinRoomRequest {
+export class JoinRoomRequest extends Request {
 	public roomName:string;
 }
 
@@ -58,7 +78,7 @@ export enum KeyAction {
 	released
 }
 
-export class MovementRequest {
+export class MovementRequest extends Message {
 	public direction:Direction;
 	public action:KeyAction;
 }
