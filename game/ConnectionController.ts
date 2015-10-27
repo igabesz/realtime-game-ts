@@ -4,7 +4,7 @@ import { Player } from './Player';
 import { RoomService } from './RoomService';
 import { SimulationService } from './SimulationService';
 import { MovementController } from './MovementController';
-import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT } from '../common/Message';
+import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT, Message, Response } from '../common/Message';
 
 /** 
  * This is the main controller
@@ -41,16 +41,16 @@ export class ConnectionController {
 		if(client.isInRoom()) {
 			this.roomService.leaveRoom(client);
 		}
-		console.log('Disconnected ' + client.name);
 	}
 	
 	private personalInfo(client:Client, data:PersonalInfoRequest) : void {
 		// save data
-		client.name = data.token;
+		client.player = new Player();
+		client.player.name = data.token; // TO-DO add logic from login server
 		
 		// response
 		let response:PersonalInfoResponse = new PersonalInfoResponse(); 
-		response.name = client.name;
+		response.name = client.player.name;
 		this.sendToClient(client, PERSONAL_INFO_EVENT, response);
 		
 		// refresh listeners
@@ -58,30 +58,30 @@ export class ConnectionController {
 		this.roomService.addListeners(client);
 	}
 	
-	public sendToAll(event:string, ...message:any[]) : void {
+	public sendToAll(event:string, message:Message) : void {
 		this.ioServer.emit(event, message);
 		/** Test only */
 		console.log('All: ' + event);
 		this.ioServer.emit('test', { title:'All ' + event, body: message});
 	}
 	
-	public sendToRoom(room:Room, event:string, ...message:any[]) : void {
+	public sendToRoom(room:Room, event:string, message:Message) : void {
 		this.ioServer.to(room.id).emit(event, message);
 		/** Test only */
 		console.log('Room ' + room.id + ': ' + event);
 		this.ioServer.to(room.id).emit('test', { title:'Room ' + event, body: message});
 	}
 	
-	public sendToClient(client:Client, event:string, ...message:any[]) : void {
+	public sendToClient(client:Client, event:string, message:Message) : void {
 		client.socket.emit(event, message);
 		/** Test only */
-		console.log('Client ' + client.name + ': ' + event);
+		let name:string = client.player === undefined ? '' : client.player.name;
+		console.log('Client ' + name + ': ' + event);
 		client.socket.emit('test', { title:'Client ' + event, body: message});
 	}
 }
 
 export class Client {
-	public name:string;
 	public socket:SocketIO.Socket;
 	public player:Player;
 	
