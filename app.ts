@@ -24,7 +24,5 @@ let connectionCtrl = new ConnectionController(io);
 // Starting server
 let port:number = 80;
 server.listen(port);
-// Starting TurnService
-//turnSvc.start(33);
 
 console.log("Server started on http://localhost:" + port + "/");

@@ -28,6 +28,7 @@ export class ConnectionController {
 		let client:Client = new Client();
 		client.socket = socket;
 		this.clients.push(client);
+		console.log('Connected', this.clients.map(c => c.player ? c.player.name : 'unknown'));
 		
 		// add listeners
 		socket.on('disconnect', () => this.closeConnection(client));
