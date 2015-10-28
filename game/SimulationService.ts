@@ -16,13 +16,13 @@ export class SimulationService {
 	private step() : void {
 		// calculate time since last update
 		let now:Date = new Date();
-		let deltaTime:number = (now.getTime() - this.time.getTime());
+		let deltaTime = (now.getTime() - this.time.getTime());
 		this.time = now;
 		
 		// update every started room then send the new positions
 		let rooms:Array<Room> = this.roomService.getRooms();
-		for(let i:number = 0 ; i < rooms.length; i++) {
-			let room:Room = rooms[i];
+		for(let i = 0 ; i < rooms.length; i++) {
+			let room = rooms[i];
 			if(room.started) {
 				this.simulateRoom(room, deltaTime);
 				this.sendPosition(room);
@@ -31,10 +31,10 @@ export class SimulationService {
 	}
 	
 	private simulateRoom(room:Room, deltaTime:number) {
-		let players:Player[] = room.players;
+		let players = room.players;
 		// for each player
-		for(let i:number = 0 ; i < players.length; i++) {
-			let player:Player = players[i];
+		for(let i = 0 ; i < players.length; i++) {
+			let player = players[i];
 			
 			// calculate speed
 			if(player.button.up) {
@@ -77,9 +77,9 @@ export class SimulationService {
 	
 	private sendPosition(room:Room) {
 		let response:PositionResponse = new PositionResponse();
-		for(let i:number = 0; i < room.players.length; i++) {
-			let player:Player = room.players[i];
-			let playerPosition:PlayerPosition = new PlayerPosition();
+		for(let i = 0; i < room.players.length; i++) {
+			let player = room.players[i];
+			let playerPosition = new PlayerPosition();
 			playerPosition.name = player.name;
 			playerPosition.position = player.position; 
 			response.data.push(playerPosition);

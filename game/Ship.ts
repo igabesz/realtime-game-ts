@@ -8,7 +8,7 @@ export interface IShip {
 
 /** Ship types */
 
-export class GeneralShip {
+export class GeneralShip implements IShip {
 	public width:number = 10;
 	public height:number = 20;
 	public acc:number = 0.1;
