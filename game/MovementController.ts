@@ -11,8 +11,8 @@ export class MovementController {
 	}
 	
 	public removeListeners(client: Client): void {
-		client.socket.removeListener(MOVEMENT_EVENT);
-		client.socket.removeListener(FIRE_EVENT);
+		client.removeListener(MOVEMENT_EVENT);
+		client.removeListener(FIRE_EVENT);
 	}
 	
 	private move(client: Client, request: MovementRequest): void {		

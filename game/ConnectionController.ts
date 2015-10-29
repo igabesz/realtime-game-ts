@@ -57,7 +57,7 @@ export class ConnectionController {
 		this.sendToClient(client, PERSONAL_INFO_EVENT, response);
 		
 		// refresh listeners
-		client.socket.removeListener(PERSONAL_INFO_EVENT);
+		client.removeListener(PERSONAL_INFO_EVENT);
 		this.roomService.addListeners(client);
 	}
 	
@@ -94,4 +94,11 @@ export class Client {
 		}
 		return true;
 	}
+	
+	public removeListener(event: string): void {
+		let listeners: Array<Function> = this.socket.listeners(event);
+		while(listeners.length > 0) {
+			this.socket.removeListener(event, listeners.pop());
+		}
+	} 
 }

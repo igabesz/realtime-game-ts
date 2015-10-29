@@ -18,10 +18,10 @@ export class RoomService {
 	}
 	
 	public removeListeners(client:Client): void {
-		client.socket.removeListener(JOIN_ROOM_EVENT);
-		client.socket.removeListener(LEAVE_ROOM_EVENT);
-		client.socket.removeListener(READY_ROOM_EVENT);
-		client.socket.removeListener(START_ROOM_EVENT);
+		client.removeListener(JOIN_ROOM_EVENT);
+		client.removeListener(LEAVE_ROOM_EVENT);
+		client.removeListener(READY_ROOM_EVENT);
+		client.removeListener(START_ROOM_EVENT);
 	}
 	
 	private joinRoom(client: Client, request: JoinRoomRequest): void {
