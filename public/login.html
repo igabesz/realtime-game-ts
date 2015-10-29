@@ -102,14 +102,6 @@
             document.getElementById("p2").setCustomValidity('');
     }
 
-    function checkSubmitForm(form){
-        if(form.password.value != "" && form.password.value === form.passwordconfirm.value){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
 
     $(document).ready(function () {
 
@@ -144,6 +136,17 @@
             return false;
         });
 
+        function handleLoginSuccess(data) {
+            if(data.status === "success"){
+                notify(data.message, "success");
+                localStorage["token"] = data.authtoken;
+                localStorage["user"] = data.user;
+                checkSession();
+            } else {
+                notify(data.message, "error");
+            }
+        }
+
         $("#signupform").submit(function (event) {
             event.preventDefault();
             $.ajax({
@@ -156,17 +159,6 @@
             return false;
         });
 
-        function handleLoginSuccess(data) {
-            if(data.status === "success"){
-                notify(data.message, "success");
-                localStorage["token"] = data.authtoken;
-                localStorage["user"] = data.user;
-                checkSession();
-            } else {
-                notify(data.message, "error");
-            }
-        }
-
         function handleSigninSuccess(data) {
             if(data.status === "success"){
                 notify("Successfully signed up the user: " + data.user, "success");
@@ -174,6 +166,8 @@
                 notify("User already exists with username: " + data.user, "error");
             }
         }
+
+
 
         function notify(notifyString, type){
 
