@@ -1,7 +1,7 @@
 import { Player } from '../common/Player';
 import { ShipType, GeneralShip, Speed, Position } from '../common/GameObject';
 import { Response } from '../common/Message';
-import { Room, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest } from '../common/Room';
+import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse } from '../common/Room';
 
 import { Client, ConnectionController } from './ConnectionController';
 
@@ -11,6 +11,7 @@ export class RoomService {
 	constructor(private connectionCtrl: ConnectionController) { }
 	
 	public addListeners(client: Client): void {
+		client.socket.on(LIST_ROOM_EVENT, () => this.listRoom(client));
 		client.socket.on(JOIN_ROOM_EVENT, (request: JoinRoomRequest) => this.joinRoom(client, request));
 		//client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
 		//client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
@@ -18,10 +19,24 @@ export class RoomService {
 	}
 	
 	public removeListeners(client:Client): void {
+		client.removeListener(LIST_ROOM_EVENT);
 		client.removeListener(JOIN_ROOM_EVENT);
 		client.removeListener(LEAVE_ROOM_EVENT);
 		client.removeListener(READY_ROOM_EVENT);
 		client.removeListener(START_ROOM_EVENT);
+	}
+	
+	
+	private listRoom(client: Client): void {
+		let response: ListRoomResponse = new ListRoomResponse();
+		
+		for(let i: number = 0; i < this.rooms.length; i++) {
+			let item: ListRoomItem = new ListRoomItem();
+			item.id = this.rooms[i].id;
+			item.playerCount = this.rooms[i].players.length;
+		}
+		
+		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
 	}
 	
 	private joinRoom(client: Client, request: JoinRoomRequest): void {
