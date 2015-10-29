@@ -28,10 +28,10 @@ server.listen(port);
 console.log("Server is running on port: " + port);
 
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/login.html'));
+    res.sendFile(path.join(__dirname + '/public/frame.html'));
 });
 
-app.use(express.static('node_modules'));
+app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/public'));
 app.use('/', router);
 
@@ -62,13 +62,36 @@ class User {
 }
 
 
+router.post('/', function(req, res, next) {
 
-router.get('/login', function(req, res, next) {
-    console.log('Login request');
-    res.sendFile(path.join(__dirname + '/public/login.html'));
+    var username = req.body.username;
+    var token = req.body.token;
+
+    var criteria = {};
+    criteria.username = username;
+
+    if(users != undefined) {
+        users.find(criteria).toArray(function (err, docs) {
+
+            if (docs != null && docs.length != 0) {
+
+                var user = getSingleResult(docs);
+                if (user.token === token) {
+                    res.sendFile(__dirname + '/public/index.html');
+                }
+                else {
+                    res.sendFile(__dirname + '/public/login.html');
+                }
+            } else {
+                res.sendFile(__dirname + '/public/login.html');
+            }
+        });
+    } else {
+        res.sendFile(__dirname + '/public/login.html');
+    }
 });
 
-router.post('/', function(req, res, next) {
+router.post('/login', function(req, res, next) {
     console.log('User logging request');
 
     var criteria = {};
@@ -116,37 +139,6 @@ router.post('/signedup', function(req, res, next) {
             }
         });
     } else {
-        res.json({status: "error", message: "Database connection error!", user: req.body.username});
-    }
-});
-
-router.get('/session/:user/:token', function(req, res, next) {
-    console.log('Token validation request for user: ' + req.params.user);
-
-    var criteria = {};
-    criteria.username = req.params.user;
-
-    if(users != undefined) {
-        users.find(criteria).toArray(function (err, docs) {
-
-            if (docs != null && docs.length != 0) {
-
-                var user = getSingleResult(docs);
-                if (user.token === req.params.token) {
-
-                    res.sendFile(__dirname + '/public/index.html');
-                    console.log("Database: Token successfully validated");
-                }
-                else {
-                    res.json({status: "error"});
-                    console.log("Database: Token validation error: tokens don't match");
-                }
-            } else {
-                res.json({status: "error"});
-                console.log("Database: Token validation error: " + criteria.username + " can not be found in database!");
-            }
-        });
-    }else {
         res.json({status: "error", message: "Database connection error!", user: req.body.username});
     }
 });
