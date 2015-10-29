@@ -1,4 +1,5 @@
 echo off
+IF NOT EXIST ..\mongodb mkdir ..\mongodb
 start "MongoDB server" cmd.exe /K mongod.exe --dbpath ..\mongodb
 call tsc -p .
 start "Node server" cmd.exe /K node.exe app
