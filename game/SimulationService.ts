@@ -1,5 +1,6 @@
 import { Room } from '../common/Room';
 import { Player } from '../common/Player';
+import { KeyAction } from '../common/Movement';
 import { Projectile } from '../common/GameObject';
 import { SimulationResponse, POSITION_EVENT } from '../common/Simulation';
 
@@ -33,28 +34,28 @@ export class SimulationService {
 	}
 	
 	private simulateRoom(room: Room, deltaTime: number): void {
+		// Moving objects
 		let players :Array<Player> = room.players;
 		for(let i: number = 0 ; i < players.length; i++) {
 			let player: Player = players[i];
-			
 			// calculate speed
-			if(player.ship.thruster.up) {
+			if(player.ship.thruster.up == KeyAction.pressed) {
 				player.ship.speed.x += player.ship.acceleration * Math.cos(player.ship.position.angle);
 				player.ship.speed.y += player.ship.acceleration * Math.sin(player.ship.position.angle);
 			}
-			if(player.ship.thruster.down) {
+			if(player.ship.thruster.down == KeyAction.pressed) {
 				player.ship.speed.x -= player.ship.acceleration * Math.cos(player.ship.position.angle);
 				player.ship.speed.y -= player.ship.acceleration * Math.sin(player.ship.position.angle);
 			}
 			
 			// calcluate turn speed
-			if(player.ship.thruster.left) {
+			if(player.ship.thruster.left == KeyAction.pressed) {
 				player.ship.speed.turn += player.ship.turnacc;
 				while(player.ship.speed.turn >= 2 * Math.PI) {
 					player.ship.speed.turn -= 2 * Math.PI;
 				}
 			}
-			if(player.ship.thruster.right) {
+			if(player.ship.thruster.right == KeyAction.pressed) {
 				player.ship.speed.turn -= player.ship.turnacc;
 				while(player.ship.speed.turn <= 2 * Math.PI) {
 					player.ship.speed.turn += 2 * Math.PI;
@@ -76,21 +77,26 @@ export class SimulationService {
 		}
 		
 		let projectiles: Array<Projectile> = room.projectiles;
-		for(let i: number = 0 ; i < players.length; i++) {
+		for(let i: number = 0 ; i < projectiles.length; i++) {
 			let projectile: Projectile = projectiles[i];
 			
 			// calculate position
 			projectile.position.x += projectile.speed.x * deltaTime;
 			projectile.position.y += projectile.speed.y * deltaTime;
 		}
-		
+		// TO-DO Collision detection 
 	}
 	
 	private sendPosition(room: Room): void {
 		let response: SimulationResponse = new SimulationResponse();
 		response.room = new Room();
-		// REVIEW maybe add logic for less data
-		response.room.players = room.players;
+		for( let i: number = 0; i < room.players.length; i++) {
+			let player: Player = new Player();
+			player.name = room.players[i].name;
+			// REVIEW further data reduction
+			player.ship = room.players[i].ship;
+			response.room.players.push(player);
+		}
 		response.room.projectiles = room.projectiles;
 		
 		this.connectionController.sendToRoom(room, POSITION_EVENT, response);

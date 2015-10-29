@@ -8,7 +8,7 @@ export class Room {
 	public host: Player;
 	public players: Array<Player> = [];
 	public projectiles: Array<Projectile> = [];
-	public started: boolean = false;
+	public started: boolean;
 	public size: {width:number, height:number};
 }
 

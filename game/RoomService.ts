@@ -1,5 +1,5 @@
 import { Player } from '../common/Player';
-import { ShipType, GeneralShip } from '../common/GameObject';
+import { ShipType, GeneralShip, Speed, Position } from '../common/GameObject';
 import { Response } from '../common/Message';
 import { Room, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest } from '../common/Room';
 
@@ -12,9 +12,9 @@ export class RoomService {
 	
 	public addListeners(client: Client): void {
 		client.socket.on(JOIN_ROOM_EVENT, (request: JoinRoomRequest) => this.joinRoom(client, request));
-		client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
-		client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
-		client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
+		//client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
+		//client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
+		//client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
 	}
 	
 	public removeListeners(client:Client): void {
@@ -38,6 +38,7 @@ export class RoomService {
 				room = new Room();
 				room.id = request.roomName;
 				room.host = client.player;
+				room.started = false;
 				this.rooms.push(room);
 			}
 			if(room.started) {
@@ -49,6 +50,9 @@ export class RoomService {
 				room.players.push(client.player);
 				client.player.room = room;
 				client.socket.join(request.roomName);
+				client.removeListener(JOIN_ROOM_EVENT);
+				client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
+				client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
 			}
 		}
 		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
@@ -75,8 +79,10 @@ export class RoomService {
 			// leave room
 			client.socket.leave(room.id);
 			client.player.room = undefined;
+			this.removeListeners(client);
+			this.addListeners(client);
 		}
-		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
+		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
 	}
 	
 	private ready(client: Client, request: ReadyRoomRequest): void {
@@ -90,7 +96,10 @@ export class RoomService {
 				response.errors.push('Invalid ship type');
 				break;
 		}
-		
+		if(response.success) {
+			client.removeListener(READY_ROOM_EVENT);
+			client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
+		}
 		this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
 	} 
 	
@@ -113,14 +122,14 @@ export class RoomService {
 		return '';
 	}
 	
-	private startRoom(client: Client) {
+	private startRoom(client: Client): void {
 		let response: Response = new Response();
 		if(!client.isInRoom()) {
 			response.errors.push('You are not in a room yet');
 		}
 		else {
 			let room: Room = client.player.room;
-			if(room.host === client.player) {
+			if(room.host !== client.player) {
 				response.errors.push('You are not the host');
 			}
 			else {
@@ -129,12 +138,27 @@ export class RoomService {
 					response.errors.push(error);
 				}
 				else {
-					room.started = true;
-					// TO-DO other game initalization
+					this.initRoom(room);
 				}
 			}
 		}
-		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
+		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response);
+	}
+	
+	private initRoom(room: Room): void {
+		let players: Array<Player> = room.players;
+		for(let i: number = 0; i < players.length; i++) {
+			let player: Player = players[i];
+			player.ship.speed = new Speed();
+			player.ship.position = new Position();
+			player.ship.speed.x = 0;
+			player.ship.speed.y = 0;
+			player.ship.speed.turn = 0;
+			player.ship.position.x = 0;
+			player.ship.position.y = 0;
+			player.ship.position.angle = 0;
+		}
+		room.started = true;
 	}
 	
 	private findRoomByName(name: string): Room {

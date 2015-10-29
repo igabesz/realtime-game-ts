@@ -33,6 +33,6 @@ export class MovementController {
 	}
 	
 	private fire(client: Client): void {
-		
+		// TO-DO add projectile creation
 	} 
 }
