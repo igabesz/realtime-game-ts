@@ -4,8 +4,6 @@ import * as express from 'express';
 import * as socketIO from 'socket.io';
 import { ConnectionController } from './game/ConnectionController';
 
-
-import { ConnectionController } from './game/ConnectionController';
 // REST API imports:
 import * as mongoDb from 'mongodb';
 import * as path from 'path';
@@ -27,6 +25,7 @@ var Db = mongoDb.Db;
 var MongoServer = require('mongodb').Server;
 var db = new Db('routerme', new MongoServer('localhost', 27017));
 
+<<<<<<< HEAD
 var port = 80;
 server.listen(port);
 console.log("Server is running on port: " + port);
@@ -35,6 +34,8 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/public/frame.html'));
 });
 
+=======
+>>>>>>> facb35aee04f9b5c56ef175feb6d16ba7f617304
 // Serving Assets and public files
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static('public'));
@@ -43,7 +44,10 @@ app.use(express.static('public'));
 let connectionCtrl = new ConnectionController(io);
 
 // Starting server
+<<<<<<< HEAD
 server.listen(80);
+=======
+>>>>>>> facb35aee04f9b5c56ef175feb6d16ba7f617304
 app.use(express.static(__dirname + '/public'));
 app.use('/', router);
 
@@ -60,9 +64,6 @@ db.open(function(err, db) {
 
 io.on('connection', function (socket) {
 });
-
-// Instantiating services and controllers
-let connectionCtrl = new ConnectionController(io);
 
 class User {
 
@@ -230,4 +231,11 @@ var generate_key = function() {
     return sha.digest('hex');
 }
 
+<<<<<<< HEAD
 
+=======
+let port:number = 80;
+server.listen(port);
+
+console.log("Server started on http://localhost:" + port + "/");
+>>>>>>> facb35aee04f9b5c56ef175feb6d16ba7f617304
