@@ -7,7 +7,8 @@ System.config({
 	defaultJSExtensions: true, // We don't have to put .js to everywhere
 	map: {
 		'socket.io-client': '/socket.io/socket.io.js',
-		'lodash': '/lodash/index.js'
+		'lodash': '/lodash/index.js',
+		'phaser': '/phaser/build/phaser.js'
 	}
 });
 

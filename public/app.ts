@@ -1,5 +1,7 @@
 import { MainController } from './MainController'; 
-import { SocketService } from './SocketService'; 
+import { SocketService } from './SocketService';
+import { SpaceGame } from './SpaceGame';
+
 
 // Creating the main angular module 
 var mainModule = angular.module('spacegame', []);
@@ -15,3 +17,7 @@ mainModule.run(['SocketService', (socketService: SocketService) => {
 mainModule.controller('MainController', MainController);
 
 
+//Graphics
+window.onload = () => {
+    var game = new SpaceGame();
+};
