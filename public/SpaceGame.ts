@@ -2,10 +2,9 @@ export class SpaceGame {
 		
 	game: Phaser.Game;
     ship: Phaser.Sprite;
-    W: Phaser.Key;
-    A: Phaser.Key;
-    S: Phaser.Key;
-    D: Phaser.Key;
+    Up: Phaser.Key;
+    Left: Phaser.Key;
+    Right: Phaser.Key;
 	
 	constructor() {
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create});
@@ -16,38 +15,50 @@ export class SpaceGame {
 	}
     
     preload() {
-        this.game.load.image("background", "space1.jpg");
-        this.game.load.image("spaceship", "spaceship.png")
+        this.game.load.image("background", "images/space1.jpg");
+        this.game.load.image("spaceship", "images/spaceship.png")
     }
             
     create() {
         this.game.add.sprite(0, 0, "background");
         this.ship = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, "spaceship");
         this.ship.anchor.set(0.5,0.5)
+        
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        this.game.physics.arcade.enable(this.ship);
+        
+        this.ship.body.drag.set(100);
+        this.ship.body.maxVelocity.set(200);
     
-        this.W = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-        this.A = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
-        this.S = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
-        this.D = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+        this.Up = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this.Left = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        this.Right = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
         
-        //TODO: socketservice-t hívni
-        this.W.onDown.add(() => { this.ship.position.add(0, -1); }, this);
-        this.A.onDown.add(() => { this.ship.position.add(-1, 0); }, this);
-        this.S.onDown.add(() => { this.ship.position.add(0, 1); }, this);
-        this.D.onDown.add(() => { this.ship.position.add(1, 0); }, this);
+        //TODO: socketservice-t hivni
+        //TODO: prototype...
+        this.Up.onDown.add(SpaceGame.prototype.start, this);
+        this.Up.onUp.add(SpaceGame.prototype.stop, this);
+        this.Left.onDown.add(SpaceGame.prototype.turnLeft, this);
+        this.Left.onUp.add(SpaceGame.prototype.stopTurning, this)
+        this.Right.onDown.add(SpaceGame.prototype.turnRight, this);
+        this.Right.onUp.add(SpaceGame.prototype.stopTurning, this)
     }
         
-    moveLeft() {
-        this.ship.position.add(-1, 0);
+    start() {
+        this.game.physics.arcade.accelerationFromRotation(this.ship.rotation, 200, this.ship.body.acceleration);
     }
-    moveRight() {
-        this.ship.position.add(1, 0);
+    stop() {
+        this.ship.body.acceleration.set(0);
     }
-    moveUp() {
-        this.ship.position.add(0, -1);
+    turnLeft() {
+        this.ship.body.angularVelocity = -300;
     }
-    moveDown() {
-        this.ship.position.add(0, 1);
+    turnRight() {
+        this.ship.body.angularVelocity = 300;
+    }
+    stopTurning() {
+        this.ship.body.angularVelocity = 0;
+        this.game.physics.arcade.accelerationFromRotation(this.ship.rotation, this.ship.body.speed, this.ship.body.acceleration);
     }
 
 }
@@ -62,7 +73,7 @@ export class TitleScreenState extends Phaser.State {
     }
 
     preload() {
-        this.game.load.image("title", "space1.jpg");
+        this.game.load.image("title", "images/space1.jpg");
     }
 		
     create() {
