@@ -83,6 +83,10 @@ export class ConnectionController {
 		console.log('Client ' + name + ': ' + event);
 		client.socket.emit('test', { title:'Client ' + event, body: message});
 	}
+	
+	public getClients(): Array<Client> {
+		return this.clients;
+	}
 }
 
 export class Client {
