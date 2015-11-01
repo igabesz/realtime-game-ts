@@ -1,0 +1,11 @@
+.table {
+	width: 50%;
+}
+
+.success {
+	color: green;
+}
+
+.fail {
+	color: red;
+}

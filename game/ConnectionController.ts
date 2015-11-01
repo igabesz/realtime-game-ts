@@ -87,6 +87,14 @@ export class ConnectionController {
 	public getClients(): Array<Client> {
 		return this.clients;
 	}
+	
+	public getRooms(): Array<Room> {
+		return this.roomService.getRooms();
+	}
+	
+	public stopServer(): void {
+		
+	}
 }
 
 export class Client {
