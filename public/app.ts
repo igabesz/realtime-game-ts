@@ -37,3 +37,4 @@ mainModule.directive('test', function() {
 	`
   }
 });
+

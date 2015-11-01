@@ -2,7 +2,7 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-import { ConnectionController } from './game/ConnectionController';
+
 
 // REST API imports:
 import * as mongoDb from 'mongodb';
@@ -11,11 +11,14 @@ import * as bodyParser from 'body-parser';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
 
+import { ConnectionController } from './game/ConnectionController';
+import { AdminController } from './AdminController';
+
 // Creating Express and SocketIO server
-var app = express();
-var server = (<any>http).Server(app);
-var io = socketIO(server);
-var router = express.Router();
+let app: express.Express = express();
+let server: http.Server = (<any>http).Server(app);
+let io: SocketIO.Server = socketIO(server);
+let router: express.Router = express.Router();
 
 // Serving main HTML file
 app.use(bodyParser.json());
@@ -24,10 +27,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var Db = mongoDb.Db;
 var MongoServer = require('mongodb').Server;
 var db = new Db('routerme', new MongoServer('localhost', 27017));
-
-var port = 80;
-server.listen(port);
-console.log("Server is running on port: " + port);
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/public/frame.html'));
@@ -38,7 +37,14 @@ app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static('public'));
 
 // Instantiating services and controllers
-let connectionCtrl = new ConnectionController(io);
+let connectionController: ConnectionController = new ConnectionController(io);
+let adminController: AdminController = new AdminController(connectionController, router);
+adminController.setExit(function(): void {
+    server.close();
+    db.close();
+    console.log('Server stopped by an admin');
+    process.exit(0);
+});
 
 // Starting server
 server.listen(80);
@@ -49,6 +55,7 @@ var users;
 db.open(function(err, db) {
     if(!err) {
         users = db.collection("users");
+        adminController.DBConnected = true;
         console.log('Open: MongoDb connected!');
     } else {
         console.log('Open: MongoDb connection error!');
@@ -56,9 +63,8 @@ db.open(function(err, db) {
 
 });
 
-io.on('connection', function (socket) {
-});
 
+// FIXME this code should be moved into another file
 class User {
 
     constructor(private username:string,
@@ -224,3 +230,10 @@ var generate_key = function() {
     sha.update(Math.random().toString());
     return sha.digest('hex');
 }
+
+/** Server start */
+
+let port:number = 80;
+server.listen(port);
+
+console.log("Server started on http://localhost:" + port + "/");

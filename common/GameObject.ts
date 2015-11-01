@@ -39,14 +39,17 @@ export class Projectile extends GameObject {
 /** Ship superclass */
 
 export abstract class Ship extends GameObject {
-	turnacc: number;
-	thruster: Thruster = new Thruster();
+	public health: number;
+	public turnacc: number;
+	public thruster: Thruster = new Thruster();
+	public projectile: Projectile = new Projectile(); 
 }
 
 /** Ship types */
 
 export enum ShipType {
-	general
+	general,
+	fast
 }
 
 export class GeneralShip extends Ship {
@@ -54,4 +57,27 @@ export class GeneralShip extends Ship {
 	public height: number = 20;
 	public acceleration: number = 0.1;
 	public turnacc: number = 0.03;
+	public health: number = 100;
+	constructor() {
+		super();
+		this.projectile.acceleration = 0;
+		this.projectile.damage = 10;
+		this.projectile.height = 10;
+		this.projectile.width = 10;
+	}
+}
+
+export class FastShip extends Ship {
+	public width: number = 8;
+	public height: number = 15;
+	public acceleration: number = 0.15;
+	public turnacc: number = 0.05;
+	public health: number = 50;
+	constructor() {
+		super();
+		this.projectile.acceleration = 0;
+		this.projectile.damage = 5;
+		this.projectile.height = 8;
+		this.projectile.width = 8;
+	}
 }
