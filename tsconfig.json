@@ -8,12 +8,14 @@
         "sourceMap": false,
         "noResolve": true
     },
+    "exclude": [
+        "node_modules"
+    ],
     "filesGlob": [
         "./*.ts",
 		"./public/**/*.ts",
         "./models/**/*.ts",
         "./services/**/*.ts",
-        "./typings/**/*.d.ts",
-        "./node_modules/phaser/typescript/phaser"
+        "./typings/**/*.d.ts"
     ]
 }
