@@ -18,6 +18,8 @@ mainModule.controller('MainController', MainController);
 
 
 //Graphics
-window.onload = () => {
-    var game = new SpaceGame();
-};
+console.log('App. Loading phaser')
+System.import('phaser').then(() => {
+	console.log('App. Phaser loaded, creating SpaceGame');
+	var game = new SpaceGame();
+});
