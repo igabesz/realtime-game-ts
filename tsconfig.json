@@ -13,6 +13,7 @@
 		"./public/**/*.ts",
         "./models/**/*.ts",
         "./services/**/*.ts",
-        "./typings/**/*.d.ts"
+        "./typings/**/*.d.ts",
+        "./node_modules/phaser/typescript/phaser"
     ]
 }
