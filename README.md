@@ -9,9 +9,9 @@
 ## Build
 
 * `tsc -p . [-w]` in root
-
+* Make sure that `data/db` directory exists
 
 ## Start
 
-* `mongod.exe --dbpath 'path/to/your/db'`
+* `mongod.exe --dbpath data/db`
 * `node app`
