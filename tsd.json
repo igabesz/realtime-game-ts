@@ -31,6 +31,12 @@
     },
     "lodash/lodash.d.ts": {
       "commit": "ebc69904eb78f94030d5d517b42db20867f679c0"
+    },
+    "body-parser/body-parser.d.ts": {
+      "commit": "0dd29bf8253536ae24e61c109524e924ea510046"
+    },
+    "mongodb/mongodb.d.ts": {
+      "commit": "0dd29bf8253536ae24e61c109524e924ea510046"
     }
   }
 }

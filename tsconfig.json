@@ -8,6 +8,9 @@
         "sourceMap": false,
         "noResolve": true
     },
+    "exclude": [
+        "node_modules"
+    ],
     "filesGlob": [
         "./*.ts",
 		"./public/**/*.ts",
