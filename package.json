@@ -17,9 +17,15 @@
     "socket.io-client": "^1.3.7",
     "systemjs": "^0.19.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tsd": "^0.6.5",
+    "typescript": "^1.6.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "tsd install",
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w"
   },
   "keywords": [
     "TypeScript",
