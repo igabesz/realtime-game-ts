@@ -5,6 +5,7 @@ import { Player } from '../common/Player';
 import { Message, Response } from '../common/Message';
 import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT} from '../common/Connection';
 
+import { LifeCycle } from './LifeCycle';
 import { RoomService } from './RoomService';
 import { SimulationService } from './SimulationService';
 import { MovementController } from './MovementController';
@@ -33,21 +34,21 @@ export class ConnectionController {
 		this.clients.push(client);
 		console.log('Connected', this.clients.map(c => c.player ? c.player.name : 'unknown'));
 		
-		// add listeners
-		socket.on('disconnect', () => this.closeConnection(client));
-		socket.on(PERSONAL_INFO_EVENT, (data: PersonalInfoRequest) => this.personalInfo(client, data));
+		client.lifeCycle = new LifeCycle(client, this, this.roomService);
+		client.lifeCycle.openConnection();
 	}
 	
-	private closeConnection(client: Client): void {
+	public closeConnection(client: Client): void {
 		// remove client
 		let index: number = this.clients.indexOf(client);
 		this.clients.splice(index, 1);
 		if(client.isInRoom()) {
 			this.roomService.leaveRoom(client);
 		}
+		client.lifeCycle.disconnect();
 	}
 	
-	private personalInfo(client: Client, data: PersonalInfoRequest): void {
+	public personalInfo(client: Client, data: PersonalInfoRequest): void {
 		// save data
 		client.player = new Player();
 		client.player.name = data.token; // TO-DO add logic from login server
@@ -58,8 +59,7 @@ export class ConnectionController {
 		this.sendToClient(client, PERSONAL_INFO_EVENT, response);
 		
 		// refresh listeners
-		client.removeListener(PERSONAL_INFO_EVENT);
-		this.roomService.addListeners(client);
+		client.lifeCycle.connect();
 	}
 	
 	public sendToAll(event: string, message: Message): void {
@@ -100,6 +100,7 @@ export class ConnectionController {
 export class Client {
 	public socket: SocketIO.Socket;
 	public player: Player;
+	public lifeCycle: LifeCycle;
 	
 	public isInRoom(): boolean {
 		if(this.player === undefined || this.player.room === undefined) {

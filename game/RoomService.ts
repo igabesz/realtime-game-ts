@@ -10,24 +10,7 @@ export class RoomService {
 	
 	constructor(private connectionCtrl: ConnectionController) { }
 	
-	public addListeners(client: Client): void {
-		client.socket.on(LIST_ROOM_EVENT, () => this.listRoom(client));
-		client.socket.on(JOIN_ROOM_EVENT, (request: JoinRoomRequest) => this.joinRoom(client, request));
-		//client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
-		//client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
-		//client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
-	}
-	
-	public removeListeners(client:Client): void {
-		client.removeListener(LIST_ROOM_EVENT);
-		client.removeListener(JOIN_ROOM_EVENT);
-		client.removeListener(LEAVE_ROOM_EVENT);
-		client.removeListener(READY_ROOM_EVENT);
-		client.removeListener(START_ROOM_EVENT);
-	}
-	
-	
-	private listRoom(client: Client): void {
+	public listRoom(client: Client): void {
 		let response: ListRoomResponse = new ListRoomResponse();
 		
 		for(let i: number = 0; i < this.rooms.length; i++) {
@@ -39,7 +22,7 @@ export class RoomService {
 		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
 	}
 	
-	private joinRoom(client: Client, request: JoinRoomRequest): void {
+	public joinRoom(client: Client, request: JoinRoomRequest): void {
 		let response: Response = new Response();
 		
 		if(client.isInRoom()) {
@@ -64,10 +47,7 @@ export class RoomService {
 			else {
 				room.players.push(client.player);
 				client.player.room = room;
-				client.socket.join(request.roomName);
-				client.removeListener(JOIN_ROOM_EVENT);
-				client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
-				client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
+				client.lifeCycle.joinRoom();
 			}
 		}
 		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
@@ -92,15 +72,13 @@ export class RoomService {
 				room.host = room.players[0];
 			}
 			// leave room
-			client.socket.leave(room.id);
+			client.lifeCycle.leaveRoom();
 			client.player.room = undefined;
-			this.removeListeners(client);
-			this.addListeners(client);
 		}
 		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
 	}
 	
-	private ready(client: Client, request: ReadyRoomRequest): void {
+	public ready(client: Client, request: ReadyRoomRequest): void {
 		let response: Response = new Response();
 		
 		switch(request.shipType) {
@@ -112,8 +90,7 @@ export class RoomService {
 				break;
 		}
 		if(response.success) {
-			client.removeListener(READY_ROOM_EVENT);
-			client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
+			client.lifeCycle.readyRoom();
 		}
 		this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
 	} 
@@ -137,7 +114,7 @@ export class RoomService {
 		return '';
 	}
 	
-	private startRoom(client: Client): void {
+	public startRoom(client: Client): void {
 		let response: Response = new Response();
 		if(!client.isInRoom()) {
 			response.errors.push('You are not in a room yet');
@@ -154,6 +131,7 @@ export class RoomService {
 				}
 				else {
 					this.initRoom(room);
+					client.lifeCycle.startGame();
 				}
 			}
 		}

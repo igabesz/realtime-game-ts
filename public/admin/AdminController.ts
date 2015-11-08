@@ -9,6 +9,7 @@ interface IAdminScope extends ng.IScope {
 
 export class UserData {
 	public playerName: string;
+	public state: string;
 	public room: string;
 }
 
@@ -22,7 +23,6 @@ export class AdminController {
 	
 	static $inject = ['$scope', '$http', '$timeout'];
 	
-	//private timer: ng.IPromise<void> = null;
 	private refreshTime: number = 0;
 	
 	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService) {
@@ -49,17 +49,9 @@ export class AdminController {
 		if(newtime !== Number.NaN) { 
 			if(newtime <= 0) {
 				this.$scope.refreshtext = 'Off';
-				/*if(this.timer !== null) {
-					this.$timeout.cancel(this.timer);
-				}
-				this.timer = null;*/
 			}
 			else {
 				this.$scope.refreshtext = newtime + ' sec';
-				/*if(this.timer !== null) {
-					this.$timeout.cancel(this.timer);
-				}
-				this.timer = this.$timeout(() => this.refresh(), newtime * 1000);*/
 				this.refreshTime = newtime * 1000;
 				this.$timeout(() => this.refresh(), this.refreshTime);
 			}
@@ -84,14 +76,10 @@ export class AdminController {
 	private resolveUserData(users: Array<UserData>): void {
 		let newUsers: Array<UserData> = [];
 		for(let i: number = 0; i < users.length; i++) {
-			let user: UserData = new UserData();
-			if(users[i].playerName === '') {
+			let user: UserData = users[i];
+			if(user.playerName === '') {
 				user.playerName = 'Not identified yet';
 			}
-			else {
-				user.playerName = users[i].playerName;
-			}
-			user.room = users[i].room;
 			newUsers.push(user);
 		}
 		this.$scope.Users = newUsers;
