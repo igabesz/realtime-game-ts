@@ -1,5 +1,5 @@
 import { PersonalInfoRequest, PERSONAL_INFO_EVENT} from '../common/Connection';
-import { JoinRoomRequest, ReadyRoomRequest, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT} from '../common/Room';
+import { JoinRoomRequest, ReadyRoomRequest, LIST_ROOM_EVENT, LIST_SHIP_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT} from '../common/Room';
 import { MovementRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
 
 import { Client, ConnectionController } from './ConnectionController';
@@ -51,6 +51,7 @@ export class LifeCycle {
 			
 			this.client.socket.on(LEAVE_ROOM_EVENT, () => this.roomService.leaveRoom(this.client));
 			this.client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.roomService.ready(this.client, request));
+			this.client.socket.on(LIST_SHIP_EVENT, () => this.roomService.listShips(this.client));
 			
 			this.client.socket.join(this.client.player.room.id);
 			
@@ -76,6 +77,7 @@ export class LifeCycle {
 	public readyRoom(): void {
 		if(this.state === LifeCycleState.Room) {
 			this.client.removeListener(READY_ROOM_EVENT);
+			this.client.removeListener(LIST_SHIP_EVENT);
 			
 			this.client.socket.on(START_ROOM_EVENT, () => this.roomService.startRoom(this.client));
 			

@@ -1,7 +1,7 @@
 import { Player } from '../common/Player';
-import { ShipType, GeneralShip, Speed, Position } from '../common/GameObject';
+import { ShipType, GeneralShip, FastShip, Speed, Position } from '../common/GameObject';
 import { Response } from '../common/Message';
-import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse } from '../common/Room';
+import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse } from '../common/Room';
 
 import { Client, ConnectionController } from './ConnectionController';
 
@@ -20,6 +20,15 @@ export class RoomService {
 		}
 		
 		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
+	}
+	
+	public listShips(client: Client): void {
+		let response: ListShipsResponse = new ListShipsResponse();
+		
+		response.ships.push(new GeneralShip());
+		response.ships.push(new FastShip());
+		
+		this.connectionCtrl.sendToClient(client, LIST_SHIP_EVENT, response);
 	}
 	
 	public joinRoom(client: Client, request: JoinRoomRequest): void {
@@ -84,6 +93,9 @@ export class RoomService {
 		switch(request.shipType) {
 			case ShipType.general:
 				client.player.ship = new GeneralShip();
+				break;
+			case ShipType.fast:
+				client.player.ship = new FastShip();
 				break;
 			default:
 				response.errors.push('Invalid ship type');
