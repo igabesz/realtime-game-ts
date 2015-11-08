@@ -91,15 +91,14 @@ export class SimulationService {
 	}
 	
 	private collisionDetection(room: Room): void {
-		// TO-DO remove from players to disable check after death
-		
-		// REVIEW Collision with the map 
+		// REVIEW remove from players to disable check after death
 		
 		// Collision with other obejcts
 		for (let i: number = 0; i < room.players.length; i++) {
 			let player: Player = room.players[i];
 			let a: Rectangle = Rectangle.createRectangle(player.ship);
 			// TO-DO optimization
+			// REVIEW calculate and save all rectangles first then detect collisions
 			let b: Rectangle;
 			
 			for (let j: number = i + 1; j < room.players.length; j++) {
@@ -221,7 +220,6 @@ export class SimulationService {
 		for( let i: number = 0; i < room.players.length; i++) {
 			let player: Player = new Player();
 			player.name = room.players[i].name;
-			// REVIEW further data reduction
 			player.ship = room.players[i].ship;
 			response.players.push(player);
 		}

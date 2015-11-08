@@ -87,7 +87,6 @@ export class LifeCycle {
 	
 	public startGame(): void {
 		if(this.state === LifeCycleState.RoomReady) {
-			// TO-DO for each player in room
 			this.client.removeListener(LEAVE_ROOM_EVENT);
 			this.client.removeListener(READY_ROOM_EVENT);
 			this.client.removeListener(START_ROOM_EVENT);
@@ -120,6 +119,7 @@ export class LifeCycle {
 		
 		this.client.removeListener(LEAVE_ROOM_EVENT);
 		this.client.removeListener(READY_ROOM_EVENT);
+		this.client.removeListener(LIST_SHIP_EVENT);
 		
 		this.client.removeListener(LIST_ROOM_EVENT);
 		this.client.removeListener(JOIN_ROOM_EVENT);

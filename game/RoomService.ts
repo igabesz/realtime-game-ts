@@ -31,6 +31,13 @@ export class RoomService {
 		this.connectionCtrl.sendToClient(client, LIST_SHIP_EVENT, response);
 	}
 	
+	private sendRoomState(room: Room): void {
+		// TO-DO
+		
+		
+		this.connectionCtrl.sendToRoom(room, JOIN_ROOM_EVENT, null);
+	}
+	
 	public joinRoom(client: Client, request: JoinRoomRequest): void {
 		let response: Response = new Response();
 		
@@ -57,6 +64,7 @@ export class RoomService {
 				room.players.push(client.player);
 				client.player.room = room;
 				client.lifeCycle.joinRoom();
+				this.sendRoomState(room);
 			}
 		}
 		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
@@ -83,6 +91,7 @@ export class RoomService {
 			// leave room
 			client.lifeCycle.leaveRoom();
 			client.player.room = undefined;
+			this.sendRoomState(room);
 		}
 		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
 	}
@@ -143,11 +152,11 @@ export class RoomService {
 				}
 				else {
 					this.initRoom(room);
-					client.lifeCycle.startGame();
+					client.lifeCycle.startGame(); // TO-DO for each player
 				}
 			}
 		}
-		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response);
+		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response); 
 	}
 	
 	private initRoom(room: Room): void {
@@ -156,8 +165,8 @@ export class RoomService {
 			let player: Player = players[i];
 			player.ship.speed = new Speed();
 			player.ship.position = new Position();
-			player.ship.speed.x = 0;
-			player.ship.speed.y = 0;
+			player.ship.speed.x = i * 50;
+			player.ship.speed.y = i * 50;
 			player.ship.speed.turn = 0;
 			player.ship.position.x = 0;
 			player.ship.position.y = 0;
