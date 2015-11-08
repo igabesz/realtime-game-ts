@@ -25,28 +25,31 @@
                 <Button ng-click="selectedMenu = 'Home'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Home</Button>
                 <Button ng-click="selectedMenu = 'Players'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Players</Button>
                 <Button ng-click="selectedMenu = 'Rooms'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Rooms</Button>
+                <Button ng-click="" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Logout</Button>
             </td>
             <td>
+                <h2>
+                    <span>{{selectedMenu}}</span>
+                    <Button ng-click="ctrl.refresh()" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Refresh</Button>
+                </h2>
                 <div ng-show="selectedMenu==='Home'">
-                    <h2>Home</h2>
-                    <div>
-                        <span>Auto refresh: ({{refreshtext}}) </span>
-                        <input type="textbox" ng-model="refresh" ng-change="ctrl.change()"/>
-                    </div>
                     <div class="status-line">
                         <span ng-if="Database" class="success status">Database is connected</span>
                         <span ng-if="!Database" class="fail status">Database is disconnected</span>
+                    </div>
+                    <div>
+                        <span>Auto refresh: ({{refreshtext}}) </span>
+                        <input type="text" ng-model="refresh" ng-change="ctrl.change()"/>
                     </div>
                     <button ng-click="ctrl.stopServer()" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Stop server</button>
                 </div>
                 
                 <div ng-show="selectedMenu==='Players'">
-                    <h2>Players</h2>
                     <table>
                         <tr>
-                            <th class="first-column">Player</th>
-                            <th class="second-column">State</th>
-                            <th class="third-column">Room</th>
+                            <th>Player</th>
+                            <th>State</th>
+                            <th>Room</th>
                         </tr>
                         <tr ng-repeat="data in Users">
                             <td>{{data.playerName}}</td>
@@ -57,12 +60,11 @@
                 </div>
                 
                 <div ng-show="selectedMenu==='Rooms'">
-                    <h2>Rooms</h2>
                     <table>
                         <tr>
-                            <th class="first-column">Name</th>
-                            <th class="second-column">Host</th>
-                            <th class="third-column">Number of players</th>
+                            <th>Name</th>
+                            <th>Host</th>
+                            <th>Number of players</th>
                         </tr>
                         <tr ng-repeat="data in Rooms">
                             <td>{{data.name}}</td>

@@ -1,3 +1,8 @@
+body {
+	background: url(../images/space1.jpg) no-repeat center center fixed;
+	color: white;
+}
+
 header {
 	margin: 15px 0px;
 }
@@ -6,8 +11,40 @@ button {
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
-	background-color: blue;
+	background-color: dodgerblue;
 	border-width: 0px;
+}
+
+input[type="text"] {
+	color: white;
+	background: #404040;
+	border-width: 0px;
+	width: 40px;
+	margin: 20px 10px;
+	padding: 5px;
+}
+
+body > table {
+	width: 100%;
+}
+
+body > table td {
+	vertical-align: top;
+}
+
+body > table table {
+	background: rgba(127, 127, 127, 0.3);
+}
+
+body > table table tr th {
+	font-size: 130%;
+	font-weight: bold;
+	text-align: left;
+	padding: 10px;
+}
+
+body > table table tr td {
+	padding: 10px;
 }
 
 .status-line {
@@ -33,7 +70,7 @@ button {
 }
 
 .menu {
-	background-color: lightblue;
+	background-color: dodgerblue;
 	width: 100px;
 	margin: 20px 0px;
 	text-align: center;
@@ -42,26 +79,4 @@ button {
 .hover {
 	opacity: 0.7;
 	cursor: pointer;
-}
-
-table {
-	width: 100%;
-}
-
-table tr th {
-	font-size: 130%;
-	font-weight: bold;
-	text-align: left;
-} 
-
-.first-column {
-	width: 40%;
-}
-
-.second-column {
-	width: 30%;
-}
-
-.third-column {
-	width: 30%;
 }

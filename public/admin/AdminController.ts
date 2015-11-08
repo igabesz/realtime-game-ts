@@ -24,16 +24,18 @@ export class AdminController {
 	
 	static $inject = ['$scope', '$http', '$timeout'];
 	
-	private refreshTime: number = 0;
+	private refreshTime: number = 60000;
+	private timer: ng.IPromise<void>;
 	
 	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
 		$scope.Database = false;
-		$scope.refresh = '0';
-		$scope.refreshtext = 'Off';
+		$scope.refresh = '60';
+		$scope.refreshtext = '60 sec';
 		$scope.selectedMenu = 'Home';
-		this.refresh();
+		this.refreshAll();
+		this.timer = this.$timeout(() => this.refresh(), this.refreshTime);
 	}
 	
 	private hover(event: any): void {
@@ -46,18 +48,36 @@ export class AdminController {
 		element.removeClass('hover');
 	}
 	
-	private refresh(): void {
+	private refreshAll(): void {
 		this.getDatabaseUp();
 		this.getUserData();
 		this.getRoomData();
+	}
+	
+	private refresh(): void {
+		switch(this.$scope.selectedMenu) {
+			case 'Home':
+				this.getDatabaseUp();
+				break;
+			case 'Players':
+				this.getUserData();
+				break;
+			case 'Rooms':
+				this.getRoomData();
+				break;
+		}
 		if(this.refreshTime !== 0) {
-			this.$timeout(() => this.refresh(), this.refreshTime);
+			this.timer = this.$timeout(() => this.refresh(), this.refreshTime);
 		}
 	}
 	
 	private change(): void {
 		let newtime: number = Number(this.$scope.refresh);
 		if(newtime !== Number.NaN) { 
+			if(this.timer !== null) {
+				this.$timeout.cancel(this.timer);
+				this.timer = null;
+			}
 			if(newtime <= 0) {
 				this.$scope.refreshtext = 'Off';
 			}
