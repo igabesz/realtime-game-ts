@@ -11,7 +11,7 @@
     <!--System.js config settings and angular bootstrap-->
     <script src="../bootstrap.js"></script>
 
-    <link rel="stylesheet" href="../bootstrap/dist/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="../bootstrap/dist/css/bootstrap.min.css">-->
     
     <script src="AdminController.js"></script>
     
@@ -19,35 +19,59 @@
     <title>SpaceGame - Admin</title>
 </head>
 <body>
-	<div ng-controller="AdminController as ctrl">
-        <span ng-if="Database" class="success">Database is connected</span>
-        <span ng-if="!Database" class="fail">Database is disconnected</span>
-        <br />
-        Auto refresh: ({{refreshtext}}) <input type="textbox" ng-model="refresh" ng-change="ctrl.change()"/>
-        <button ng-click="ctrl.stopServer()">Stop server</button>
-        <h2>Players</h2>
-        <table class="table">
-            <tr>
-                <th>Player</th>
-                <th>Room</th>
-            </tr>
-            <tr ng-repeat="data in Users">
-                <td>{{data.playerName}}</td>
-                <td>{{data.room}}</td>
-            </tr>
-        </table>
-        <h2>Rooms</h2>
-        <table class="table">
-            <tr>
-                <th>Name</th>
-                <th>Host</th>
-                <th>Number of players</th>
-            </tr>
-            <tr ng-repeat="data in Rooms">
-                <td>{{data.name}}</td>
-                <td>{{data.host}}</td>
-                <td>{{data.numOfPlayers}}</td>
-            </tr>
-        </table>
-	</div>
+    <table ng-controller="AdminController as ctrl">
+        <tr>
+            <td class="menu-panel">
+                <Button ng-click="selectedMenu = 'Home'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Home</Button>
+                <Button ng-click="selectedMenu = 'Players'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Players</Button>
+                <Button ng-click="selectedMenu = 'Rooms'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Rooms</Button>
+            </td>
+            <td>
+                <div ng-show="selectedMenu==='Home'">
+                    <h2>Home</h2>
+                    <div>
+                        <span>Auto refresh: ({{refreshtext}}) </span>
+                        <input type="textbox" ng-model="refresh" ng-change="ctrl.change()"/>
+                    </div>
+                    <div class="status-line">
+                        <span ng-if="Database" class="success status">Database is connected</span>
+                        <span ng-if="!Database" class="fail status">Database is disconnected</span>
+                    </div>
+                    <button ng-click="ctrl.stopServer()" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Stop server</button>
+                </div>
+                
+                <div ng-show="selectedMenu==='Players'">
+                    <h2>Players</h2>
+                    <table>
+                        <tr>
+                            <th class="first-column">Player</th>
+                            <th class="second-column">State</th>
+                            <th class="third-column">Room</th>
+                        </tr>
+                        <tr ng-repeat="data in Users">
+                            <td>{{data.playerName}}</td>
+                            <td>{{data.state}}</td>
+                            <td>{{data.room}}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div ng-show="selectedMenu==='Rooms'">
+                    <h2>Rooms</h2>
+                    <table>
+                        <tr>
+                            <th class="first-column">Name</th>
+                            <th class="second-column">Host</th>
+                            <th class="third-column">Number of players</th>
+                        </tr>
+                        <tr ng-repeat="data in Rooms">
+                            <td>{{data.name}}</td>
+                            <td>{{data.host}}</td>
+                            <td>{{data.numOfPlayers}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>

@@ -1,8 +1,11 @@
 import { Router, Request, Response }  from 'express';
 import * as path from 'path';
 
-import { Client, ConnectionController } from './game/ConnectionController';
 import { Room } from './common/Room';
+
+import { LifeCycleState } from './game/LifeCycle';
+import { Client, ConnectionController } from './game/ConnectionController';
+
 import { UserData, RoomData } from './public/admin/AdminController';
 
 export class AdminController {
@@ -12,10 +15,11 @@ export class AdminController {
 
     public constructor(private connectionController: ConnectionController, private router: Router) {
         router.get('/admin', (request: Request, response: Response, next) => this.admin(request, response, next));
-        router.post('/admin/stop', (request: Request, response: Response, next) => this.stop(request, response, next));
         router.get('/admin/db', (request: Request, response: Response, next) => this.db(request, response, next));
         router.get('/admin/users', (request: Request, response: Response, next) => this.users(request, response, next));
         router.get('/admin/rooms', (request: Request, response: Response, next) => this.rooms(request, response, next));
+        
+        router.post('/admin/stop', (request: Request, response: Response, next) => this.stop(request, response, next));
     }
     
     public setExit(func: Function): void {
@@ -45,6 +49,7 @@ export class AdminController {
             
             user.playerName = (client.player === undefined || client.player.name === undefined) ? '' : client.player.name;
             user.room = (client.isInRoom()) ? client.player.room.id : '';
+            user.state = LifeCycleState[client.lifeCycle.State];
             
             users.push(user);
         }
