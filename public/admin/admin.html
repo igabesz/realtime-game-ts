@@ -21,18 +21,18 @@
 <body>
     <table ng-controller="AdminController as ctrl">
         <tr>
-            <td class="menu-panel">
-                <Button ng-click="selectedMenu = 'Home'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Home</Button>
-                <Button ng-click="selectedMenu = 'Players'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Players</Button>
-                <Button ng-click="selectedMenu = 'Rooms'" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Rooms</Button>
-                <Button ng-click="" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Logout</Button>
+            <td>
+                <Button ng-click="ctrl.selectMenu('home')" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Home</Button>
+                <Button ng-click="ctrl.selectMenu('players')" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Players</Button>
+                <Button ng-click="ctrl.selectMenu('rooms')" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Rooms</Button>
+                <Button ng-click="ctrl.logout()" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Logout</Button>
             </td>
             <td>
                 <h2>
-                    <span>{{selectedMenu}}</span>
+                    <span>{{selectedMenu | capitalize}}</span>
                     <Button ng-click="ctrl.refresh()" class="menu" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Refresh</Button>
                 </h2>
-                <div ng-show="selectedMenu==='Home'">
+                <div ng-show="selectedMenu==='home'">
                     <div class="status-line">
                         <span ng-if="Database" class="success status">Database is connected</span>
                         <span ng-if="!Database" class="fail status">Database is disconnected</span>
@@ -44,7 +44,7 @@
                     <button ng-click="ctrl.stopServer()" ng-mouseenter="ctrl.hover($event)" ng-mouseleave="ctrl.unhover($event)">Stop server</button>
                 </div>
                 
-                <div ng-show="selectedMenu==='Players'">
+                <div ng-show="selectedMenu==='players'">
                     <table>
                         <tr>
                             <th>Player</th>
@@ -59,7 +59,7 @@
                     </table>
                 </div>
                 
-                <div ng-show="selectedMenu==='Rooms'">
+                <div ng-show="selectedMenu==='rooms'">
                     <table>
                         <tr>
                             <th>Name</th>

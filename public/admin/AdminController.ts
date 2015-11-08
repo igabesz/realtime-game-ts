@@ -22,18 +22,18 @@ export class RoomData {
 
 export class AdminController {
 	
-	static $inject = ['$scope', '$http', '$timeout'];
+	static $inject = ['$scope', '$http', '$timeout', '$location'];
 	
 	private refreshTime: number = 60000;
 	private timer: ng.IPromise<void>;
 	
-	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService) {
+	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService, private $location: ng.ILocationService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
 		$scope.Database = false;
 		$scope.refresh = '60';
 		$scope.refreshtext = '60 sec';
-		$scope.selectedMenu = 'Home';
+		this.selectMenu($location.url().substring(1));
 		this.refreshAll();
 		this.timer = this.$timeout(() => this.refresh(), this.refreshTime);
 	}
@@ -46,6 +46,22 @@ export class AdminController {
 	private unhover(event: any): void {
 		let element: ng.IAugmentedJQuery = angular.element(event.target);
 		element.removeClass('hover');
+	}
+	
+	private selectMenu(menu: string): void {
+		let value: string = 'home';
+		let validMenus: Array<string> = ['players', 'rooms'];
+		for(let i: number = 0; i < validMenus.length; i++) {
+			if(menu === validMenus[i]) {
+				value = menu;
+			}
+		}
+		this.$location.url('/' + value);
+		this.$scope.selectedMenu = value;
+	}
+	
+	private logout(): void {
+		location.href  = '/login';
 	}
 	
 	private refreshAll(): void {
