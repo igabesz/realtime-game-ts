@@ -72,13 +72,13 @@ export class AdminController {
 	
 	private refresh(): void {
 		switch(this.$scope.selectedMenu) {
-			case 'Home':
+			case 'home':
 				this.getDatabaseUp();
 				break;
-			case 'Players':
+			case 'players':
 				this.getUserData();
 				break;
-			case 'Rooms':
+			case 'rooms':
 				this.getRoomData();
 				break;
 		}
