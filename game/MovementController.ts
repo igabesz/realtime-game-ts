@@ -1,20 +1,10 @@
 import { Player } from '../common/Player';
-import { MovementRequest, Direction, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
+import { MovementRequest, Direction } from '../common/Movement';
 import { Projectile, Ship, Speed, Position } from '../common/GameObject';
 
 import { Client, ConnectionController } from './ConnectionController';
 
 export class MovementController {
-	
-	public addListeners(client: Client): void {
-		client.socket.on(MOVEMENT_EVENT, (request:MovementRequest) => this.move(client, request));
-		client.socket.on(FIRE_EVENT, () => this.fire(client));
-	}
-	
-	public removeListeners(client: Client): void {
-		client.removeListener(MOVEMENT_EVENT);
-		client.removeListener(FIRE_EVENT);
-	}
 	
 	public move(client: Client, request: MovementRequest): void {
 		switch(request.direction) {

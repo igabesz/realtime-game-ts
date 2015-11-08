@@ -5,6 +5,7 @@ interface IAdminScope extends ng.IScope {
 	Database: boolean;
 	refresh: string;
 	refreshtext: string;
+	selectedMenu: string;
 }
 
 export class UserData {
@@ -31,8 +32,18 @@ export class AdminController {
 		$scope.Database = false;
 		$scope.refresh = '0';
 		$scope.refreshtext = 'Off';
+		$scope.selectedMenu = 'Home';
 		this.refresh();
-		this.$timeout(() => this.refresh(), 200, true);
+	}
+	
+	private hover(event: any): void {
+		let element: ng.IAugmentedJQuery = angular.element(event.target);
+		element.addClass('hover');
+	}
+	
+	private unhover(event: any): void {
+		let element: ng.IAugmentedJQuery = angular.element(event.target);
+		element.removeClass('hover');
 	}
 	
 	private refresh(): void {
