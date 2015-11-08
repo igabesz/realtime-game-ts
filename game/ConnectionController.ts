@@ -34,7 +34,7 @@ export class ConnectionController {
 		this.clients.push(client);
 		console.log('Connected', this.clients.map(c => c.player ? c.player.name : 'unknown'));
 		
-		client.lifeCycle = new LifeCycle(client, this, this.roomService);
+		client.lifeCycle = new LifeCycle(client, this, this.roomService, this.movementController);
 		client.lifeCycle.openConnection();
 	}
 	
