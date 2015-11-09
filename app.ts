@@ -2,8 +2,6 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-import { ConnectionController } from './game/ConnectionController';
-import { Login } from './login/login';
 
 // REST API imports:
 import * as mongoDb from 'mongodb';
@@ -14,6 +12,7 @@ import * as crypto from 'crypto';
 
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './AdminController';
+import { Login } from './login/login';
 
 // Creating Express and SocketIO server
 let app: express.Express = express();
