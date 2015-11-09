@@ -20,9 +20,8 @@ let server: http.Server = (<any>http).Server(app);
 let io: SocketIO.Server = socketIO(server);
 let router: express.Router = express.Router();
 
-var Db = mongoDb.Db;
-var MongoServer = require('mongodb').Server;
-var db = new Db('routerme', new MongoServer('localhost', 27017));
+let MongoServer = mongoDb.Server;
+let db: mongoDb.Db = new mongoDb.Db('routerme', new MongoServer('localhost', 27017));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
