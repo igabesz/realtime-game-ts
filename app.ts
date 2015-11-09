@@ -28,9 +28,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/common'));
 app.use('/', router);
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/public/login.html'));
+});
+router.get('/common/:file', function (req, res, next) {
+    var file = req.params.file;
+    res.sendFile(path.resolve(__dirname + '/common/' + file));
 });
 
 // Instantiating login services
