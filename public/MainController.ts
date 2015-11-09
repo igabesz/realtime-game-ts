@@ -1,18 +1,11 @@
 import { SocketService } from './SocketService';
 import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
-import { LIST_ROOM_EVENT } from '../common/Room';
-import { ListRoomItem } from '../common/Room';
-import { JOIN_ROOM_EVENT } from '../common/Room';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem } from '../common/Room';
 
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
-	player: {
-		x: number,
-		y: number
-	};
-
     rooms:ListRoomItem[];
 }
 
@@ -53,14 +46,6 @@ export class MainController {
 	}
 
     handleListRooms(rooms){
-        var a = new ListRoomItem();
-        var b = new ListRoomItem();
-        a.id="alma";
-        a.playerCount = 5;
-        b.playerCount = 10;
-        b.id="heydude";
-        rooms.push(a);
-        rooms.push(b);
         this.$scope.rooms = rooms;
     }
 

@@ -1,9 +1,6 @@
 import * as SocketIO from 'socket.io-client';
-import { PERSONAL_INFO_EVENT } from '../common/Connection';
-import { PersonalInfoRequest } from '../common/Connection';
-import { LIST_ROOM_EVENT } from '../common/Room';
-import { JoinRoomRequest } from '../common/Room';
-import { JOIN_ROOM_EVENT } from '../common/Room';
+import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest } from '../common/Room';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -45,7 +42,7 @@ export class SocketService {
 
     joinRoom(id: string) {
         if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
-        var jrr = new JoinRoomRequest;
+        var jrr = new JoinRoomRequest();
         jrr.roomName = id;
         this.socket.emit(JOIN_ROOM_EVENT, jrr);
     }
