@@ -1,4 +1,4 @@
-import { Request, Response } from './Message';
+import { Request, Response, Message } from './Message';
 import { Player } from './Player';
 import { Projectile, ShipType, Ship } from './GameObject';
 
@@ -17,6 +17,7 @@ export class Room {
 export const LIST_ROOM_EVENT: string = 'listroom';
 export const LIST_SHIP_EVENT: string = 'listship';
 export const JOIN_ROOM_EVENT: string = 'joinroom';
+export const ROOM_STATE_EVENT: string = 'roomstate';
 export const LEAVE_ROOM_EVENT: string = 'leaveroom';
 export const READY_ROOM_EVENT: string = 'readyroom';
 export const START_ROOM_EVENT: string = 'startroom';
@@ -27,6 +28,11 @@ export class JoinRoomRequest extends Request {
 
 export class ReadyRoomRequest extends Request {
 	public shipType: ShipType;
+}
+
+export class RoomStateMessage extends Message {
+	public players: Array<Player> = [];
+	public host: Player;
 }
 
 export class ListRoomItem {
