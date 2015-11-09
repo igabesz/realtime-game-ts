@@ -20,29 +20,22 @@ let server: http.Server = (<any>http).Server(app);
 let io: SocketIO.Server = socketIO(server);
 let router: express.Router = express.Router();
 
+let MongoServer = mongoDb.Server;
+let db: mongoDb.Db = new mongoDb.Db('routerme', new MongoServer('localhost', 27017));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-var Db = mongoDb.Db;
-var MongoServer = require('mongodb').Server;
-var db = new Db('routerme', new MongoServer('localhost', 27017));
-
-app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/login.html'));
-});
-
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/common'));
 app.use('/', router);
-
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname + '/public/login.html'));
+});
 router.get('/common/:file', function (req, res, next) {
     var file = req.params.file;
     res.sendFile(path.resolve(__dirname + '/common/' + file));
 });
-
-// Instantiating services and controllers
-let connectionCtrl = new ConnectionController(io);
 
 // Instantiating login services
 let login = new Login(router, db, path, hash, crypto);
@@ -56,7 +49,6 @@ adminController.setExit(function(): void {
     console.log('Server stopped by an admin');
     process.exit(0);
 });
-
 
 var users;
 db.open(function(err, db) {
