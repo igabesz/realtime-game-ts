@@ -1,6 +1,6 @@
 import * as SocketIO from 'socket.io-client';
 import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
-import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest } from '../common/Room';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse } from '../common/Room';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -24,7 +24,8 @@ export class SocketService {
 	
 	/**Starts SocketIO connection */
 	connect() {
-		this.socket = SocketIO.connect();		
+		this.socket = SocketIO.connect();
+        (<any>window).socket = this.socket;
 	}
 
 	getPersonalInfo(token: string) {
@@ -46,7 +47,11 @@ export class SocketService {
         jrr.roomName = id;
         this.socket.emit(JOIN_ROOM_EVENT, jrr);
     }
-	
+
+    listShips(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LIST_SHIP_EVENT);
+    }
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener
 	 * - auto-calling $timeout for you. Without this Angular would not notice that 

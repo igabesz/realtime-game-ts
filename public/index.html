@@ -12,6 +12,7 @@
     <script src="/bootstrap.js"></script>
 
     <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lobby.css">
 
     <title>SpaceGame</title>
 
@@ -19,15 +20,19 @@
 
 <body id="body">
 <div ng-controller="MainController as ctrl" class="ng-cloak">
-    <!--button class="btn btn-primary" ng-click="ctrl.listRooms()">List Rooms</button-->
-    <table style="margin-left: 30px; margin-top: 30px">
-        <caption><strong>Rooms</strong></caption>
-        <tr ng-repeat="room in rooms">
-            <td>{{ room.id }}</td>
-            <td>{{ room.playerCount }}</td>
-            <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
-        </tr>
-    </table>
+
+    <div class="room" ng-show="roomView">
+        <input type="text" ng-model="roomName" placeholder="Enter room name">
+        <button class="btn btn-primary" ng-click="ctrl.createRoom()">Create Room</button>
+        <table>
+            <caption><strong>Rooms</strong></caption>
+            <tr ng-repeat="room in rooms">
+                <td>{{ room.id }}</td>
+                <td>{{ room.playerCount }}</td>
+                <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
+            </tr>
+        </table>
+    </div>
 
 </div>
 
