@@ -1,7 +1,7 @@
 import { Player } from '../common/Player';
 import { ShipType, GeneralShip, FastShip, Speed, Position } from '../common/GameObject';
 import { Response } from '../common/Message';
-import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse } from '../common/Room';
+import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ROOM_STATE_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse, RoomStateMessage } from '../common/Room';
 
 import { Client, ConnectionController } from './ConnectionController';
 
@@ -32,10 +32,18 @@ export class RoomService {
 	}
 	
 	private sendRoomState(room: Room): void {
-		// TO-DO
+		let rsm: RoomStateMessage = new RoomStateMessage();
 		
+		for(let i: number = 0; i < room.players.length; i++) {
+			let player: Player = new Player();
+			player.name = room.players[i].name;
+			player.ship = room.players[i].ship;
+			rsm.players.push(player);
+		}
 		
-		this.connectionCtrl.sendToRoom(room, JOIN_ROOM_EVENT, null);
+		rsm.hostname = room.host.name;
+		
+		this.connectionCtrl.sendToRoom(room, ROOM_STATE_EVENT, rsm);
 	}
 	
 	public joinRoom(client: Client, request: JoinRoomRequest): void {
