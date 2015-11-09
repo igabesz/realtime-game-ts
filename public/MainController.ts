@@ -37,10 +37,7 @@ export class MainController {
             console.log(msg);
         });
 
-	}
-
-    getPersonalInfo() {
-		this.socketService.getPersonalInfo(localStorage['token']);
+        this.socketService.getPersonalInfo(localStorage['token']);
 	}
 
 }

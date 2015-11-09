@@ -36,6 +36,11 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/common'));
 app.use('/', router);
 
+router.get('/common/:file', function (req, res, next) {
+    var file = req.params.file;
+    res.sendFile(path.resolve(__dirname + '/common/' + file));
+});
+
 // Instantiating services and controllers
 let connectionCtrl = new ConnectionController(io);
 
