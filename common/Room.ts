@@ -32,7 +32,7 @@ export class ReadyRoomRequest extends Request {
 
 export class RoomStateMessage extends Message {
 	public players: Array<Player> = [];
-	public host: Player;
+	public hostname: string;
 }
 
 export class ListRoomItem {

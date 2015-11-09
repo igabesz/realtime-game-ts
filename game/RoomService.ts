@@ -38,9 +38,10 @@ export class RoomService {
 			let player: Player = new Player();
 			player.name = room.players[i].name;
 			player.ship = room.players[i].ship;
-			
 			rsm.players.push(player);
 		}
+		
+		rsm.hostname = room.host.name;
 		
 		this.connectionCtrl.sendToRoom(room, ROOM_STATE_EVENT, rsm);
 	}
