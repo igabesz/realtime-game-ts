@@ -1,13 +1,13 @@
 export class SpaceGame {
 		
 	game: Phaser.Game;
+    background: Phaser.TileSprite;
     ship: Phaser.Sprite;
-    Up: Phaser.Key;
-    Left: Phaser.Key;
-    Right: Phaser.Key;
+    cursors: Phaser.CursorKeys;
 	
 	constructor() {
-		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create});
+		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
+            update:this.update });
 		
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
@@ -15,13 +15,17 @@ export class SpaceGame {
 	}
     
     preload() {
-        this.game.load.image("background", "images/space1.jpg");
+        this.game.load.image("background", "images/tiled-space-bg.jpg");
         this.game.load.image("spaceship", "images/spaceship.png")
     }
             
     create() {
-        this.game.add.sprite(0, 0, "background");
-        this.ship = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, "spaceship");
+        this.game.world.setBounds(-1000, -1000, 2000, 2000);
+        
+        this.background = this.game.add.tileSprite(0, 0, 800, 600, "background");
+        this.background.fixedToCamera = true;
+        
+        this.ship = this.game.add.sprite(0, 0, "spaceship");
         this.ship.anchor.set(0.5,0.5)
         
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -29,19 +33,19 @@ export class SpaceGame {
         
         this.ship.body.drag.set(100);
         this.ship.body.maxVelocity.set(200);
-    
-        this.Up = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        this.Left = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-        this.Right = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        this.ship.body.collideWorldBounds = true;
         
-        //TODO: socketservice-t hivni
-        //TODO: prototype...
-        this.Up.onDown.add(SpaceGame.prototype.start, this);
-        this.Up.onUp.add(SpaceGame.prototype.stop, this);
-        this.Left.onDown.add(SpaceGame.prototype.turnLeft, this);
-        this.Left.onUp.add(SpaceGame.prototype.stopTurning, this)
-        this.Right.onDown.add(SpaceGame.prototype.turnRight, this);
-        this.Right.onUp.add(SpaceGame.prototype.stopTurning, this)
+        this.game.camera.follow(this.ship);
+        this.game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
+        this.game.camera.focusOnXY(0, 0);
+    
+        this.cursors = this.game.input.keyboard.createCursorKeys();
+        this.cursors.up.onDown.add(SpaceGame.prototype.start, this);
+        this.cursors.up.onUp.add(SpaceGame.prototype.stop, this);
+        this.cursors.left.onDown.add(SpaceGame.prototype.turnLeft, this);
+        this.cursors.left.onUp.add(SpaceGame.prototype.stopTurning, this)
+        this.cursors.right.onDown.add(SpaceGame.prototype.turnRight, this);
+        this.cursors.right.onUp.add(SpaceGame.prototype.stopTurning, this)
     }
         
     start() {
@@ -59,6 +63,11 @@ export class SpaceGame {
     stopTurning() {
         this.ship.body.angularVelocity = 0;
         this.game.physics.arcade.accelerationFromRotation(this.ship.rotation, this.ship.body.speed, this.ship.body.acceleration);
+    }
+    
+    update() {
+        this.background.tilePosition.x = -this.game.camera.x;
+        this.background.tilePosition.y = -this.game.camera.y;
     }
 
 }
