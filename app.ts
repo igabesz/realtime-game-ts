@@ -50,7 +50,6 @@ adminController.setExit(function(): void {
     process.exit(0);
 });
 
-
 var users;
 db.open(function(err, db) {
     if(!err) {
