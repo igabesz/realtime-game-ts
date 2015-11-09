@@ -3,9 +3,9 @@
  */
 import { User } from './User';
 
-var Login = function (router, db, path, hash, crypto) {
+export var Login = function (router, db, path, hash, crypto) {
 
-    var users;
+    let users: any;
     db.open(function(err, db) {
         if(!err) {
             users = db.collection("users");
@@ -21,7 +21,7 @@ var Login = function (router, db, path, hash, crypto) {
         var username = req.body.username;
         var token = req.body.token;
 
-        var criteria = {};
+        var criteria: any = {};
         criteria.username = username;
 
         if (users != undefined) {
@@ -53,7 +53,7 @@ var Login = function (router, db, path, hash, crypto) {
     router.post('/login', function (req, res, next) {
         console.log('User logging request');
 
-        var criteria = {};
+        let criteria: any = {};
         criteria.username = req.body.username;
 
         if (users != undefined) {
@@ -102,7 +102,7 @@ var Login = function (router, db, path, hash, crypto) {
                 if (doc) {
                     res.json({status: "error", user: username});
                 } else {
-                    var user = new User(username, password, email, "");
+                    var user:User = new User(username, password, email, "");
                     saveUser(user, res);
                 }
             });
@@ -114,7 +114,7 @@ var Login = function (router, db, path, hash, crypto) {
     router.get('/auth/:user/:token', function (req, res, next) {
         console.log('Token validation request for user: ' + req.params.user);
 
-        var criteria = {};
+        let criteria: any = {};
         criteria.username = req.params.user;
 
         if (users != undefined) {
@@ -184,8 +184,6 @@ var Login = function (router, db, path, hash, crypto) {
         return sha.digest('hex');
     }
 }
-
-exports.Login = Login;
 
 
 
