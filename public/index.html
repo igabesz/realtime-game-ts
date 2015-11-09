@@ -5,6 +5,7 @@
     <!--Some background: http://stackoverflow.com/questions/32257101/why-system-js-returns-an-empty-object-instead-of-angularjs-->
     <script src="/angular/angular.js"></script>
 
+<<<<<<< HEAD
     <!--This is the main module loader-->
     <script src="/systemjs/dist/system.js"></script>
 
@@ -29,3 +30,28 @@
 
 
 </html>
+=======
+	<!--This is the main module loader-->
+	<script src="/systemjs/dist/system.js"></script>
+
+	<!--System.js config settings and angular bootstrap-->
+	<script src="/bootstrap.js"></script>
+	
+	<link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <title>SpaceGame</title>
+</head>
+
+<!--No ng-app, because it is initialized after page load-->
+<body> 
+	<div ng-controller="MainController as ctrl" class="ng-cloak">
+		<button class="btn btn-primary" ng-click="ctrl.left()">left</button>
+		<button class="btn btn-primary" ng-click="ctrl.right()">right</button>
+		{{player.x}}:{{player.y}}
+	</div>
+	
+	<div id="content"></div>
+	
+	<test/>	
+</body>
+</html>
+>>>>>>> aaa04fdad0e7ce3888cb6a46d78e32900d04ad48

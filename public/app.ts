@@ -1,5 +1,7 @@
 import { MainController } from './MainController'; 
-import { SocketService } from './SocketService'; 
+import { SocketService } from './SocketService';
+import { SpaceGame } from './SpaceGame';
+
 
 // Creating the main angular module 
 var mainModule = angular.module('spacegame', []);
@@ -36,4 +38,11 @@ mainModule.directive('test', function() {
 	</div>
 	`
   }
+});
+
+//Graphics
+console.log('App. Loading phaser')
+System.import('phaser').then(() => {
+	console.log('App. Phaser loaded, creating SpaceGame');
+	var game = new SpaceGame();
 });

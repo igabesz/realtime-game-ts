@@ -1,7 +1,7 @@
 import { Player } from '../common/Player';
-import { ShipType, GeneralShip, Speed, Position } from '../common/GameObject';
+import { ShipType, GeneralShip, FastShip, Speed, Position } from '../common/GameObject';
 import { Response } from '../common/Message';
-import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse } from '../common/Room';
+import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse } from '../common/Room';
 
 import { Client, ConnectionController } from './ConnectionController';
 
@@ -10,24 +10,7 @@ export class RoomService {
 	
 	constructor(private connectionCtrl: ConnectionController) { }
 	
-	public addListeners(client: Client): void {
-		client.socket.on(LIST_ROOM_EVENT, () => this.listRoom(client));
-		client.socket.on(JOIN_ROOM_EVENT, (request: JoinRoomRequest) => this.joinRoom(client, request));
-		//client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
-		//client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
-		//client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
-	}
-	
-	public removeListeners(client:Client): void {
-		client.removeListener(LIST_ROOM_EVENT);
-		client.removeListener(JOIN_ROOM_EVENT);
-		client.removeListener(LEAVE_ROOM_EVENT);
-		client.removeListener(READY_ROOM_EVENT);
-		client.removeListener(START_ROOM_EVENT);
-	}
-	
-	
-	private listRoom(client: Client): void {
+	public listRoom(client: Client): void {
 		let response: ListRoomResponse = new ListRoomResponse();
 		
 		for(let i: number = 0; i < this.rooms.length; i++) {
@@ -39,7 +22,23 @@ export class RoomService {
 		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
 	}
 	
-	private joinRoom(client: Client, request: JoinRoomRequest): void {
+	public listShips(client: Client): void {
+		let response: ListShipsResponse = new ListShipsResponse();
+		
+		response.ships.push(new GeneralShip());
+		response.ships.push(new FastShip());
+		
+		this.connectionCtrl.sendToClient(client, LIST_SHIP_EVENT, response);
+	}
+	
+	private sendRoomState(room: Room): void {
+		// TO-DO
+		
+		
+		this.connectionCtrl.sendToRoom(room, JOIN_ROOM_EVENT, null);
+	}
+	
+	public joinRoom(client: Client, request: JoinRoomRequest): void {
 		let response: Response = new Response();
 		
 		if(client.isInRoom()) {
@@ -64,10 +63,8 @@ export class RoomService {
 			else {
 				room.players.push(client.player);
 				client.player.room = room;
-				client.socket.join(request.roomName);
-				client.removeListener(JOIN_ROOM_EVENT);
-				client.socket.on(LEAVE_ROOM_EVENT, () => this.leaveRoom(client));
-				client.socket.on(READY_ROOM_EVENT, (request: ReadyRoomRequest) => this.ready(client, request));
+				client.lifeCycle.joinRoom();
+				this.sendRoomState(room);
 			}
 		}
 		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
@@ -92,28 +89,29 @@ export class RoomService {
 				room.host = room.players[0];
 			}
 			// leave room
-			client.socket.leave(room.id);
+			client.lifeCycle.leaveRoom();
 			client.player.room = undefined;
-			this.removeListeners(client);
-			this.addListeners(client);
+			this.sendRoomState(room);
 		}
 		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
 	}
 	
-	private ready(client: Client, request: ReadyRoomRequest): void {
+	public ready(client: Client, request: ReadyRoomRequest): void {
 		let response: Response = new Response();
 		
 		switch(request.shipType) {
 			case ShipType.general:
 				client.player.ship = new GeneralShip();
 				break;
+			case ShipType.fast:
+				client.player.ship = new FastShip();
+				break;
 			default:
 				response.errors.push('Invalid ship type');
 				break;
 		}
 		if(response.success) {
-			client.removeListener(READY_ROOM_EVENT);
-			client.socket.on(START_ROOM_EVENT, () => this.startRoom(client));
+			client.lifeCycle.readyRoom();
 		}
 		this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
 	} 
@@ -137,7 +135,7 @@ export class RoomService {
 		return '';
 	}
 	
-	private startRoom(client: Client): void {
+	public startRoom(client: Client): void {
 		let response: Response = new Response();
 		if(!client.isInRoom()) {
 			response.errors.push('You are not in a room yet');
@@ -154,10 +152,11 @@ export class RoomService {
 				}
 				else {
 					this.initRoom(room);
+					client.lifeCycle.startGame(); // TO-DO for each player
 				}
 			}
 		}
-		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response);
+		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response); 
 	}
 	
 	private initRoom(room: Room): void {
@@ -166,8 +165,8 @@ export class RoomService {
 			let player: Player = players[i];
 			player.ship.speed = new Speed();
 			player.ship.position = new Position();
-			player.ship.speed.x = 0;
-			player.ship.speed.y = 0;
+			player.ship.speed.x = i * 50;
+			player.ship.speed.y = i * 50;
 			player.ship.speed.turn = 0;
 			player.ship.position.x = 0;
 			player.ship.position.y = 0;
