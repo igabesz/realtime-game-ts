@@ -19,6 +19,15 @@
 
 <body id="body">
 <div ng-controller="MainController as ctrl" class="ng-cloak">
+    <!--button class="btn btn-primary" ng-click="ctrl.listRooms()">List Rooms</button-->
+    <table style="margin-left: 30px; margin-top: 30px">
+        <caption><strong>Rooms</strong></caption>
+        <tr ng-repeat="room in rooms">
+            <td>{{ room.id }}</td>
+            <td>{{ room.playerCount }}</td>
+            <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
+        </tr>
+    </table>
 
 </div>
 

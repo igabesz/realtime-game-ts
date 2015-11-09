@@ -1,13 +1,19 @@
 import { SocketService } from './SocketService';
 import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
+import { LIST_ROOM_EVENT } from '../common/Room';
+import { ListRoomItem } from '../common/Room';
+import { JOIN_ROOM_EVENT } from '../common/Room';
+
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
 	player: {
 		x: number,
 		y: number
-	}
+	};
+
+    rooms:ListRoomItem[];
 }
 
 
@@ -27,17 +33,38 @@ export class MainController {
 	) {
 		socketService.connect();
 
-		// Adding state event handler
-		socketService.addHandler('state', $timeout, (msg) => {
-			// Lodash is extremely useful
-			_.merge($scope.player, msg.player);
-		});
-
         socketService.addHandler(PERSONAL_INFO_EVENT, $timeout, (msg) => {
-            console.log(msg);
+            if(msg.success)this.socketService.listRooms();
+            else console.log(msg.errors);
+        });
+
+        //$scope.rooms = [];
+        socketService.addHandler(LIST_ROOM_EVENT, $timeout, (msg) => {
+            if(msg.success) this.handleListRooms(msg.rooms);
+            else console.log(msg.errors);
+        });
+
+        socketService.addHandler(JOIN_ROOM_EVENT, $timeout, (msg) => {
+            if(msg.success) console.log(msg);
+            else console.log(msg.errors);
         });
 
         this.socketService.getPersonalInfo(localStorage['token']);
 	}
 
+    handleListRooms(rooms){
+        var a = new ListRoomItem();
+        var b = new ListRoomItem();
+        a.id="alma";
+        a.playerCount = 5;
+        b.playerCount = 10;
+        b.id="heydude";
+        rooms.push(a);
+        rooms.push(b);
+        this.$scope.rooms = rooms;
+    }
+
+    joinRoom(id: string){
+        this.socketService.joinRoom(id);
+    }
 }
