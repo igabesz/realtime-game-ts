@@ -1,5 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
 
-<link rel="stylesheet" href="login.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <title>SpaceGame</title>
+
+    <script>
+        $(function(){
+            var token = localStorage["token"] ? localStorage["token"] : "";
+            var user = localStorage["user"] ? localStorage["user"] : "";
+
+            $.ajax({
+                url: '/',
+                type: 'POST',
+                dataType: 'html',
+                data: {username: user, token: token}
+            });
+        })
+    </script>
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body id="body">
 <div class="tab">
 
     <ul class="tab-group">
@@ -185,3 +208,7 @@
         }
     });
 </script>
+</body>
+
+
+</html>
