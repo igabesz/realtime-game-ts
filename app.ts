@@ -35,15 +35,11 @@ app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/public'));
 app.use('/', router);
 
-io.on('connection', function (socket) {
-});
-
 // Instantiating services and controllers
 let connectionCtrl = new ConnectionController(io);
 
 // Instantiating login services
 let login = new Login(router, db, path, hash, crypto);
-app.use(express.static('public'));
 
 // Instantiating services and controllers
 let connectionController: ConnectionController = new ConnectionController(io);
@@ -55,10 +51,6 @@ adminController.setExit(function(): void {
     process.exit(0);
 });
 
-// Starting server
-server.listen(80);
-app.use(express.static(__dirname + '/public'));
-app.use('/', router);
 
 var users;
 db.open(function(err, db) {
@@ -72,9 +64,6 @@ db.open(function(err, db) {
 
 });
 
-
-
 let port:number = 80;
 server.listen(port);
-
 console.log("Server started on http://localhost:" + port + "/");
