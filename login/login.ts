@@ -142,6 +142,13 @@ export var Login = function (router, db, path, hash, crypto) {
         }
     });
 
+    router.get('/common/:file', function (req, res, next) {
+
+        var file = req.params.file;
+
+        res.sendFile(path.resolve(__dirname + '/../common/' + file));
+    });
+
 
     function saveUser(User, Response) {
         if (!users) {

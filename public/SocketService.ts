@@ -1,5 +1,6 @@
 import * as SocketIO from 'socket.io-client';
-
+import { PERSONAL_INFO_EVENT } from '../common/Connection';
+import { PersonalInfoRequest } from '../common/Connection';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -25,11 +26,13 @@ export class SocketService {
 	connect() {
 		this.socket = SocketIO.connect();		
 	}
-	
-	/**Move command to the server */
-	move(direction: string) {
+
+	getPersonalInfo(token: string) {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
-		this.socket.emit('move', { direction });
+        var pir = new PersonalInfoRequest();
+        pir.token = token;
+        console.log(pir);
+		this.socket.emit(PERSONAL_INFO_EVENT, pir);
 	}
 	
 	/**This is a tricky thing with the following tasks: 
