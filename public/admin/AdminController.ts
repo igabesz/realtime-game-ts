@@ -6,6 +6,10 @@ interface IAdminScope extends ng.IScope {
 	refresh: string;
 	refreshtext: string;
 	selectedMenu: string;
+	allChatText: string;
+	question: string;
+	applyFunction: Function;
+	message: string;
 }
 
 export class UserData {
@@ -24,18 +28,21 @@ export class AdminController {
 	
 	static $inject = ['$scope', '$http', '$timeout', '$location'];
 	
-	private refreshTime: number = 60000;
+	private refreshTime: number = 0;
 	private timer: ng.IPromise<void>;
 	
 	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService, private $location: ng.ILocationService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
 		$scope.Database = false;
-		$scope.refresh = '60';
-		$scope.refreshtext = '60 sec';
+		$scope.refresh = '0';
+		$scope.refreshtext = 'Off';
+		$scope.allChatText = '';
+		$scope.question = null;
+		$scope.applyFunction = null;
+		$scope.message = null;
 		this.selectMenu($location.url().substring(1));
 		this.refreshAll();
-		this.timer = this.$timeout(() => this.refresh(), this.refreshTime);
 	}
 	
 	private hover(event: any): void {
@@ -46,6 +53,27 @@ export class AdminController {
 	private unhover(event: any): void {
 		let element: ng.IAugmentedJQuery = angular.element(event.target);
 		element.removeClass('hover');
+	}
+	
+	private setQuestion(action: string): void {
+		switch(action) {
+		case 'stopServer':
+			this.$scope.question = 'Are you sure to stop the server?';
+			this.$scope.applyFunction = () => this.stopServer();
+			break;
+		case 'logout':
+			this.$scope.question = 'Are you sure to logout?';
+			this.$scope.applyFunction = () => this.logout();
+			break;
+		}
+	}
+	
+	private answerQuestion(answer: boolean): void {
+		this.$scope.question = null;
+		if(answer) {
+			this.$scope.applyFunction();
+		}
+		this.$scope.applyFunction = null;
 	}
 	
 	private selectMenu(menu: string): void {
@@ -105,6 +133,19 @@ export class AdminController {
 		}
 	}
 	
+	private allChat(): void {
+		let text: string = this.$scope.allChatText;
+		this.$scope.allChatText = '';
+		this.$http.post('allchat', { text });
+	}
+	
+	public stopServer(): void {
+		this.$timeout.cancel(this.timer);
+		this.timer = null;
+		this.$http.post('/admin/stop', null);
+		this.$scope.message = 'Server has stopped. Please close the page.';
+	}
+	
 	private getDatabaseUp(): void {
 		let promise: ng.IHttpPromise<boolean> = this.$http.get('/admin/db');
 		promise.success((isUp: boolean) => this.resolveDBUp(isUp));
@@ -138,9 +179,5 @@ export class AdminController {
 	
 	private resolveDBUp(isUp: boolean): void {
 		this.$scope.Database = isUp;
-	}
-	
-	public stopServer(): void {
-		this.$http.post('/admin/stop', null);
 	}
 }

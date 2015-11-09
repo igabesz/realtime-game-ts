@@ -20,6 +20,7 @@ export class AdminController {
         router.get('/admin/rooms', (request: Request, response: Response, next) => this.rooms(request, response, next));
         
         router.post('/admin/stop', (request: Request, response: Response, next) => this.stop(request, response, next));
+        router.post('/admin/allchat', (request: Request, response: Response, next) => this.allChat(request, response, next));
     }
     
     public setExit(func: Function): void {
@@ -34,6 +35,11 @@ export class AdminController {
         this.connectionController.stopServer();
         response.send('Server closed');
         this.exitEvent();
+    }
+    
+    private allChat(request: Request, response: Response, next): void {
+        this.connectionController.sendToAll('admin', request.body);
+        response.send('Sent');
     }
     
     private db(request: Request, response: Response, next): void {
