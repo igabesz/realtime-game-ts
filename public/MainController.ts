@@ -6,7 +6,7 @@ import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem } from '../common/Room';
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
-    rooms:ListRoomItem[];
+    rooms: Array<ListRoomItem>;
 }
 
 
