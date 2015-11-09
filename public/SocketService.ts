@@ -1,6 +1,6 @@
 import * as SocketIO from 'socket.io-client';
-import { PERSONAL_INFO_EVENT } from '../common/Connection';
-import { PersonalInfoRequest } from '../common/Connection';
+import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest } from '../common/Room';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -34,6 +34,18 @@ export class SocketService {
         console.log(pir);
 		this.socket.emit(PERSONAL_INFO_EVENT, pir);
 	}
+
+    listRooms() {
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LIST_ROOM_EVENT);
+    }
+
+    joinRoom(id: string) {
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        var jrr = new JoinRoomRequest();
+        jrr.roomName = id;
+        this.socket.emit(JOIN_ROOM_EVENT, jrr);
+    }
 	
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener
