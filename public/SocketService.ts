@@ -1,6 +1,7 @@
 import * as SocketIO from 'socket.io-client';
 import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
-import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse } from '../common/Room';
+import { ShipType } from '../common/GameObject';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest } from '../common/Room';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -32,7 +33,6 @@ export class SocketService {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
         var pir = new PersonalInfoRequest();
         pir.token = token;
-        console.log(pir);
 		this.socket.emit(PERSONAL_INFO_EVENT, pir);
 	}
 
@@ -52,6 +52,19 @@ export class SocketService {
         if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
         this.socket.emit(LIST_SHIP_EVENT);
     }
+
+    ready(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        var rrr = new ReadyRoomRequest();
+        rrr.shipType = ShipType.general;
+        this.socket.emit(READY_ROOM_EVENT, rrr);
+    }
+
+    start(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(START_ROOM_EVENT);
+    }
+
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener
 	 * - auto-calling $timeout for you. Without this Angular would not notice that 

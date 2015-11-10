@@ -1,15 +1,19 @@
 import { SocketService } from './SocketService';
 import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
-import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse } from '../common/Room';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT } from '../common/Room';
+import { Ship } from '../common/GameObject';
 
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
     rooms: Array<ListRoomItem>;
+    ships: Array<Ship>;
     roomView: boolean;
     shipView: boolean;
+    gameView: boolean;
     roomName: string;
+    roomJoined: string;
 }
 
 
@@ -28,9 +32,12 @@ export class MainController {
 		private socketService: SocketService
 	) {
         $scope.rooms = [];
+        $scope.ships = [];
         $scope.roomView = true;
         $scope.shipView = false;
+        $scope.gameView = false;
         $scope.roomName = "";
+        $scope.roomJoined = "";
 
 		socketService.connect();
 
@@ -47,10 +54,22 @@ export class MainController {
         });
 
         socketService.addHandler(LIST_SHIP_EVENT, $timeout, (msg) => {
-            if(msg.success) {
+            $scope.roomView = false;
+            $scope.shipView = true;
+            $scope.ships = msg.ships;
+            console.log(msg);
+        });
 
-            }
-            else console.log(msg.errors);
+        socketService.addHandler(READY_ROOM_EVENT, $timeout, (msg) => {
+            this.socketService.start();
+        });
+
+        socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
+            $scope.roomView = false;
+            $scope.shipView = false;
+            $scope.gameView = true;
+
+            console.log("Game started!");
         });
 
         this.socketService.getPersonalInfo(sessionStorage['token']);
@@ -62,10 +81,15 @@ export class MainController {
 
     joinRoom(id: string){
         this.socketService.joinRoom(id);
+        this.$scope.roomJoined = id;
     }
 
     createRoom(){
         this.socketService.joinRoom(this.$scope.roomName);
+    }
+
+    ready(){
+        this.socketService.ready();
     }
 
 }
