@@ -3,11 +3,13 @@ import { Ship } from './Ship';
 export class SpaceGame {
     
 	game: Phaser.Game;
+    player: Ship;
+    enemies: Ship[];
+    
     background: Phaser.TileSprite;
-    ship: Ship;
     cursors: Phaser.CursorKeys;
     space: Phaser.Key;
-    enemies: Ship[];
+    
     enemiesTotal: number;
     enemiesAlive: number;
 	
@@ -32,7 +34,7 @@ export class SpaceGame {
         this.background = this.game.add.tileSprite(0, 0, 800, 600, "background");
         this.background.fixedToCamera = true;
         
-        this.ship = new Ship(99, this.game);
+        this.player = new Ship(99, this.game);
         
         this.enemiesTotal = 10;
         this.enemiesAlive = this.enemiesTotal;
@@ -42,69 +44,71 @@ export class SpaceGame {
             this.enemies.push(new Ship(i, this.game));
         }
 
-        this.ship.sprite.bringToTop();
+        this.player.sprite.bringToTop();
         
-        this.game.camera.follow(this.ship.sprite);
+        this.game.camera.follow(this.player.sprite);
         this.game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
         this.game.camera.focusOnXY(0, 0);
     
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+        this.space.onDown.add(SpaceGame.prototype.spaceDown, this);
+        this.space.onUp.add(SpaceGame.prototype.spaceUp, this);
+        this.cursors.up.onDown.add(SpaceGame.prototype.upDown, this);
+        this.cursors.up.onUp.add(SpaceGame.prototype.upUp, this);
+        this.cursors.right.onDown.add(SpaceGame.prototype.rightDown, this);
+        this.cursors.right.onUp.add(SpaceGame.prototype.rightUp, this);
+        this.cursors.left.onDown.add(SpaceGame.prototype.leftDown, this);
+        this.cursors.left.onUp.add(SpaceGame.prototype.leftUp, this);        
     }
     
-    update() {
-        //TODO this.game.physics.arcade.overlap(this.enemyBullets, this.ship, SpaceGame.prototype.bulletHitPlayer, null, this);
-        
+    spaceDown() {
+        this.player.cursors.fire = true;
+    }
+    spaceUp() {
+        this.player.cursors.fire = false;
+    }
+    upDown() {
+        this.player.cursors.up = true;
+    }
+    upUp() {
+        this.player.cursors.up = false;
+    }
+    rightDown() {
+        this.player.cursors.right = true;
+    }
+    rightUp() {
+        this.player.cursors.right = false;
+    }
+    leftDown() {
+        this.player.cursors.left = true;
+    }
+    leftUp() {
+        this.player.cursors.left = false;
+    }
+    
+    update() {        
         this.enemiesAlive = 0;
         for (let i = 0; i < this.enemies.length; i++) {
             if (this.enemies[i].alive) {
                 this.enemiesAlive++;
-                this.game.physics.arcade.collide(this.ship.sprite, this.enemies[i].sprite);
-                this.game.physics.arcade.overlap(this.ship.bullets, this.enemies[i].sprite, SpaceGame.prototype.bulletHitEnemy, null, this);
+                this.game.physics.arcade.collide(this.player.sprite, this.enemies[i].sprite);
+                this.game.physics.arcade.overlap(this.player.bullets, this.enemies[i].sprite, this.enemies[i].damage, null, this.enemies[i]);
                 this.enemies[i].update();
             }
         }
         
-        if (this.cursors.left.isDown) {
-            this.ship.cursors.left = true;
-        } else {
-            this.ship.cursors.left = false;
-        }
-        if (this.cursors.right.isDown) {
-            this.ship.cursors.right = true;
-        } else {
-            this.ship.cursors.right = false;
-        }
-        if (this.cursors.up.isDown) {
-            this.ship.cursors.up = true;
-        } else {
-            this.ship.cursors.up = false;
-        }
-        if (this.space.isDown) {
-            this.ship.cursors.fire = true;
-        } else {
-            this.ship.cursors.fire = false;
-        }
-        
-        this.ship.update();
+        this.player.update();
         
         this.background.tilePosition.x = -this.game.camera.x;
         this.background.tilePosition.y = -this.game.camera.y;
     }
     
-    bulletHitPlayer (ship, bullet) {
-        bullet.kill();
-    }
-    
-    bulletHitEnemy (ship, bullet) {
-        bullet.kill();
-        let destroyed = this.enemies[ship.id].damage();
-    }
-    
     render() {
-        this.game.debug.text('Active Bullets: ' + this.ship.bullets.countLiving() + ' / ' + this.ship.bullets.length, 32, 32);
-        this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 50);
+        //debugging info
+        this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 32);
+        this.game.debug.text('Health: ' + this.player.health + ' / ' + 3, 32, 50);
     }
 
 }

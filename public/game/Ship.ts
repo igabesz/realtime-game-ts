@@ -83,9 +83,10 @@ export class Ship {
         }
     }
     
-    damage() {
-        this.health -= 1;
+    damage(ship, bullet) {
+        bullet.kill();
         
+        this.health -= 1;
         if (this.health <= 0) {
             this.kill();
             return true;
