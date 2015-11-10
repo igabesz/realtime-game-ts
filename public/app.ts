@@ -1,6 +1,6 @@
 import { MainController } from './MainController'; 
 import { SocketService } from './SocketService';
-import { SpaceGame } from './SpaceGame';
+import { SpaceGame } from './game/SpaceGame';
 
 
 // Creating the main angular module 
