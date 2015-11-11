@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html id="html">
+<ok id="ok">
 <head lang="en">
     <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
 
@@ -8,15 +9,34 @@
 
     <script>
         $(function(){
-            var token = localStorage["token"] ? localStorage["token"] : "";
-            var user = localStorage["user"] ? localStorage["user"] : "";
+            var token = sessionStorage["token"] ? sessionStorage["token"] : "";
+            var user = sessionStorage["user"] ? sessionStorage["user"] : "";
 
-            $.ajax({
-                url: '/',
-                type: 'POST',
-                dataType: 'html',
-                data: {username: user, token: token}
-            });
+            if(user !== "" && token != "") {
+                $.ajax({
+                    url: '/auth/' + user + '/' + token,
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {username: user, token: token},
+                    success: handleLoad
+                });
+            }
+
+            function handleLoad(data){
+
+                if(data.status == "success"){
+                    console.log(data);
+                    $.ajax({
+                        url: '/',
+                        type: 'POST',
+                        dataType: 'html',
+                        data: {username: user, token: token},
+                        success: function(data){
+                            $("#ok").html(data);
+                        }
+                    });
+                }
+            }
         })
     </script>
     <link rel="stylesheet" href="login.css">
@@ -87,18 +107,6 @@
 </div>
 
 <script>
-    window.onload = function () {
-        document.getElementById("p1").onchange = validatePassword;
-        document.getElementById("p2").onchange = validatePassword;
-    }
-    function validatePassword(){
-        var pass2=document.getElementById("p2").value;
-        var pass1=document.getElementById("p1").value;
-        if(pass1!=pass2)
-            document.getElementById("p2").setCustomValidity("Passwords Don't Match");
-        else
-            document.getElementById("p2").setCustomValidity('');
-    }
 
 
     $(document).ready(function () {
@@ -136,8 +144,8 @@
         function handleLoginSuccess(data) {
             if(data.status === "success"){
                 notify(data.message, "success");
-                localStorage["token"] = data.authtoken;
-                localStorage["user"] = data.user;
+                sessionStorage["token"] = data.authtoken;
+                sessionStorage["user"] = data.user;
 
                 $.ajax({
                     url: '/',
@@ -145,7 +153,7 @@
                     dataType: 'html',
                     data: {username: data.user, token: data.authtoken},
                     success: function(data){
-                        $("#body").html(data);
+                        $("#ok").html(data);
                     }
                 });
             } else {
@@ -210,5 +218,5 @@
 </script>
 </body>
 
-
+</ok>
 </html>

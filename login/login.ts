@@ -21,6 +21,11 @@ export var Login = function (router, db, path, hash, crypto) {
         var username = req.body.username;
         var token = req.body.token;
 
+        console.log("/ -> " + username + " " + token);
+
+        if( username === undefined || token === undefined || username === "" || token === "")
+                res.sendFile(path.resolve(__dirname + '/../public/login.html'));
+
         var criteria: any = {};
         criteria.username = username;
 
@@ -32,21 +37,22 @@ export var Login = function (router, db, path, hash, crypto) {
                     var user = getSingleResult(docs);
                     if (user.token === token) {
 
+                        var index = path.resolve(__dirname + '/../public/index.html');
                         res.sendFile(path.resolve(__dirname + '/../public/index.html'));
-                        //res.sendFile(__dirname + '/public/index.html');
+                        console.log("ok, sent: " + index );
                     }
                     else {
                         res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-                        //res.sendFile(__dirname + '/public/login.html');
+
                     }
                 } else {
                     res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-                    //res.sendFile(__dirname + '/public/login.html');
+
                 }
             });
         } else {
             res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-            //res.sendFile(__dirname + '/public/login.html');
+
         }
     });
 
@@ -55,6 +61,8 @@ export var Login = function (router, db, path, hash, crypto) {
 
         let criteria: any = {};
         criteria.username = req.body.username;
+
+
 
         if (users != undefined) {
             users.find(criteria).toArray(function (err, docs) {

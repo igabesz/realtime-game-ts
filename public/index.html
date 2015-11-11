@@ -12,26 +12,82 @@
     <script src="/bootstrap.js"></script>
 
     <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lobby.css">
 
     <title>SpaceGame</title>
 
 </head>
 
 <body id="body">
-<div ng-controller="MainController as ctrl" class="ng-cloak">
-    <!--button class="btn btn-primary" ng-click="ctrl.listRooms()">List Rooms</button-->
-    <table style="margin-left: 30px; margin-top: 30px">
-        <caption><strong>Rooms</strong></caption>
-        <tr ng-repeat="room in rooms">
-            <td>{{ room.id }}</td>
-            <td>{{ room.playerCount }}</td>
-            <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
-        </tr>
-    </table>
+<div class="container">
+    <div ng-controller="MainController as ctrl" class="ng-cloak">
 
+
+        <div class="room" ng-show="roomView">
+
+            <div class="page-header">
+                <div style="margin-left: 10%">
+                    <h1 class="text-muted">Rooms </h1>
+                </div>
+                <div class="col-lg-4 pull-right pr">
+                    <div class="input-group">
+                        <input class="form-control" type="text" ng-model="roomName" placeholder="Enter room name"/>
+                    <span class="input-group-btn">
+                    <button ng-click="ctrl.createRoom()" class="btn btn-primary" role="button">Create Room</button>
+                    </span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Players</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="room in rooms">
+                    <td>{{ room.id }}</td>
+                    <td>{{ room.playerCount }}</td>
+                    <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="room" ng-show="shipView">
+            <div class="page-header">
+                <div style="margin-left: 10%">
+                    <h1 class="text-muted">Ships <span class="pull-right mr">In room: <p ng-model="roomJoined">{{roomJoined}}</p></span></h1>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Health</th>
+                    <th>Acceleration</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tr ng-repeat="ship in ships">
+                    <td>{{ ship.health }}</td>
+                    <td>{{ ship.acceleration }}</td>
+                    <td><button class="btn btn-primary" ng-click="ctrl.ready()">Ready</button></td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="content" ng-show="gameView"></div>
+    </div>
 </div>
 
-<test/>
+
 </body>
 
 
