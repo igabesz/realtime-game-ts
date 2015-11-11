@@ -33,6 +33,7 @@ export class ReadyRoomRequest extends Request {
 export class RoomStateMessage extends Message {
 	public players: Array<Player> = [];
 	public hostname: string;
+	public started: boolean;
 }
 
 export class ListRoomItem {
