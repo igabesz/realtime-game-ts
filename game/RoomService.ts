@@ -17,6 +17,7 @@ export class RoomService {
 			let item: ListRoomItem = new ListRoomItem();
 			item.id = this.rooms[i].id;
 			item.playerCount = this.rooms[i].players.length;
+			response.rooms.push(item);
 		}
 		
 		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
@@ -42,18 +43,19 @@ export class RoomService {
 		}
 		
 		rsm.hostname = room.host.name;
+		rsm.started = room.started;
 		
 		this.connectionCtrl.sendToRoom(room, ROOM_STATE_EVENT, rsm);
 	}
 	
 	public joinRoom(client: Client, request: JoinRoomRequest): void {
 		let response: Response = new Response();
-		
+		let room: Room;
 		if(client.isInRoom()) {
 			response.errors.push('You are already in a room');
 		}
 		else {
-			let room: Room = this.findRoomByName(request.roomName);
+			room = this.findRoomByName(request.roomName);
 			
 			// check if the room exists
 			if(room === undefined) {
@@ -72,20 +74,26 @@ export class RoomService {
 				room.players.push(client.player);
 				client.player.room = room;
 				client.lifeCycle.joinRoom();
-				this.sendRoomState(room);
 			}
 		}
-		this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
+		
+		if(response.success) {
+			this.sendRoomState(room);
+		}
+		else {
+			this.connectionCtrl.sendToClient(client, JOIN_ROOM_EVENT, response);
+		}
 	}
 	
 	public leaveRoom(client: Client): void {
 		let response: Response = new Response();
+		let room: Room;
 		
 		if(!client.isInRoom()) {
 			response.errors.push('You are not in a room yet');
 		}
 		else {
-			let room: Room = client.player.room;
+			room = client.player.room;
 			room.players.splice(room.players.indexOf(client.player));
 			
 			// destroy room if empty
@@ -99,6 +107,9 @@ export class RoomService {
 			// leave room
 			client.lifeCycle.leaveRoom();
 			client.player.room = undefined;
+		}
+		
+		if(response.success &&room.players.length !== 0) {
 			this.sendRoomState(room);
 		}
 		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
@@ -120,8 +131,11 @@ export class RoomService {
 		}
 		if(response.success) {
 			client.lifeCycle.readyRoom();
+			this.sendRoomState(client.player.room);
 		}
-		this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
+		else {
+			this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
+		}
 	} 
 	
 	private getStartError(room: Room): string {
@@ -145,11 +159,12 @@ export class RoomService {
 	
 	public startRoom(client: Client): void {
 		let response: Response = new Response();
+		let room: Room;
 		if(!client.isInRoom()) {
 			response.errors.push('You are not in a room yet');
 		}
 		else {
-			let room: Room = client.player.room;
+			room = client.player.room;
 			if(room.host !== client.player) {
 				response.errors.push('You are not the host');
 			}
@@ -158,13 +173,22 @@ export class RoomService {
 				if(error !== '') {
 					response.errors.push(error);
 				}
-				else {
-					this.initRoom(room);
-					client.lifeCycle.startGame(); // TO-DO for each player
-				}
 			}
 		}
-		this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response); 
+		
+		if(response.success) {
+			this.initRoom(room);
+			let clients: Array<Client> = this.connectionCtrl.getClients();
+			for(let i: number = 0; i < clients.length; i++) {
+				if(clients[i].isInRoom() && clients[i].player.room.id == client.player.room.id) {
+					client[i].lifeCycle.startGame();
+				}
+			}
+			this.sendRoomState(room);
+		}
+		else {
+			this.connectionCtrl.sendToClient(client, START_ROOM_EVENT, response);
+		}
 	}
 	
 	private initRoom(room: Room): void {
