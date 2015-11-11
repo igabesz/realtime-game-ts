@@ -1,5 +1,5 @@
 body {
-	background: url(../images/space1.jpg) no-repeat center center fixed;
+	background: url(space1.jpg);
 	color: white;
 }
 
@@ -64,18 +64,15 @@ body > div > div > div > button {
 
 body > table {
 	width: 100%;
+	background: rgba(0, 0, 0, 0.7);
 }
 
-body > table  tr:first-child > td:first-child {
+body > table tr:first-child > td:first-child {
 	width: 150px;
 }
 
 body > table td {
 	vertical-align: top;
-}
-
-body > table table {
-	background: rgba(127, 127, 127, 0.3);
 }
 
 body > table table tr th {
