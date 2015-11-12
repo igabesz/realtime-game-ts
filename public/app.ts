@@ -44,5 +44,5 @@ mainModule.directive('test', function() {
 console.log('App. Loading phaser')
 System.import('phaser').then(() => {
 	console.log('App. Phaser loaded, creating SpaceGame');
-	var game = new SpaceGame();
+	//var game = new SpaceGame();
 });
