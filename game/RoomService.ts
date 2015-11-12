@@ -136,25 +136,6 @@ export class RoomService {
 		else {
 			this.connectionCtrl.sendToClient(client, READY_ROOM_EVENT, response);
 		}
-	} 
-	
-	private getStartError(room: Room): string {
-		if(room === undefined) {
-			return 'FATAL ERROR! Undefined room';
-		}
-		if(room.started) {
-			return 'The room is already started';
-		}
-		if(room.players.length < 2){
-			return 'Too few players to start';
-		}
-		for(let i: number = 0; i < room.players.length; i++) {
-			let player: Player = room.players[i];
-			if(player.ship === undefined) {
-				return player.name + ' is not ready yet';
-			}
-		}
-		return '';
 	}
 	
 	public startRoom(client: Client): void {
@@ -169,9 +150,20 @@ export class RoomService {
 				response.errors.push('You are not the host');
 			}
 			else {
-				let error: string = this.getStartError(room);
-				if(error !== '') {
-					response.errors.push(error);
+				if(room === undefined) {
+					response.errors.push('FATAL ERROR! Undefined room');
+				}
+				if(room.started) {
+					response.errors.push('The room is already started');
+				}
+				if(room.players.length < 2){
+					response.errors.push('Too few players to start');
+				}
+				for(let i: number = 0; i < room.players.length; i++) {
+					let player: Player = room.players[i];
+					if(!player.ready) {
+						response.errors.push(player.name + ' is not ready yet');
+					}
 				}
 			}
 		}
