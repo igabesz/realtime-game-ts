@@ -2,6 +2,7 @@ import * as SocketIO from 'socket.io-client';
 import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
 import { ShipType } from '../common/GameObject';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest, LEAVE_ROOM_EVENT } from '../common/Room';
+import { MovementRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -70,7 +71,15 @@ export class SocketService {
         this.socket.emit(START_ROOM_EVENT);
     }
 
-
+	move(req: MovementRequest) {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(MOVEMENT_EVENT, req);
+	}
+	
+	fire() {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(FIRE_EVENT);
+	}
 
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener
