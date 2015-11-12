@@ -2,18 +2,25 @@ import { SocketService } from './SocketService';
 import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT, ROOM_STATE_EVENT } from '../common/Room';
-import { Ship } from '../common/GameObject';
+import { Ship, ShipType } from '../common/GameObject';
 
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
     rooms: Array<ListRoomItem>;
-    ships: Array<Ship>;
-    roomView: boolean;
-    shipView: boolean;
+    ships: Array<any>;
+    players: Array<string>;
+    username: string;
+    roomLobbyView: boolean;
+    inRoomView: boolean;
     gameView: boolean;
     roomName: string;
     roomJoined: string;
+    areRoomsAlreadyListed: boolean;
+    hostname: string;
+    isHost: boolean;
+    isReady: boolean;
+    choosedShip: string;
 }
 
 
@@ -31,46 +38,79 @@ export class MainController {
 		private $timeout: ng.ITimeoutService,
 		private socketService: SocketService
 	) {
-        $scope.rooms = [];
-        $scope.ships = [];
-        $scope.roomView = true;
-        $scope.shipView = false;
-        $scope.gameView = false;
-        $scope.roomName = "";
-        $scope.roomJoined = "";
+        this.init($scope);
 
 		socketService.connect();
 
         socketService.addHandler(PERSONAL_INFO_EVENT, $timeout, (msg) => {
             this.socketService.listRooms();
+            this.$scope.username = sessionStorage["user"];
         });
 
         socketService.addHandler(LIST_ROOM_EVENT, $timeout, (msg) => {
-            this.handleListRooms(msg.rooms);
-        });
-
-        socketService.addHandler(JOIN_ROOM_EVENT, $timeout, (msg) => {
-            this.socketService.listShips();
+            console.log("LIST_ROOM_EVENT:");
+            console.log(msg);
+            this.$scope.rooms = msg.rooms;
         });
 
         socketService.addHandler(LIST_SHIP_EVENT, $timeout, (msg) => {
-            $scope.roomView = false;
-            $scope.shipView = true;
-            $scope.ships = msg.ships;
+            console.log("LIST_SHIP_EVENT:");
             console.log(msg);
+
+            $scope.roomLobbyView = false;
+            $scope.inRoomView = true;
+
+            $scope.ships = msg.ships;
+            for(var s in $scope.ships){
+                $scope.ships[s].type = ShipType[$scope.ships[s].type];
+            }
         });
 
         socketService.addHandler(READY_ROOM_EVENT, $timeout, (msg) => {
+            console.log("READY_ROOM_EVENT:");
+            console.log(msg);
+
             this.socketService.start();
         });
 
         socketService.addHandler(ROOM_STATE_EVENT, $timeout, (msg) => {
-            this.handleRoomState(msg);
+            console.log("ROOM_STATE_EVENT:");
+            console.log(msg);
+
+            if(! $scope.areRoomsAlreadyListed){
+                this.socketService.listShips();
+                $scope.areRoomsAlreadyListed = true;
+            }
+
+            if("hostname" in msg) {
+                this.$scope.hostname = msg.hostname;
+                if(this.$scope.hostname == sessionStorage["token"]){
+                    $scope.isHost = true;
+                } else {
+                    $scope.isHost = false;
+                }
+            }
+
+            if("players" in msg) {
+                this.$scope.players = [];
+                for (var p in msg.players) {
+                    if("hostname" in msg && msg.players[p].name == msg.hostname){
+                        this.$scope.players.push(msg.players[p].name + " (Host)");
+                    } else {
+                        this.$scope.players.push(msg.players[p].name);
+                    }
+                }
+            }
+
+
         });
 
         socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
-            $scope.roomView = false;
-            $scope.shipView = false;
+            console.log("START_ROOM_EVENT:");
+            console.log(msg);
+
+            $scope.roomLobbyView = false;
+            $scope.inRoomView = false;
             $scope.gameView = true;
 
             console.log("Game started!");
@@ -79,25 +119,48 @@ export class MainController {
         this.socketService.getPersonalInfo(sessionStorage['token']);
 	}
 
-    handleListRooms(rooms){
-        this.$scope.rooms = rooms;
-    }
-
     joinRoom(id: string){
-        this.socketService.joinRoom(id);
         this.$scope.roomJoined = id;
+        this.socketService.joinRoom(id);
     }
 
     createRoom(){
         this.socketService.joinRoom(this.$scope.roomName);
+        this.$scope.roomJoined = this.$scope.roomName;
     }
 
-    ready(){
-        this.socketService.ready();
+    ready(shipType){
+        this.socketService.ready(shipType);
+        this.$scope.isReady = true;
+        this.$scope.choosedShip = shipType;
     }
 
-    handleRoomState(msg){
-        console.log(msg);
+    leaveRoom(){
+        this.socketService.leaveRoom();
+        this.init(this.$scope);
+        this.socketService.listRooms();
     }
+
+    start(){
+        this.socketService.start();
+    }
+
+    init($scope){
+        $scope.rooms = [];
+        $scope.ships = [];
+        $scope.players = [];
+        $scope.username = sessionStorage["user"];
+        $scope.roomLobbyView = true;
+        $scope.inRoomView = false;
+        $scope.gameView = false;
+        $scope.roomName = "";
+        $scope.roomJoined = "";
+        $scope.areRoomsAlreadyListed = false;
+        $scope.hostname = "";
+        $scope.isHost = false;
+        $scope.isReady = false;
+        $scope.choosedShip = "";
+    }
+
 
 }
