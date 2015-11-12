@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT, ROOM_STATE_EVENT } from '../common/Room';
 import { Ship, ShipType } from '../common/GameObject';
+import { SpaceGame } from './game/SpaceGame';
 
 
 /**Extending IScope with the custom properties off the current $scope */
@@ -21,6 +22,8 @@ interface IMainScope extends ng.IScope {
     isHost: boolean;
     isReady: boolean;
     choosedShip: string;
+    game: SpaceGame;
+
 }
 
 
@@ -48,14 +51,12 @@ export class MainController {
         });
 
         socketService.addHandler(LIST_ROOM_EVENT, $timeout, (msg) => {
-            console.log("LIST_ROOM_EVENT:");
-            console.log(msg);
+            console.info("LIST_ROOM_EVENT ", msg);
             this.$scope.rooms = msg.rooms;
         });
 
         socketService.addHandler(LIST_SHIP_EVENT, $timeout, (msg) => {
-            console.log("LIST_SHIP_EVENT:");
-            console.log(msg);
+            console.info("LIST_SHIP_EVENT ", msg);
 
             $scope.roomLobbyView = false;
             $scope.inRoomView = true;
@@ -67,15 +68,13 @@ export class MainController {
         });
 
         socketService.addHandler(READY_ROOM_EVENT, $timeout, (msg) => {
-            console.log("READY_ROOM_EVENT:");
-            console.log(msg);
+            console.info("READY_ROOM_EVENT ", msg);
 
             this.socketService.start();
         });
 
         socketService.addHandler(ROOM_STATE_EVENT, $timeout, (msg) => {
-            console.log("ROOM_STATE_EVENT:");
-            console.log(msg);
+            console.info("ROOM_STATE_EVENT ", msg);
 
             if(! $scope.areRoomsAlreadyListed){
                 this.socketService.listShips();
@@ -106,8 +105,9 @@ export class MainController {
         });
 
         socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
-            console.log("START_ROOM_EVENT:");
-            console.log(msg);
+            console.info("START_ROOM_EVENT ", msg);
+
+            $scope.game = new SpaceGame(socketService);
 
             $scope.roomLobbyView = false;
             $scope.inRoomView = false;
