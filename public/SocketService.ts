@@ -1,7 +1,7 @@
 import * as SocketIO from 'socket.io-client';
 import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
 import { ShipType } from '../common/GameObject';
-import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest } from '../common/Room';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest, LEAVE_ROOM_EVENT } from '../common/Room';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -48,15 +48,20 @@ export class SocketService {
         this.socket.emit(JOIN_ROOM_EVENT, jrr);
     }
 
+    leaveRoom(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LEAVE_ROOM_EVENT);
+    }
+
     listShips(){
         if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
         this.socket.emit(LIST_SHIP_EVENT);
     }
 
-    ready(){
+    ready(shipType){
         if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
         var rrr = new ReadyRoomRequest();
-        rrr.shipType = ShipType.general;
+        rrr.shipType = shipType == "general" ? ShipType.general : ShipType.fast;
         this.socket.emit(READY_ROOM_EVENT, rrr);
     }
 
@@ -64,6 +69,8 @@ export class SocketService {
         if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
         this.socket.emit(START_ROOM_EVENT);
     }
+
+
 
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener

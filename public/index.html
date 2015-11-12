@@ -20,14 +20,26 @@
 
 <body id="body">
 <div class="container">
+
     <div ng-controller="MainController as ctrl" class="ng-cloak">
 
+        <div class="page-header">
+            <div style="margin-left: 10%">
+                <h1 class="text-muted pleasedontfloat">Captain Space Marshall {{username}}
+                    <span ng-show="isHost"> (Host)</span>
+                    <p class="pull-right" ng-show="inRoomView" class="pleasedontfloat">In room: {{roomJoined}}
+                        <button ng-click="ctrl.leaveRoom()" class="btn btn-primary" role="button">Leave Room</button>
+                    </p>
 
-        <div class="room" ng-show="roomView">
+                </h1>
+            </div>
+        </div>
 
-            <div class="page-header">
+        <div class="room" ng-show="roomLobbyView">
+
+            <div class="rooms">
                 <div style="margin-left: 10%">
-                    <h1 class="text-muted">Rooms </h1>
+                    <h2 class="text-muted">Rooms </h2>
                 </div>
                 <div class="col-lg-4 pull-right pr">
                     <div class="input-group">
@@ -61,26 +73,46 @@
         </div>
 
 
-        <div class="room" ng-show="shipView">
-            <div class="page-header">
+        <div class="room" ng-show="inRoomView">
                 <div style="margin-left: 10%">
-                    <h1 class="text-muted">Ships <span class="pull-right mr">In room: <p ng-model="roomJoined">{{roomJoined}}</p></span></h1>
+                    <h1 class="text-muted">Ships</h1>
                 </div>
-            </div>
             <table class="table">
                 <thead>
                 <tr>
+                    <th>Name</th>
                     <th>Health</th>
                     <th>Acceleration</th>
+                    <th></th>
                     <th></th>
                 </tr>
                 </thead>
                 <tr ng-repeat="ship in ships">
+                    <td>{{ ship.type }}</td>
                     <td>{{ ship.health }}</td>
                     <td>{{ ship.acceleration }}</td>
-                    <td><button class="btn btn-primary" ng-click="ctrl.ready()">Ready</button></td>
+                    <td><button class="btn btn-primary" ng-class="{true:'disabled', false:'enabled'}[isReady]" ng-click="ctrl.ready(ship.type)">Ready</button></td>
+                    <td><span class="glyphicon glyphicon-ok green" ng-class="{true:'visible', false: 'invisible'}[choosedShip == ship.type]"></span></td>
                 </tr>
             </table>
+            <div style="margin-left: 10%">
+                <h1 class="text-muted">Players</h1>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tr ng-repeat="player in players">
+                    <td>{{ player }}</td>
+                </tr>
+            </table>
+
+            <div ng-show="isHost">
+                <button class="btn btn-success btn-lg" ng-class="{true:'enabled', false:'disabled'}[isReady]" ng-click="ctrl.start()">Start Game</button></td>
+            </div>
         </div>
 
         <div id="content" ng-show="gameView"></div>
