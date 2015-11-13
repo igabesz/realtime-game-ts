@@ -2,13 +2,9 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-
-// REST API imports:
 import * as mongoDb from 'mongodb';
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
-import * as hash from 'password-hash';
-import * as crypto from 'crypto';
 
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './AdminController';
@@ -39,7 +35,7 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let login = new Login(router, db, path, hash, crypto);
+let login = new Login(router, db);
 
 // Instantiating services and controllers
 let connectionController: ConnectionController = new ConnectionController(io);

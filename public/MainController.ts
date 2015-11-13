@@ -107,7 +107,7 @@ export class MainController {
         socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
             console.info("START_ROOM_EVENT ", msg);
 
-            $scope.game = new SpaceGame(socketService);
+            //$scope.game = new SpaceGame(socketService);
 
             $scope.roomLobbyView = false;
             $scope.inRoomView = false;

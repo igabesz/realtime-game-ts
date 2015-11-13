@@ -2,10 +2,16 @@
  * Created by S on 2015.11.09..
  */
 import { User } from './User';
+// REST API imports:
+import * as path from 'path';
+import * as bodyParser from 'body-parser';
+import * as hash from 'password-hash';
+import * as crypto from 'crypto';
 
-export var Login = function (router, db, path, hash, crypto) {
+export var Login = function (router, db) {
 
     let users: any;
+
     db.open(function(err, db) {
         if(!err) {
             users = db.collection("users");
@@ -20,8 +26,6 @@ export var Login = function (router, db, path, hash, crypto) {
 
         var username = req.body.username;
         var token = req.body.token;
-
-        console.log("/ -> " + username + " " + token);
 
         if( username === undefined || token === undefined || username === "" || token === "")
                 res.sendFile(path.resolve(__dirname + '/../public/login.html'));
