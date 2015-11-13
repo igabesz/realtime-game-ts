@@ -1,7 +1,10 @@
 import { Ship } from './Ship';
+import { SocketService } from '../SocketService';
+import { Direction, KeyAction, MovementRequest } from '../../common/Movement';
 
 export class SpaceGame {
     
+    socketservice: SocketService;
 	game: Phaser.Game;
     player: Ship;
     enemies: Ship[];
@@ -13,10 +16,13 @@ export class SpaceGame {
     enemiesTotal: number;
     enemiesAlive: number;
 	
-	constructor() {
+	constructor(ss: SocketService) {
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
+        this.socketservice = ss;
 		
+        //socketservice.addHandler will be here
+        
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
 		//this.game.state.start("TitleScreenState", true, true);
@@ -65,27 +71,40 @@ export class SpaceGame {
     
     spaceDown() {
         this.player.cursors.fire = true;
+        this.socketservice.fire();
     }
     spaceUp() {
         this.player.cursors.fire = false;
     }
     upDown() {
         this.player.cursors.up = true;
+        var req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
+        this.socketservice.move(req);
     }
     upUp() {
         this.player.cursors.up = false;
+        var req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
+        this.socketservice.move(req);
     }
     rightDown() {
         this.player.cursors.right = true;
+        var req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
+        this.socketservice.move(req);
     }
     rightUp() {
         this.player.cursors.right = false;
+        var req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
+        this.socketservice.move(req);
     }
     leftDown() {
         this.player.cursors.left = true;
+        var req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
+        this.socketservice.move(req);
     }
     leftUp() {
         this.player.cursors.left = false;
+        var req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
+        this.socketservice.move(req);
     }
     
     update() {        

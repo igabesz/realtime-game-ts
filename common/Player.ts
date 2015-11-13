@@ -6,4 +6,8 @@ export class Player {
 	public name: string;
 	public room: Room;
 	public ship: Ship;
+	
+	public get ready(): boolean {
+		return this.ship !== null;
+	}
 }
