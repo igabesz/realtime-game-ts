@@ -1,6 +1,7 @@
 import { Ship } from './Ship';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest } from '../../common/Movement';
+import { SimulationResponse, POSITION_EVENT } from '../../common/Simulation'
 
 export class SpaceGame {
     
@@ -19,9 +20,11 @@ export class SpaceGame {
 	constructor(ss: SocketService) {
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
+        
         this.socketservice = ss;
-		
-        //socketservice.addHandler will be here
+        //is it a problem if I use the raw function?
+        //Angular doesn't need to know about ship positions on the canvas.
+        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));
         
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
@@ -66,7 +69,9 @@ export class SpaceGame {
         this.cursors.right.onDown.add(SpaceGame.prototype.rightDown, this);
         this.cursors.right.onUp.add(SpaceGame.prototype.rightUp, this);
         this.cursors.left.onDown.add(SpaceGame.prototype.leftDown, this);
-        this.cursors.left.onUp.add(SpaceGame.prototype.leftUp, this);        
+        this.cursors.left.onUp.add(SpaceGame.prototype.leftUp, this);
+        this.cursors.down.onDown.add(SpaceGame.prototype.downDown, this);
+        this.cursors.down.onUp.add(SpaceGame.prototype.downUp, this);         
     }
     
     spaceDown() {
@@ -106,6 +111,16 @@ export class SpaceGame {
         var req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
+    downDown() {
+        this.player.cursors.down = true;
+        var req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
+        this.socketservice.move(req);
+    }
+    downUp() {
+        this.player.cursors.down = false;
+        var req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
+        this.socketservice.move(req);
+    }
     
     update() {        
         this.enemiesAlive = 0;
@@ -122,6 +137,10 @@ export class SpaceGame {
         
         this.background.tilePosition.x = -this.game.camera.x;
         this.background.tilePosition.y = -this.game.camera.y;
+    }
+    
+    refreshGame(spacegame:SpaceGame, res:SimulationResponse) {
+        
     }
     
     render() {

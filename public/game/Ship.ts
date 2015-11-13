@@ -16,6 +16,7 @@ export class Ship {
             left:false,
             right:false,
             up:false,
+            down: false,
             fire:false		
         }
         
@@ -51,13 +52,14 @@ export class Ship {
     update() {        
         if (this.cursors.left) {
             this.sprite.angle -= 5;
-        } else if (this.cursors.right) {
+        }
+        if (this.cursors.right) {
             this.sprite.angle += 5;
         }
         
         if (this.cursors.up) {
             this.speed = 300;
-        } else if (this.speed > 0) {
+        } else if (this.cursors.down) {
             this.speed -= 5;
         }
         
