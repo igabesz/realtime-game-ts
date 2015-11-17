@@ -24,18 +24,20 @@
             <span>
                 {{question}}
             </span>
-            <div>
+            <br />
+            <span>
                 <button ng-click="ctrl.answerQuestion(true)">Yes</button>
                 <button ng-click="ctrl.answerQuestion(false)">No</button>
-            </div>
+            </span>
         </div>
         <div ng-show="message !==null">
             <span>
                 {{message}}
             </span>
-            <div>
+            <br />
+            <span>
                 <button ng-click="message = null">OK</button>
-            </div>
+            </span>
         </div>
     </div>
     <table>

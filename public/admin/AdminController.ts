@@ -42,7 +42,6 @@ export class AdminController {
 		$scope.applyFunction = null;
 		$scope.message = null;
 		this.selectMenu($location.url().substring(1));
-		this.refreshAll();
 	}
 	
 	private hover(event: any): void {
@@ -86,6 +85,7 @@ export class AdminController {
 		}
 		this.$location.url('/' + value);
 		this.$scope.selectedMenu = value;
+		this.refresh();
 	}
 	
 	private logout(): void {
