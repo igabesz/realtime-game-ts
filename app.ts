@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as bodyParser from 'body-parser';
 
 import { ConnectionController } from './game/ConnectionController';
-import { AdminController } from './AdminController';
+import { AdminController } from './admin/AdminController';
 import { Login } from './login/login';
 import { Database } from './common/Database';
 

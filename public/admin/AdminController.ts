@@ -1,3 +1,4 @@
+import { UserData, RoomData } from '../../admin/DataTypes';
 
 interface IAdminScope extends ng.IScope {
 	Users: Array<UserData>;
@@ -12,17 +13,6 @@ interface IAdminScope extends ng.IScope {
 	message: string;
 }
 
-export class UserData {
-	public playerName: string;
-	public state: string;
-	public room: string;
-}
-
-export class RoomData {
-	public name: string;
-	public host: string;
-	public numOfPlayers: number;
-}
 
 export class AdminController {
 	
@@ -42,7 +32,6 @@ export class AdminController {
 		$scope.applyFunction = null;
 		$scope.message = null;
 		this.selectMenu($location.url().substring(1));
-		this.refreshAll();
 	}
 	
 	private hover(event: any): void {
@@ -86,10 +75,11 @@ export class AdminController {
 		}
 		this.$location.url('/' + value);
 		this.$scope.selectedMenu = value;
+		this.refresh();
 	}
 	
 	private logout(): void {
-		location.href  = '/login';
+		location.href  = '/login.html';
 	}
 	
 	private refreshAll(): void {

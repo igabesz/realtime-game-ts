@@ -48,7 +48,10 @@ export abstract class Ship extends GameObject {
 	public health: number;
 	public turnacc: number;
 	public thruster: Thruster = new Thruster();
-	public projectile: Projectile = new Projectile(); 
+	public projectile: Projectile = new Projectile();
+	public fire: KeyAction = KeyAction.released;
+	public attackDelay: number;
+	public currentAttackDelay: number;
 }
 
 /** Ship types */
@@ -66,6 +69,7 @@ export class GeneralShip extends Ship {
 		this.projectile.damage = 10;
 		this.projectile.height = 10;
 		this.projectile.width = 10;
+		this.attackDelay = 150;
 	}
 }
 
@@ -82,5 +86,6 @@ export class FastShip extends Ship {
 		this.projectile.damage = 5;
 		this.projectile.height = 8;
 		this.projectile.width = 8;
+		this.attackDelay = 120;
 	}
 }

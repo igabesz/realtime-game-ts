@@ -1,6 +1,6 @@
 import { PersonalInfoRequest, PERSONAL_INFO_EVENT} from '../common/Connection';
 import { JoinRoomRequest, ReadyRoomRequest, LIST_ROOM_EVENT, LIST_SHIP_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT} from '../common/Room';
-import { MovementRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
+import { MovementRequest, FireRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
 
 import { Client, ConnectionController } from './ConnectionController';
 import { RoomService } from './RoomService';
@@ -60,7 +60,7 @@ export class LifeCycle {
 	}
 	
 	public leaveRoom() {
-		if(this.state === LifeCycleState.Room || this.state === LifeCycleState.RoomReady) {
+		if(this.state === LifeCycleState.Room || this.state === LifeCycleState.RoomReady || this.state === LifeCycleState.Game || this.state === LifeCycleState.GameDead) {
 			this.client.removeListener(LEAVE_ROOM_EVENT);
 			this.client.removeListener(READY_ROOM_EVENT);
 			this.client.removeListener(START_ROOM_EVENT);
@@ -87,12 +87,11 @@ export class LifeCycle {
 	
 	public startGame(): void {
 		if(this.state === LifeCycleState.RoomReady) {
-			this.client.removeListener(LEAVE_ROOM_EVENT);
 			this.client.removeListener(READY_ROOM_EVENT);
 			this.client.removeListener(START_ROOM_EVENT);
 			
-			this.client.socket.on(MOVEMENT_EVENT, (request:MovementRequest) => this.movementController.move(this.client, request));
-			this.client.socket.on(FIRE_EVENT, () => this.movementController.fire(this.client));
+			this.client.socket.on(MOVEMENT_EVENT, (request: MovementRequest) => this.movementController.move(this.client, request));
+			this.client.socket.on(FIRE_EVENT, (request: FireRequest) => this.movementController.fire(this.client, request));
 			
 			this.state = LifeCycleState.Game;	
 		}
@@ -104,6 +103,8 @@ export class LifeCycle {
 			this.client.removeListener(FIRE_EVENT);
 			
 			this.state = LifeCycleState.GameDead;
+			// currently there is not dead state
+			this.leaveRoom();
 		}
 	}
 	

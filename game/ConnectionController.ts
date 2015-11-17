@@ -2,7 +2,7 @@ import * as socketIO from 'socket.io';
 
 import { Room } from '../common/Room';
 import { Player } from '../common/Player';
-import { Message, Response } from '../common/Message';
+import { Message, Response, AllChatMessage } from '../common/Message';
 import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT} from '../common/Connection';
 
 import { LifeCycle } from './LifeCycle';
@@ -84,6 +84,14 @@ export class ConnectionController {
 		client.socket.emit('test', { title:'Client ' + event, body: message});
 	}
 	
+	public getClient(player: Player): Client {
+		for(let i: number = 0; i < this.clients.length; i++) {
+			if(this.clients[i].player !== undefined && this.clients[i].player === player) {
+				return this.clients[i];
+			}
+		}
+	}
+	
 	public getClients(): Array<Client> {
 		return this.clients;
 	}
@@ -93,6 +101,9 @@ export class ConnectionController {
 	}
 	
 	public stopServer(): void {
+		let message: AllChatMessage = new AllChatMessage();
+		message.message = 'Server stopped by an admin'; 
+		this.sendToAll('admin', message);
 		
 	}
 }
