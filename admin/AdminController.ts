@@ -1,12 +1,13 @@
 import { Router, Request, Response }  from 'express';
 import * as path from 'path';
 
-import { Room } from './common/Room';
-import { UserData, RoomData } from './common/Admin';
-import { AllChatMessage } from './common/Message';
+import { Room } from '../common/Room';
+import { AllChatMessage } from '../common/Message';
 
-import { LifeCycleState } from './game/LifeCycle';
-import { Client, ConnectionController } from './game/ConnectionController';
+import { LifeCycleState } from '../game/LifeCycle';
+import { Client, ConnectionController } from '../game/ConnectionController';
+
+import { UserData, RoomData } from './DataTypes';
 
 
 export class AdminController {
@@ -29,7 +30,7 @@ export class AdminController {
     }
 
     private admin(request: Request, response: Response, next): void {
-        response.sendFile(path.join(__dirname + '/public/admin/admin.html'));
+        response.sendFile(path.join(__dirname + '/../public/admin/admin.html'));
     } 
     
     private stop(request: Request, response: Response, next): void {

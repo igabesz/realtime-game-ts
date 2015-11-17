@@ -1,4 +1,4 @@
-import { UserData, RoomData } from '../../common/Admin';
+import { UserData, RoomData } from '../../admin/DataTypes';
 
 interface IAdminScope extends ng.IScope {
 	Users: Array<UserData>;
