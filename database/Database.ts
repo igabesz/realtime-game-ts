@@ -5,7 +5,7 @@ import { User } from './User';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
 
-interface IDatabase {
+export interface IDatabase {
 
     open(callback: (res:DatabaseResponse) => any) : void;
 

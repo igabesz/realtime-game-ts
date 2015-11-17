@@ -1,3 +1,7 @@
+.ng-cloak {
+	display: none !important;	
+}
+
 body {
 	background: url(space1.jpg);
 	color: white;

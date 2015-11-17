@@ -16,12 +16,12 @@ interface IAdminScope extends ng.IScope {
 
 export class AdminController {
 	
-	static $inject = ['$scope', '$http', '$timeout', '$location'];
+	static $inject = ['$scope', '$http', '$interval', '$location'];
 	
 	private refreshTime: number = 0;
-	private timer: ng.IPromise<void>;
+	private timer: ng.IPromise<void> = null;
 	
-	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $timeout: ng.ITimeoutService, private $location: ng.ILocationService) {
+	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $interval: ng.IIntervalService, private $location: ng.ILocationService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
 		$scope.Database = false;
@@ -100,25 +100,25 @@ export class AdminController {
 				this.getRoomData();
 				break;
 		}
-		if(this.refreshTime !== 0) {
-			this.timer = this.$timeout(() => this.refresh(), this.refreshTime);
-		}
 	}
 	
 	private change(): void {
 		let newtime: number = Number(this.$scope.refresh);
 		if(newtime !== Number.NaN) { 
-			if(this.timer !== null) {
-				this.$timeout.cancel(this.timer);
-				this.timer = null;
-			}
 			if(newtime <= 0) {
 				this.$scope.refreshtext = 'Off';
+				if(this.timer !== null) {
+					this.$interval.cancel(this.timer);
+					this.timer = null;
+				}
 			}
 			else {
 				this.$scope.refreshtext = newtime + ' sec';
 				this.refreshTime = newtime * 1000;
-				this.$timeout(() => this.refresh(), this.refreshTime);
+				if(this.timer !== null) {
+					this.$interval.cancel(this.timer);
+				}
+				this.timer = this.$interval(() => this.refresh(), this.refreshTime); 
 			}
 		}
 	}
@@ -130,8 +130,9 @@ export class AdminController {
 	}
 	
 	public stopServer(): void {
-		this.$timeout.cancel(this.timer);
-		this.timer = null;
+		if(this.timer !== null) {
+			this.$interval.cancel(this.timer);
+		}
 		this.$http.post('/admin/stop', null);
 		this.$scope.message = 'Server has stopped. Please close the page.';
 	}

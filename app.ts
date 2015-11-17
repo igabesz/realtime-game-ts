@@ -41,7 +41,7 @@ let login = new Login(router, database);
 login.listen();
 
 // Instantiating services and controllers
-let connectionController: ConnectionController = new ConnectionController(io);
+let connectionController: ConnectionController = new ConnectionController(io, database);
 let adminController: AdminController = new AdminController(connectionController, router);
 adminController.setExit(function(): void {
     server.close();
