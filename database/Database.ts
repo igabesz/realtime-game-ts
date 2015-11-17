@@ -1,13 +1,15 @@
 /**
  * Created by S on 2015.11.13..
  */
-import { User } from '../login/User';
+import { User } from './User';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
 
 interface IDatabase {
 
     open(callback: (res:DatabaseResponse) => any) : void;
+
+    validateToken(token: string, callback: (res:DatabaseResponse) => any) : void;
 
     findUsers(username: string, callback: (res:DatabaseResponse) => any) : void;
 
@@ -31,24 +33,16 @@ export enum Status {
 
 export class DatabaseResponse{
 
-    status: Status;
-    data: any;
-    msg: string;
-
-    constructor(status: Status, data: any, msg: string){
-        this.status = status;
-        this.data = data;
-        this.msg = msg;
-    }
+    constructor(public status: Status, public data: any, public msg: string){}
 }
 
 export class Database implements IDatabase {
 
-    private static db: any;
-    private static users: any;
+    private db: any;
+    private users: any;
 
     constructor(db){
-        Database.db = db;
+        this.db = db;
         this.open((dbres:DatabaseResponse) => {
             if(dbres.status == Status.success) {
                 console.log("Successfully connected to MongoDB!")
@@ -59,9 +53,9 @@ export class Database implements IDatabase {
     }
 
     open(callback: (res:DatabaseResponse) => any){
-        Database.db.open(function(err, db) {
+        this.db.open((err, db) => {
             if(!err) {
-                Database.users = db.collection("users");
+                this.users = db.collection("users");
                 callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
                 return;
 
@@ -73,12 +67,35 @@ export class Database implements IDatabase {
         });
     }
 
+    validateToken(token:string,  callback: (res:DatabaseResponse) => any){
+
+        let criteria = {token: token};
+
+        if (this.users != undefined) {
+            this.users.find(criteria).toArray((err, docs) => {
+
+                if (docs != null && docs.length != 0) {
+
+                    let user = docs[0];
+                    callback( new DatabaseResponse(Status.success, user , "Token is valid") );
+                    return;
+                } else {
+                    callback( new DatabaseResponse(Status.error, {} , "Token not found") );
+                    return;
+                }
+            });
+        } else {
+            callback( new DatabaseResponse(Status.error, {} , "Error: 'users' is undefined") );
+            return;
+        }
+    }
+
     findUsers(username:string, callback: (res:DatabaseResponse) => any){
 
         let criteria = {username: username};
 
-        if (Database.users != undefined) {
-            Database.users.find(criteria).toArray(function (err, docs) {
+        if (this.users != undefined) {
+            this.users.find(criteria).toArray((err, docs) => {
                 if (docs != null) {
                     callback( new DatabaseResponse(Status.success, docs , "Successfully queried 'users'") );
                     return;
@@ -97,8 +114,8 @@ export class Database implements IDatabase {
 
         let criteria = {username: username};
 
-        if (Database.users != undefined) {
-            Database.users.find(criteria).toArray(function (err, docs) {
+        if (this.users != undefined) {
+            this.users.find(criteria).toArray((err, docs) => {
                 if (docs != null && docs.length != 0) {
                     callback( new DatabaseResponse(Status.error, {} , "Username: " + username + " already exists") );
                     return;
@@ -120,8 +137,8 @@ export class Database implements IDatabase {
 
         let criteria = {username: username};
 
-        if (Database.users != undefined) {
-            Database.users.find(criteria).toArray(function (err, docs) {
+        if (this.users != undefined) {
+            this.users.find(criteria).toArray( (err, docs) => {
 
                 if (docs != null && docs.length != 0) {
 
@@ -149,8 +166,8 @@ export class Database implements IDatabase {
 
         let criteria = {username: username};
 
-        if (Database.users != undefined) {
-            Database.users.find(criteria).toArray((err, docs) => {
+        if (this.users != undefined) {
+            this.users.find(criteria).toArray((err, docs) => {
 
                 if (docs != null && docs.length != 0) {
 
@@ -161,6 +178,7 @@ export class Database implements IDatabase {
                         return;
                     }
                     else {
+                        console.log("wrong password, given: " + password + " expected: " + user.password);
                         callback( new DatabaseResponse(Status.error, {} , "Wrong password for user: " + username) );
                         return;
                     }
@@ -177,8 +195,8 @@ export class Database implements IDatabase {
 
     saveUser(user:User, callback: (res:DatabaseResponse) => any){
 
-        if (Database.users != undefined) {
-            Database.users.insert(user, function (err, docs) {
+        if (this.users != undefined) {
+            this.users.insert(user, (err, docs) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {} , "User: " + user.username + " saved successfully") );
                     return;
@@ -197,8 +215,8 @@ export class Database implements IDatabase {
 
         let token = this.generate_key();
 
-        if (Database.users != undefined) {
-            Database.users.updateOne({username: username}, {$set: {token: token}}, function (err) {
+        if (this.users != undefined) {
+            this.users.updateOne({username: username}, {$set: {token: token}}, (err) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {token:token} , "User: " + username + "'s token successfully updated") );
                     return;
@@ -214,8 +232,8 @@ export class Database implements IDatabase {
     }
 
     cleanTokens(callback: (res:DatabaseResponse) => any){
-        if (Database.users != undefined) {
-            Database.users.update({}, {$set: {token: ""}}, function (err) {
+        if (this.users != undefined) {
+            this.users.update({}, {$set: {token: ""}}, (err) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {} , "Token cleaning is successfully done") );
                     return;
