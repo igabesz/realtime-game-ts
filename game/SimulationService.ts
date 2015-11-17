@@ -1,7 +1,7 @@
 import { Room } from '../common/Room';
 import { Player } from '../common/Player';
 import { KeyAction } from '../common/Movement';
-import { Projectile, GameObject, Ship } from '../common/GameObject';
+import { Projectile, GameObject, Ship, Speed, Position } from '../common/GameObject';
 import { SimulationResponse, POSITION_EVENT } from '../common/Simulation';
 
 import { RoomService } from './RoomService';
@@ -90,39 +90,120 @@ export class SimulationService {
 		}
 	}
 	
-	private collisionDetection(room: Room): void {
-		// REVIEW remove from players to disable check after death
-		
-		// Collision with other obejcts
-		for (let i: number = 0; i < room.players.length; i++) {
+	private fire(room: Room, deltaTime: number): void {
+		for(let i: number = 0; i < room.players.length; i++) {
 			let player: Player = room.players[i];
-			let a: Rectangle = Rectangle.createRectangle(player.ship);
-			// TO-DO optimization
-			// REVIEW calculate and save all rectangles first then detect collisions
-			let b: Rectangle;
-			
-			for (let j: number = i + 1; j < room.players.length; j++) {
-				b = Rectangle.createRectangle(room.players[j].ship);
-				if(this.intersect(a, b)) {
-					player.ship.health = 0;
-					room.players[j].ship.health = 0;
+			player.ship.currentAttackDelay -= deltaTime;
+			// REVIEW consider while
+			if(player.ship.currentAttackDelay <= 0) {
+				player.ship.currentAttackDelay = player.ship.attackDelay;
+				
+				let projectile: Projectile = this.createProjectile(player.ship);
+				projectile.owner = player;
+				projectile.speed = new Speed();
+				projectile.speed.x = player.ship.speed.x * 1.3;
+				projectile.speed.y = player.ship.speed.y * 1.3;
+				projectile.speed.turn = 0;
+				projectile.position = new Position();
+				projectile.position.x = player.ship.position.x;
+				projectile.position.y = player.ship.position.y;
+				projectile.position.angle = player.ship.position.angle;
+				
+				room.projectiles.push(projectile);
+			}
+		}
+	}
+	
+	private createProjectile(ship: Ship): Projectile {
+		let projectile: Projectile = new Projectile();
+		
+		projectile.acceleration = ship.projectile.acceleration;
+		projectile.damage = ship.projectile.damage;
+		projectile.height = ship.projectile.height;
+		projectile.width = ship.projectile.width;
+		
+		return projectile;
+	}
+	
+	private collisionDetection(room: Room): void {		
+		let players: Array<{player: Player, rectangle: Rectangle}> = [];
+		let projectiles: Array<{projectile: Projectile, rectangle: Rectangle}> = [];
+		
+		// Create players hitboxes
+		for(let i: number = 0; i < room.players.length; i++) {
+			let item: {player: Player, rectangle: Rectangle};
+			item.player = room.players[i];
+			item.rectangle = Rectangle.createRectangle(item.player.ship);
+			players.push(item);
+		}
+		
+		// Create projectiles hitboxes
+		for(let i: number = 0; i < room.projectiles.length; i++) {
+			let item: {projectile: Projectile, rectangle: Rectangle};
+			item.projectile = room.projectiles[i];
+			item.rectangle = Rectangle.createRectangle(item.projectile);
+			projectiles.push(item);
+		}
+		
+		for (let i: number = 0; i < players.length; i++) {
+			// Collision Player-Player
+			for (let j: number = i + 1; j < players.length; j++) {
+				if(this.intersect(players[i].rectangle, players[j].rectangle)) {
+					players[i].player.ship.health = 0;
+					players[j].player.ship.health = 0;
+					if(players[j].player.ship.health === 0) {
+						this.roomService.removePlayer(room, players[j].player);
+						players.splice(j, 1);
+						j--;
+					}
+					if(players[i].player.ship.health === 0) {
+						break;
+					}
 				}
 			}
-			if(player.ship.health === 0) {
+			
+			if(players[i].player.ship.health === 0) {
+				this.roomService.removePlayer(room, players[i].player);
+				players.splice(i, 1);
+				i--;
 				continue;
 			}
 			
-			for (let j: number = 0; j < room.projectiles.length; j++) {
-				if(room.projectiles[j].owner === player) {
+			// Collision Player-Projectile
+			for (let j: number = 0; j < projectiles.length; j++) {
+				// Disable self damage
+				if(projectiles[j].projectile.owner === players[i].player) {
 					continue;
 				}
-				b = Rectangle.createRectangle(room.projectiles[j]);
-				if(this.intersect(a, b)) {
-					room.players[i].ship.health -= room.projectiles[j].damage;
-					if(room.players[i].ship.health < 0) {
+				
+				if(this.intersect(players[i].rectangle, projectiles[j].rectangle)) {
+					room.players[i].ship.health -= projectiles[j].projectile.damage;
+					
+					this.roomService.removeProjectile(room, projectiles[j].projectile);
+					projectiles.splice(j, 1);
+					j--;
+					
+					if(room.players[i].ship.health <= 0) {
 						room.players[i].ship.health = 0;
+						this.roomService.removePlayer(room, players[i].player);
+						players.splice(i, 1);
+						i--;
+						break;
 					}
+				}
+			}
+		}
+		
+		// Collision Projectile-Projectile
+		for (let i: number = 0; i < projectiles.length; i++) {
+			for (let j: number = i + 1; j < projectiles.length; j++) {
+				if(this.intersect(projectiles[i].rectangle, projectiles[j].rectangle)) {
+					this.roomService.removeProjectile(room, projectiles[i].projectile);
+					this.roomService.removeProjectile(room, projectiles[j].projectile);
 					room.projectiles.splice(j, 1);
+					room.projectiles.splice(i, 1);
+					i--;
+					break;
 				}
 			}
 		}
