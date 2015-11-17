@@ -19,10 +19,9 @@ export class ConnectionController {
 	
 	private roomService: RoomService = new RoomService(this);
 	private simulationService: SimulationService = new SimulationService(this.roomService, this);
-	
 	private movementController: MovementController = new MovementController();
 	
-	constructor(private ioServer: SocketIO.Server) {
+	constructor(private ioServer: SocketIO.Server, private database) {
 		// waits for connection
 		this.ioServer.on('connection', (socket: SocketIO.Socket) => this.openConnection(socket));
 	}
@@ -49,9 +48,13 @@ export class ConnectionController {
 	}
 	
 	public personalInfo(client: Client, data: PersonalInfoRequest): void {
+		this.database.validateUserWithToken(data.token, (response) => this.savePersonalInfo(client, data));
+	}
+	
+	private savePersonalInfo(client: Client, data): void {
 		// save data
 		client.player = new Player();
-		client.player.name = data.token; // TO-DO add logic from login server
+		client.player.name = data.username;
 		
 		// response
 		let response: PersonalInfoResponse = new PersonalInfoResponse(); 
