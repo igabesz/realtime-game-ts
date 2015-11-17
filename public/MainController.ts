@@ -32,7 +32,9 @@ export class MainController {
 	 * constructor are shortened thus Angular won't know what is requested 
 	 */
 	static $inject = ['$scope', '$timeout', 'SocketService'];
-	
+
+    private timer;
+
 	/**Constructor parameters are resolved by the $inject static member 
 	 * using the already registered Angular services
 	 */
@@ -48,6 +50,7 @@ export class MainController {
         socketService.addHandler(PERSONAL_INFO_EVENT, $timeout, (msg) => {
             this.socketService.listRooms();
             this.$scope.username = sessionStorage["user"];
+            this.timer = setInterval(() => {this.refreshRooms()}, 5000);
         });
 
         socketService.addHandler(LIST_ROOM_EVENT, $timeout, (msg) => {
@@ -138,6 +141,10 @@ export class MainController {
     leaveRoom(){
         this.socketService.leaveRoom();
         this.init(this.$scope);
+        this.socketService.listRooms();
+    }
+
+    refreshRooms(){
         this.socketService.listRooms();
     }
 

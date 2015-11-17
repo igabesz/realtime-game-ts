@@ -9,7 +9,7 @@ import * as bodyParser from 'body-parser';
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './admin/AdminController';
 import { Login } from './login/login';
-import { Database } from './common/Database';
+import { Database } from './database/Database';
 
 // Creating Express and SocketIO server
 let app: express.Express = express();
@@ -36,7 +36,7 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let database = new Database(db);
+let database: Database = new Database(db);
 let login = new Login(router, database);
 login.listen();
 
