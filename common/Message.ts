@@ -16,6 +16,8 @@ export class Response extends Message {
 	}
 }
 
-
+export class AllChatMessage extends Message {
+	public message: string;
+}
 
 

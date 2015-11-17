@@ -1,3 +1,4 @@
+import { UserData, RoomData } from '../../common/Admin';
 
 interface IAdminScope extends ng.IScope {
 	Users: Array<UserData>;
@@ -12,17 +13,6 @@ interface IAdminScope extends ng.IScope {
 	message: string;
 }
 
-export class UserData {
-	public playerName: string;
-	public state: string;
-	public room: string;
-}
-
-export class RoomData {
-	public name: string;
-	public host: string;
-	public numOfPlayers: number;
-}
 
 export class AdminController {
 	
@@ -89,7 +79,7 @@ export class AdminController {
 	}
 	
 	private logout(): void {
-		location.href  = '/login';
+		location.href  = '/login.html';
 	}
 	
 	private refreshAll(): void {
