@@ -2,17 +2,14 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as socketIO from 'socket.io';
-
-// REST API imports:
 import * as mongoDb from 'mongodb';
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
-import * as hash from 'password-hash';
-import * as crypto from 'crypto';
 
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './AdminController';
 import { Login } from './login/login';
+import { Database } from './common/Database';
 
 // Creating Express and SocketIO server
 let app: express.Express = express();
@@ -39,7 +36,9 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let login = new Login(router, db, path, hash, crypto);
+let database = new Database(db);
+let login = new Login(router, database);
+login.listen();
 
 // Instantiating services and controllers
 let connectionController: ConnectionController = new ConnectionController(io);
@@ -58,5 +57,4 @@ db.open(function(err, db) {
 });
 
 let port:number = 80;
-server.listen(port);
-console.log("Server started on http://localhost:" + port + "/");
+server.listen(port, () => console.log("Server started on http://localhost:" + port + "/"));
