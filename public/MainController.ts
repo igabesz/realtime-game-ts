@@ -118,12 +118,6 @@ export class MainController {
 
         });
 
-        socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
-            console.info("START_ROOM_EVENT ", msg);
-
-
-        });
-
         this.socketService.getPersonalInfo(sessionStorage['token']);
 	}
 
@@ -155,6 +149,12 @@ export class MainController {
 
     start(){
         this.socketService.start();
+    }
+
+    logout(){
+        sessionStorage["token"] = "";
+        sessionStorage["user"] = "";
+        window.location.href = "/";
     }
 
     init($scope){
