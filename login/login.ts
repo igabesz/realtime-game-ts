@@ -29,11 +29,12 @@ export class Login {
 
                 this.database.cleanTokens(() => {});
 
-                var user:User = new User("admin", this.adminPassword, "", "", true);
+                let pass = hash.generate(this.adminPassword);
+                var user:User = new User(this.adminLogin, pass, "", "", true);
+
                 this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
                     if(dbres.status === Status.success){
-                        var user:User = new User("admin", this.adminPassword, "", "", true);
-                        this.database.saveUser(user, () => {});
+                        this.database.saveUser(user, (dbres: DatabaseResponse) => {});
                     }
                 })
             }
@@ -43,10 +44,6 @@ export class Login {
     }
 
     listen(){
-
-        setTimeout( () => {
-
-        }, 5000);
 
         this.router.post('/', (req, res, next) => {
 
