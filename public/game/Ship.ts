@@ -10,7 +10,7 @@ export class Ship {
     alive: boolean;
     cursors:any;
     
-    constructor(index, game) {
+    constructor(game) {
         
         this.cursors = {
             left:false,
@@ -40,7 +40,6 @@ export class Ship {
         this.sprite = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, 'spaceship');
         this.sprite.anchor.set(0.5);
         
-        this.sprite.id = index;
         this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
         this.sprite.body.immovable = false;
         this.sprite.body.collideWorldBounds = true;

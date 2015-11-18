@@ -5,9 +5,10 @@ import { SimulationResponse, POSITION_EVENT } from '../../common/Simulation'
 
 export class SpaceGame {
     
-    socketservice: SocketService;
 	game: Phaser.Game;
+    socketservice: SocketService;
     player: Ship;
+    name: string;
     enemies: {[name: string]: Ship};
     
     background: Phaser.TileSprite;
@@ -38,28 +39,22 @@ export class SpaceGame {
             
     create() {
         this.game.world.setBounds(-1000, -1000, 2000, 2000);
-        
         this.background = this.game.add.tileSprite(0, 0, 800, 600, "background");
         this.background.fixedToCamera = true;
         
-        this.player = new Ship(99, this.game);
-        
-        this.enemiesTotal = 10;
-        this.enemiesAlive = this.enemiesTotal;
+        this.player = new Ship(this.game);
+        this.name = window.sessionStorage["user"];
         
         this.enemies = {};
-        for(let i=0; i<this.enemiesTotal; i++) {
-            this.enemies[i.toString()] = new Ship(i, this.game);
-        }
-
-        this.player.sprite.bringToTop();
+        this.enemiesTotal = 0;
+        this.enemiesAlive = 0;
+        
+        this.cursors = this.game.input.keyboard.createCursorKeys();
+        this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         
         this.game.camera.follow(this.player.sprite);
         this.game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
         this.game.camera.focusOnXY(0, 0);
-    
-        this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
         this.space.onDown.add(SpaceGame.prototype.spaceDown, this);
         this.space.onUp.add(SpaceGame.prototype.spaceUp, this);
@@ -143,8 +138,22 @@ export class SpaceGame {
     }
     
     refreshGame(spacegame:SpaceGame, res:SimulationResponse) {
-
-        
+        for(var player in res.players) {
+            var actual:Ship = null;
+            if(player.name.equals(this.name)) {
+                actual = this.player;
+            } else {
+                actual = this.enemies[player.name];
+                if(actual==undefined) {
+                    this.enemies[player.name] = new Ship(this.game);
+                    actual = this.enemies[player.name];
+                }
+            }
+            //position
+            actual.sprite.position.x = player.ship.position.x;
+            actual.sprite.position.y = player.ship.position.y;
+        }
+        this.enemiesTotal = res.players.length-1;
         
         //todo: bullets
     }
