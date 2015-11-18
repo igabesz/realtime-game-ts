@@ -86,7 +86,7 @@ export class MainController {
 
             if("hostname" in msg) {
                 this.$scope.hostname = msg.hostname;
-                if(this.$scope.hostname == sessionStorage["token"]){
+                if(this.$scope.hostname == sessionStorage["user"]){
                     $scope.isHost = true;
                 } else {
                     $scope.isHost = false;
