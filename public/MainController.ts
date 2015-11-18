@@ -124,8 +124,8 @@ export class MainController {
                     }
                 }
             }
-
-
+            
+            this.checkAllReady();
         });
 
         this.socketService.getPersonalInfo(sessionStorage['token']);
@@ -143,7 +143,6 @@ export class MainController {
 
     ready(shipType){
         this.socketService.ready(shipType);
-        this.$scope.isReady = true;
         this.$scope.choosedShip = shipType;
     }
 
@@ -165,6 +164,16 @@ export class MainController {
         sessionStorage["token"] = "";
         sessionStorage["user"] = "";
         window.location.href = "/";
+    }
+
+    checkAllReady(){
+        for(var p in this.$scope.players){
+            if(this.$scope.players[p].ship === undefined){
+                this.$scope.isReady = false;
+                return;
+            }
+        }
+        this.$scope.isReady = true;
     }
 
     init($scope){
