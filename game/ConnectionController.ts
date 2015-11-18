@@ -2,8 +2,11 @@ import * as socketIO from 'socket.io';
 
 import { Room } from '../common/Room';
 import { Player } from '../common/Player';
-import { Message, Response } from '../common/Message';
+import { Message, Response, AllChatMessage } from '../common/Message';
 import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT} from '../common/Connection';
+
+import { IDatabase, DatabaseResponse, Status } from '../database/Database';
+import { User } from '../database/User';
 
 import { LifeCycle } from './LifeCycle';
 import { RoomService } from './RoomService';
@@ -19,10 +22,9 @@ export class ConnectionController {
 	
 	private roomService: RoomService = new RoomService(this);
 	private simulationService: SimulationService = new SimulationService(this.roomService, this);
-	
 	private movementController: MovementController = new MovementController();
 	
-	constructor(private ioServer: SocketIO.Server) {
+	constructor(private ioServer: SocketIO.Server, private database: IDatabase) {
 		// waits for connection
 		this.ioServer.on('connection', (socket: SocketIO.Socket) => this.openConnection(socket));
 	}
@@ -48,18 +50,34 @@ export class ConnectionController {
 		client.lifeCycle.disconnect();
 	}
 	
-	public personalInfo(client: Client, data: PersonalInfoRequest): void {
-		// save data
-		client.player = new Player();
-		client.player.name = data.token; // TO-DO add logic from login server
-		
-		// response
-		let response: PersonalInfoResponse = new PersonalInfoResponse(); 
-		response.name = client.player.name;
+	public personalInfo(client: Client, request: PersonalInfoRequest): void {
+		this.database.validateToken(request.token, (response: DatabaseResponse) => this.savePersonalInfo(client, response));
+	}
+	
+	private savePersonalInfo(client: Client, data: DatabaseResponse): void {
+		let response: PersonalInfoResponse = new PersonalInfoResponse();
+		if(data.status === Status.success) {
+			let user: User = (<User>data.data);
+			
+			if(!user.isAdmin) {
+				// save data
+				client.player = new Player();
+				client.player.name = data.data.username;
+				
+				// response
+				response.name = client.player.name;
+				
+				// refresh listeners
+				client.lifeCycle.connect();
+			}
+			else {
+				response.errors.push('Admin login');
+			}
+		}
+		else {
+			response.errors.push(data.msg);
+		}
 		this.sendToClient(client, PERSONAL_INFO_EVENT, response);
-		
-		// refresh listeners
-		client.lifeCycle.connect();
 	}
 	
 	public sendToAll(event: string, message: Message): void {
@@ -84,6 +102,14 @@ export class ConnectionController {
 		client.socket.emit('test', { title:'Client ' + event, body: message});
 	}
 	
+	public getClient(player: Player): Client {
+		for(let i: number = 0; i < this.clients.length; i++) {
+			if(this.clients[i].player !== undefined && this.clients[i].player === player) {
+				return this.clients[i];
+			}
+		}
+	}
+	
 	public getClients(): Array<Client> {
 		return this.clients;
 	}
@@ -93,6 +119,9 @@ export class ConnectionController {
 	}
 	
 	public stopServer(): void {
+		let message: AllChatMessage = new AllChatMessage();
+		message.message = 'Server stopped by an admin'; 
+		this.sendToAll('admin', message);
 		
 	}
 }

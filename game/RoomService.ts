@@ -1,5 +1,5 @@
 import { Player } from '../common/Player';
-import { ShipType, GeneralShip, FastShip, Speed, Position } from '../common/GameObject';
+import { ShipType, GeneralShip, FastShip, Speed, Position, Projectile } from '../common/GameObject';
 import { Response } from '../common/Message';
 import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ROOM_STATE_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse, RoomStateMessage } from '../common/Room';
 
@@ -171,7 +171,7 @@ export class RoomService {
 		if(response.success) {
 			this.initRoom(room);
 			let clients: Array<Client> = this.connectionCtrl.getClients();
-			for(let i: number = 0; i < clients.length; i++) {
+			for(let i: number = 0; i < room.players.length; i++) {
 				if(clients[i].isInRoom() && clients[i].player.room.id == client.player.room.id) {
 					client[i].lifeCycle.startGame();
 				}
@@ -195,6 +195,7 @@ export class RoomService {
 			player.ship.position.x = 0;
 			player.ship.position.y = 0;
 			player.ship.position.angle = 0;
+			player.ship.currentAttackDelay = 0;
 		}
 		room.started = true;
 	}
@@ -211,5 +212,14 @@ export class RoomService {
 	
 	public getRooms(): Array<Room> {
 		return this.rooms;
+	}
+	
+	public removePlayer(room: Room, player: Player): void {
+		room.players.splice(room.players.indexOf(player), 1);
+		this.connectionCtrl.getClient(player).lifeCycle.die();
+	}
+	
+	public removeProjectile(room: Room, projectile: Projectile): void {
+		room.projectiles.splice(room.projectiles.indexOf(projectile), 1);
 	}
 }

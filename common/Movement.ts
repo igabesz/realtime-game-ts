@@ -21,3 +21,7 @@ export class MovementRequest extends Message {
 	public direction: Direction;
 	public action: KeyAction;
 }
+
+export class FireRequest extends Message {
+	public action: KeyAction;
+}

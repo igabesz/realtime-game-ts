@@ -18,24 +18,26 @@
     <link rel="stylesheet" href="admin.css">
     <title>SpaceGame - Admin</title>
 </head>
-<body ng-controller="AdminController as ctrl">
+<body ng-controller="AdminController as ctrl" class="ng-cloak">
     <div ng-show="question !== null || message !== null">
         <div ng-show="question !==null">
             <span>
                 {{question}}
             </span>
-            <div>
+            <br />
+            <span>
                 <button ng-click="ctrl.answerQuestion(true)">Yes</button>
                 <button ng-click="ctrl.answerQuestion(false)">No</button>
-            </div>
+            </span>
         </div>
         <div ng-show="message !==null">
             <span>
                 {{message}}
             </span>
-            <div>
+            <br />
+            <span>
                 <button ng-click="message = null">OK</button>
-            </div>
+            </span>
         </div>
     </div>
     <table>

@@ -142,10 +142,16 @@
         });
 
         function handleLoginSuccess(data) {
+            console.log(data);
             if(data.status === "success"){
                 notify(data.message, "success");
                 sessionStorage["token"] = data.authtoken;
                 sessionStorage["user"] = data.user;
+
+                if(data.user === "admin"){
+                    window.location = '/admin/index.html';
+                    return;
+                }
 
                 $.ajax({
                     url: '/',

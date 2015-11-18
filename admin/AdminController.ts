@@ -1,12 +1,14 @@
 import { Router, Request, Response }  from 'express';
 import * as path from 'path';
 
-import { Room } from './common/Room';
+import { Room } from '../common/Room';
+import { AllChatMessage } from '../common/Message';
 
-import { LifeCycleState } from './game/LifeCycle';
-import { Client, ConnectionController } from './game/ConnectionController';
+import { LifeCycleState } from '../game/LifeCycle';
+import { Client, ConnectionController } from '../game/ConnectionController';
 
-import { UserData, RoomData } from './public/admin/AdminController';
+import { UserData, RoomData } from './DataTypes';
+
 
 export class AdminController {
 
@@ -14,7 +16,7 @@ export class AdminController {
     public DBConnected: boolean = false;
 
     public constructor(private connectionController: ConnectionController, private router: Router) {
-        router.get('/admin', (request: Request, response: Response, next) => this.admin(request, response, next));
+        router.get('/admin/index.html', (request: Request, response: Response, next) => this.admin(request, response, next));
         router.get('/admin/db', (request: Request, response: Response, next) => this.db(request, response, next));
         router.get('/admin/users', (request: Request, response: Response, next) => this.users(request, response, next));
         router.get('/admin/rooms', (request: Request, response: Response, next) => this.rooms(request, response, next));
@@ -28,7 +30,7 @@ export class AdminController {
     }
 
     private admin(request: Request, response: Response, next): void {
-        response.sendFile(path.join(__dirname + '/public/admin/admin.html'));
+        response.sendFile(path.join(__dirname + '/../public/admin/admin.html'));
     } 
     
     private stop(request: Request, response: Response, next): void {
@@ -38,7 +40,9 @@ export class AdminController {
     }
     
     private allChat(request: Request, response: Response, next): void {
-        this.connectionController.sendToAll('admin', request.body);
+        let message: AllChatMessage = new AllChatMessage();
+        message.message = request.body;
+        this.connectionController.sendToAll('admin', message);
         response.send('Sent');
     }
     

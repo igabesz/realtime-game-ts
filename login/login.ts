@@ -1,196 +1,142 @@
 /**
  * Created by S on 2015.11.09..
  */
-import { User } from './User';
+import { User } from '../database/User';
+import { Database, DatabaseResponse, Status } from '../database/Database';
+// REST API imports:
+import * as path from 'path';
+import * as bodyParser from 'body-parser';
+import * as hash from 'password-hash';
+import * as crypto from 'crypto';
 
-export var Login = function (router, db, path, hash, crypto) {
+export class Login {
 
-    let users: any;
-    db.open(function(err, db) {
-        if(!err) {
-            users = db.collection("users");
-            console.log('Open: MongoDb connected!');
-        } else {
-            console.log('Open: MongoDb connection error!');
-        }
+    private database: Database;
+    private router: any;
+    private adminLogin: string;
+    private adminPassword: string;
 
-    });
+    constructor(router, database:Database) {
+        this.database = database;
+        this.router = router;
 
-    router.post('/', function (req, res, next) {
+        this.adminLogin = "admin";
+        this.adminPassword = "admin";
 
-        var username = req.body.username;
-        var token = req.body.token;
+    }
 
-        console.log("/ -> " + username + " " + token);
+    listen(){
 
-        if( username === undefined || token === undefined || username === "" || token === "")
+        setTimeout( () => {
+            var user:User = new User("admin", this.adminPassword, "", "", true);
+            this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
+                if(dbres.status === Status.success){
+                    var user:User = new User("admin", this.adminPassword, "", "", true);
+                    this.database.saveUser(user, () => {});
+                }
+            })
+        }, 5000);
+
+        this.router.post('/', (req, res, next) => {
+
+            let username = req.body.username;
+            let token = req.body.token;
+
+            if (username === undefined || token === undefined || username === "" || token === "")
                 res.sendFile(path.resolve(__dirname + '/../public/login.html'));
 
-        var criteria: any = {};
-        criteria.username = username;
-
-        if (users != undefined) {
-            users.find(criteria).toArray(function (err, docs) {
-
-                if (docs != null && docs.length != 0) {
-
-                    var user = getSingleResult(docs);
-                    if (user.token === token) {
-
-                        var index = path.resolve(__dirname + '/../public/index.html');
-                        res.sendFile(path.resolve(__dirname + '/../public/index.html'));
-                        console.log("ok, sent: " + index );
-                    }
-                    else {
-                        res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-
-                    }
+            this.database.validateUserWithToken(username, token, (dbres2:DatabaseResponse) => {
+                if (dbres2.status === Status.success) {
+                    let index = path.resolve(__dirname + '/../public/index.html');
+                    res.sendFile(path.resolve(__dirname + '/../public/index.html'));
+                    console.log("ok, sent: " + index);
                 } else {
                     res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-
+                    console.info("ERROR: ", dbres2.msg);
                 }
             });
-        } else {
-            res.sendFile(path.resolve(__dirname + '/../public/login.html'));
+        });
 
-        }
-    });
+        this.router.post('/login', (req, res, next) => {
+            console.log('User logging request');
 
-    router.post('/login', function (req, res, next) {
-        console.log('User logging request');
+            let username = req.body.username;
+            let password = req.body.password;
 
-        let criteria: any = {};
-        criteria.username = req.body.username;
+            this.database.validateUserWithPassword(username, password, (dbres:DatabaseResponse) => {
 
-
-
-        if (users != undefined) {
-            users.find(criteria).toArray(function (err, docs) {
-
-                if (docs != null && docs.length != 0) {
-
-                    var user = getSingleResult(docs);
-                    if (hash.verify(req.body.password, user.password)) {
-                        var token = generate_key();
-
-                        updateUserToken(user, token);
-
-                        res.json({
-                            status: "success",
-                            message: "Logging in...",
-                            user: req.body.username,
-                            authtoken: token
-                        });
-                    }
-                    else {
-                        res.json({
-                            status: "error",
-                            message: "Username and password don't match!",
-                            user: req.body.username
-                        });
-                    }
+                if(dbres.status === Status.success){
+                    res.json({
+                        status: "success",
+                        message: "Logging in...",
+                        user: username,
+                        authtoken: dbres.data.token
+                    });
                 } else {
-                    res.json({status: "error", message: "Username and password don't match!", user: req.body.username});
+                    res.json({
+                        status: "error",
+                        message: "Username and password don't match!",
+                        user: username
+                    });
+                    console.log("ERROR: ", dbres.msg);
                 }
             });
-        } else {
-            res.json({status: "error", message: "Database connection error!", user: req.body.username});
-        }
-    });
 
-    router.post('/signedup', function (req, res, next) {
-        console.log('Sign up!');
+        });
 
-        var username = req.body.username;
-        var email = req.body.email;
-        var password = hash.generate(req.body.password);
+        this.router.post('/signedup', (req, res, next) => {
+            console.log('Sign up');
 
-        if (users != undefined) {
-            users.findOne({username: username}, function (err, doc) {
-                if (doc) {
+            let username = req.body.username;
+            let email = req.body.email;
+            let password = hash.generate(req.body.password);
+
+            if(username === this.adminLogin && password === this.adminPassword){
+                res.json({status: "success", user: "admin"});
+                return;
+            }
+
+            this.database.doesUserExist(username, (dbres:DatabaseResponse) => {
+
+                if(dbres.status === Status.success){
+
+                    var user:User = new User(username, password, email, "", false);
+
+                    this.database.saveUser(user, (dbres: DatabaseResponse) => {
+                        if(dbres.status === Status.success){
+                            res.json({status: "success", user: username});
+                        } else {
+                            res.json({status: "error", user: username});
+                            console.log("ERROR: ", dbres.msg);
+                        }
+                    });
+                } else {
                     res.json({status: "error", user: username});
-                } else {
-                    var user:User = new User(username, password, email, "");
-                    saveUser(user, res);
+                    console.log("ERROR: ", dbres.msg);
                 }
             });
-        } else {
-            res.json({status: "error", message: "Database connection error!", user: req.body.username});
-        }
-    });
+        });
 
-    router.get('/auth/:user/:token', function (req, res, next) {
-        console.log('Token validation request for user: ' + req.params.user);
+        this.router.get('/auth/:user/:token', (req, res, next) => {
 
-        let criteria: any = {};
-        criteria.username = req.params.user;
+            let username = req.params.user;
+            let token = req.params.token;
 
-        if (users != undefined) {
-            users.find(criteria).toArray(function (err, docs) {
+            console.log('Token validation request for user: ' + username);
 
-                if (docs != null && docs.length != 0) {
+            this.database.validateUserWithToken(username, token, (dbres:DatabaseResponse) => {
 
-                    var user = getSingleResult(docs);
-                    if (user.token === req.params.token) {
-
-                        res.json({status: "success"});
-                        console.log("Database: Token successfully validated");
-                    }
-                    else {
-                        res.json({status: "error"});
-                        console.log("Database: Token validation error: tokens don't match");
-                    }
+                if(dbres.status === Status.success){
+                    res.json({status: "success"});
+                    console.log("Token successfully validated for user: " + username);
                 } else {
                     res.json({status: "error"});
-                    console.log("Database: Token validation error: " + criteria.username + " can not be found in database!");
+                    console.log("ERROR: ", dbres.msg);
                 }
             });
-        } else {
-            res.json({status: "error", message: "Database connection error!", user: req.body.username});
-        }
-    });
-
-
-    function saveUser(User, Response) {
-        if (!users) {
-            console.log('MongoDb connection error!');
-            return false;
-        } else {
-            users.insert(User, function (err, records) {
-                if (!err) {
-                    console.log('Database: User saved to database!');
-                    Response.json({status: "success", user: User.username});
-                    return true;
-                } else {
-                    Response.json({status: "error", user: User.username});
-                    console.log('Database: Save to database failed!');
-                    return false;
-                }
-            });
-        }
+        });
     }
 
-    function updateUserToken(User, Token) {
-        if (users != undefined) {
-            users.updateOne({username: User.username}, {$set: {token: Token}}, function (err) {
-                if (!err) {
-                    console.log("Database: User token successfully updated");
-                } else {
-                    console.log("Database: Failed to update User token");
-                }
-            });
-        } else console.log("MongoDb connection error!");
-    }
-
-    function getSingleResult(docs){
-        return docs[0];
-    }
-
-    var generate_key = function() {
-        var sha = crypto.createHash('sha256');
-        sha.update(Math.random().toString());
-        return sha.digest('hex');
-    }
 }
 
 
