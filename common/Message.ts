@@ -11,7 +11,7 @@ export class Request extends Message {
 /** response from server to client, after a request */
 export class Response extends Message {
 	public errors: Array<string> = [];
-	public get success(): boolean {
+	public success(): boolean {
 		return this.errors.length === 0;
 	}
 }
