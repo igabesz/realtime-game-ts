@@ -131,9 +131,10 @@ export class SimulationService {
 		
 		// Create players hitboxes
 		for(let i: number = 0; i < room.players.length; i++) {
-			let item: {player: Player, rectangle: Rectangle};
-			item.player = room.players[i];
-			item.rectangle = Rectangle.createRectangle(item.player.ship);
+			let item: {player: Player, rectangle: Rectangle} =  { 
+				player:  room.players[i],
+				rectangle: Rectangle.createRectangle(room.players[i].ship) 
+			};
 			players.push(item);
 		}
 		
