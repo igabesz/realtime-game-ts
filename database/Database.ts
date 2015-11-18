@@ -17,6 +17,8 @@ export interface IDatabase {
 
     validateToken(token: string, callback: (res:DatabaseResponse) => any) : void;
 
+    cleanSingleToken(token: string, callback: (res:DatabaseResponse) => any) : void;
+
     findUsers(username: string, callback: (res:DatabaseResponse) => any) : void;
 
     doesUserExist(username: string, callback: (res:DatabaseResponse) => any) : void;
@@ -223,14 +225,34 @@ export class Database implements IDatabase {
     updateUserToken(username:string, callback: (res:DatabaseResponse) => any){
 
         let token = this.generate_key();
+        if(username === "admin") console.log("Admin token updated: " + token);
 
         if (this.users != undefined) {
             this.users.updateOne({username: username}, {$set: {token: token}}, (err) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {token:token} , "User: " + username + "'s token successfully updated") );
+                    this.validateToken(token, (res2:DatabaseResponse) => {console.info("validate admin token",res2)});
                     return;
                 } else {
                     callback( new DatabaseResponse(Status.error, {} , "Could not update the token of user: " + username) );
+                    return;
+                }
+            });
+        } else {
+            callback( new DatabaseResponse(Status.error, {} , "Error: 'users' is undefined") );
+            return;
+        }
+    }
+
+    cleanSingleToken(token:string, callback: (res:DatabaseResponse) => any){
+
+        if (this.users != undefined) {
+            this.users.updateOne({token: token}, {$set: {token: ""}}, (err) => {
+                if (!err) {
+                    callback( new DatabaseResponse(Status.success, {} , "Token successfully cleaned") );
+                    return;
+                } else {
+                    callback( new DatabaseResponse(Status.error, {} , "Could not clean the token of user: ") );
                     return;
                 }
             });
