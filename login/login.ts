@@ -23,18 +23,30 @@ export class Login {
         this.adminLogin = "admin";
         this.adminPassword = "admin";
 
+        this.database.open((dbres:DatabaseResponse) => {
+            if(dbres.status == Status.success) {
+                console.log("Successfully connected to MongoDB!")
+                console.log(dbres.msg);
+
+                this.database.cleanTokens(() => {});
+
+                var user:User = new User("admin", this.adminPassword, "", "", true);
+                this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
+                    if(dbres.status === Status.success){
+                        var user:User = new User("admin", this.adminPassword, "", "", true);
+                        this.database.saveUser(user, () => {});
+                    }
+                })
+            }
+            else console.info("ERROR: ", dbres.msg);
+        })
+
     }
 
     listen(){
 
         setTimeout( () => {
-            var user:User = new User("admin", this.adminPassword, "", "", true);
-            this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
-                if(dbres.status === Status.success){
-                    var user:User = new User("admin", this.adminPassword, "", "", true);
-                    this.database.saveUser(user, () => {});
-                }
-            })
+
         }, 5000);
 
         this.router.post('/', (req, res, next) => {

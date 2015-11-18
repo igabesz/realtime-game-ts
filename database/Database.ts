@@ -43,13 +43,6 @@ export class Database implements IDatabase {
 
     constructor(db){
         this.db = db;
-        this.open((dbres:DatabaseResponse) => {
-            if(dbres.status == Status.success) {
-                console.log("Successfully connected to MongoDB!")
-                console.log(dbres.msg);
-            }
-            else console.info("ERROR: ", dbres.msg);
-        })
     }
 
     open(callback: (res:DatabaseResponse) => any){
