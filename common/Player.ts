@@ -7,7 +7,7 @@ export class Player {
 	public room: Room;
 	public ship: Ship;
 	
-	public get ready(): boolean {
+	public ready(): boolean {
 		return this.ship !== null;
 	}
 }
