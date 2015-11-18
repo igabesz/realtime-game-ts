@@ -187,7 +187,7 @@ export class Database implements IDatabase {
                         return;
                     }
                     else {
-                        console.log("wrong password, given: " + password + " expected: " + user.password);
+                        console.log("Wrong password, given!");
                         callback( new DatabaseResponse(Status.error, {} , "Wrong password for user: " + username) );
                         return;
                     }
