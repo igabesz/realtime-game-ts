@@ -79,6 +79,17 @@ export class MainController {
         socketService.addHandler(ROOM_STATE_EVENT, $timeout, (msg) => {
             console.info("ROOM_STATE_EVENT ", msg);
 
+            if(msg.started === true) {
+                $scope.game = new SpaceGame(socketService);
+
+                $scope.roomLobbyView = false;
+                $scope.inRoomView = false;
+                $scope.gameView = true;
+
+                console.log("Game started!");
+                return;
+            }
+
             if(! $scope.areRoomsAlreadyListed){
                 this.socketService.listShips();
                 $scope.areRoomsAlreadyListed = true;
@@ -105,18 +116,6 @@ export class MainController {
             }
 
 
-        });
-
-        socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
-            console.info("START_ROOM_EVENT ", msg);
-
-            $scope.game = new SpaceGame(socketService);
-
-            $scope.roomLobbyView = false;
-            $scope.inRoomView = false;
-            $scope.gameView = true;
-
-            console.log("Game started!");
         });
 
         this.socketService.getPersonalInfo(sessionStorage['token']);
@@ -150,6 +149,12 @@ export class MainController {
 
     start(){
         this.socketService.start();
+    }
+
+    logout(){
+        sessionStorage["token"] = "";
+        sessionStorage["user"] = "";
+        window.location.href = "/";
     }
 
     init($scope){

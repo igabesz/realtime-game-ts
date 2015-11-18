@@ -30,7 +30,9 @@
                     <p class="pull-right" ng-show="inRoomView" class="pleasedontfloat">In room: {{roomJoined}}
                         <button ng-click="ctrl.leaveRoom()" class="btn btn-primary" role="button">Leave Room</button>
                     </p>
-
+                    <p class="pull-right" ng-show="roomLobbyView" class="pleasedontfloat">
+                        <button ng-click="ctrl.logout()" class="btn btn-primary" role="button">Logout</button>
+                    </p>
                 </h1>
             </div>
         </div>
