@@ -1,6 +1,6 @@
 import { Ship } from './Ship';
 import { SocketService } from '../SocketService';
-import { Direction, KeyAction, MovementRequest } from '../../common/Movement';
+import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { SimulationResponse, POSITION_EVENT } from '../../common/Simulation'
 
 export class SpaceGame {
@@ -75,10 +75,13 @@ export class SpaceGame {
     
     spaceDown() {
         this.player.cursors.fire = true;
-        this.socketservice.fire();
+        var req:FireRequest = {action: KeyAction.pressed};
+        this.socketservice.fire(req);
     }
     spaceUp() {
         this.player.cursors.fire = false;
+        var req:FireRequest = {action: KeyAction.released};
+        this.socketservice.fire(req);
     }
     upDown() {
         this.player.cursors.up = true;

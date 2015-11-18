@@ -2,7 +2,7 @@ import * as SocketIO from 'socket.io-client';
 import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
 import { ShipType } from '../common/GameObject';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest, LEAVE_ROOM_EVENT } from '../common/Room';
-import { MovementRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
+import { MovementRequest, FireRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -76,9 +76,9 @@ export class SocketService {
 		this.socket.emit(MOVEMENT_EVENT, req);
 	}
 	
-	fire() {
+	fire(req: FireRequest) {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
-		this.socket.emit(FIRE_EVENT);
+		this.socket.emit(FIRE_EVENT, req);
 	}
 
 	/**This is a tricky thing with the following tasks: 
