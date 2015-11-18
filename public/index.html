@@ -108,7 +108,8 @@
                 </tr>
                 </thead>
                 <tr ng-repeat="player in players">
-                    <td>{{ player }}</td>
+                    <td>{{ player.name }}</td>
+                    <td class="label label-success col-sm-6" ng-class="{true:'visible', false: 'invisible'}[player.ship !== undefined]">Ready</td>
                 </tr>
             </table>
 
