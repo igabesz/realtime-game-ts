@@ -171,9 +171,9 @@ export class RoomService {
 		if(response.success) {
 			this.initRoom(room);
 			let clients: Array<Client> = this.connectionCtrl.getClients();
-			for(let i: number = 0; i < room.players.length; i++) {
+			for(let i: number = 0; i < clients.length; i++) {
 				if(clients[i].isInRoom() && clients[i].player.room.id == client.player.room.id) {
-					client[i].lifeCycle.startGame();
+					clients[i].lifeCycle.startGame();
 				}
 			}
 			this.sendRoomState(room);
