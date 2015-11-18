@@ -48,6 +48,7 @@ export class ConnectionController {
 			this.roomService.leaveRoom(client);
 		}
 		client.lifeCycle.disconnect();
+        // TO-DO delete token from db
 	}
 	
 	public personalInfo(client: Client, request: PersonalInfoRequest): void {
@@ -57,7 +58,7 @@ export class ConnectionController {
 	private savePersonalInfo(client: Client, data: DatabaseResponse): void {
 		let response: PersonalInfoResponse = new PersonalInfoResponse();
 		if(data.status === Status.success) {
-			let user: User = (<User>data.data);
+			let user: User = data.data;
 			
 			if(!user.isAdmin) {
 				// save data
