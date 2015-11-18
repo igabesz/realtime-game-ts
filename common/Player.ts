@@ -8,6 +8,6 @@ export class Player {
 	public ship: Ship;
 	
 	public ready(): boolean {
-		return this.ship !== null;
+		return this.ship !== null && this.ship !== undefined;
 	}
 }

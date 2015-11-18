@@ -34,6 +34,8 @@ export class AdminController {
 		this.selectMenu($location.url().substring(1));
 	}
 	
+	/* Design */
+	
 	private hover(event: any): void {
 		let element: ng.IAugmentedJQuery = angular.element(event.target);
 		element.addClass('hover');
@@ -43,6 +45,8 @@ export class AdminController {
 		let element: ng.IAugmentedJQuery = angular.element(event.target);
 		element.removeClass('hover');
 	}
+	
+	/* Frontend functionality */
 	
 	private setQuestion(action: string): void {
 		switch(action) {
@@ -78,8 +82,18 @@ export class AdminController {
 		this.refresh();
 	}
 	
+	/* Frontend logic */
+	
 	private logout(): void {
-		location.href  = '/login.html';
+		this.$http.get('/admin/logout', {
+			headers: {
+				'Authorization': sessionStorage.getItem('token'),
+				'Cache-Control': 'no-cache'
+			}
+		}).success((data)=>{
+			sessionStorage.clear();
+			location.href  = '/login.html';
+		});
 	}
 	
 	private refreshAll(): void {
@@ -123,52 +137,78 @@ export class AdminController {
 		}
 	}
 	
+	/* Requests to server */
+	/* GET */
+	
+	private get(url: string, success: (any) => void): ng.IHttpPromise<any> {
+		return this.$http.get(url, {
+			headers: {
+				'Authorization': sessionStorage.getItem('token'),
+				'Cache-Control': 'no-cache'
+			}
+		}).success((data)=>{
+			success(data);
+		}).error(() => {
+			this.logout();
+		});
+	}
+	
+	private getDatabaseUp(): void {
+		
+		let promise: ng.IHttpPromise<boolean> = this.get('/admin/db',
+		(isUp: boolean) => {
+			this.$scope.Database = isUp;
+		});
+	}
+	
+	private getUserData(): void {
+		let promise: ng.IHttpPromise<Array<UserData>> = this.get('/admin/users',
+		(users: Array<UserData>) => {
+			let newUsers: Array<UserData> = [];
+			for(let i: number = 0; i < users.length; i++) {
+				let user: UserData = users[i];
+				if(user.playerName === '') {
+					user.playerName = 'Not identified yet';
+				}
+				newUsers.push(user);
+			}
+			this.$scope.Users = newUsers;
+		});
+	}
+	
+	private getRoomData(): void {
+		let promise: ng.IHttpPromise<Array<RoomData>> = this.get('/admin/rooms',
+		(rooms: Array<RoomData>) => {
+			this.$scope.Rooms = rooms;
+		});
+	}
+	
+	/* POST */
+	
+	private post(url: string, data: any, success: (any) => void): ng.IHttpPromise<any> {
+		return this.$http.post('/admin/stop', data, {
+			headers: {
+				"Authorization": sessionStorage.getItem('token'),
+				'Cache-Control': 'no-cache'
+			}
+		}).success((data)=>{
+			success(data);
+		}).error(() => {
+			this.logout();
+		});
+	}
+	
 	private allChat(): void {
 		let text: string = this.$scope.allChatText;
 		this.$scope.allChatText = '';
-		this.$http.post('allchat', { text });
+		this.post('allchat', { text }, () => { });
 	}
 	
 	public stopServer(): void {
 		if(this.timer !== null) {
 			this.$interval.cancel(this.timer);
 		}
-		this.$http.post('/admin/stop', null);
+		this.post('/admin/stop', null, () => { });
 		this.$scope.message = 'Server has stopped. Please close the page.';
-	}
-	
-	private getDatabaseUp(): void {
-		let promise: ng.IHttpPromise<boolean> = this.$http.get('/admin/db');
-		promise.success((isUp: boolean) => this.resolveDBUp(isUp));
-	}
-	
-	private getUserData(): void {
-		let promise: ng.IHttpPromise<Array<UserData>> = this.$http.get('/admin/users');
-		promise.success((users: Array<UserData>) => this.resolveUserData(users));
-	}
-	
-	private getRoomData(): void {
-		let promise: ng.IHttpPromise<Array<RoomData>> = this.$http.get('/admin/rooms');
-		promise.success((rooms: Array<RoomData>) => this.resolveRoomData(rooms));
-	}
-	
-	private resolveUserData(users: Array<UserData>): void {
-		let newUsers: Array<UserData> = [];
-		for(let i: number = 0; i < users.length; i++) {
-			let user: UserData = users[i];
-			if(user.playerName === '') {
-				user.playerName = 'Not identified yet';
-			}
-			newUsers.push(user);
-		}
-		this.$scope.Users = newUsers;
-	}
-	
-	private resolveRoomData(rooms: Array<RoomData>): void {
-		this.$scope.Rooms = rooms;
-	}
-	
-	private resolveDBUp(isUp: boolean): void {
-		this.$scope.Database = isUp;
 	}
 }
