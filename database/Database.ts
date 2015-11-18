@@ -4,10 +4,16 @@
 import { User } from './User';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
+import { Db }  from 'mongodb';
+
 
 export interface IDatabase {
 
+    isConnected: boolean;
+
     open(callback: (res:DatabaseResponse) => any) : void;
+
+    close(callback: (res:DatabaseResponse) => any) : void;
 
     validateToken(token: string, callback: (res:DatabaseResponse) => any) : void;
 
@@ -38,18 +44,23 @@ export class DatabaseResponse{
 
 export class Database implements IDatabase {
 
-    private db: any;
     private users: any;
 
-    constructor(db){
-        this.db = db;
+    public isConnected: boolean = false;
+
+    constructor(private db: Db){
     }
 
     open(callback: (res:DatabaseResponse) => any){
         this.db.open((err, db) => {
             if(!err) {
+                this.isConnected = true;
                 this.users = db.collection("users");
                 callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
+
+                db.addListener('close', () => {
+                    this.isConnected = false;
+                })
                 return;
 
             } else {
@@ -58,6 +69,11 @@ export class Database implements IDatabase {
             }
 
         });
+    }
+
+    close(callback: (res:DatabaseResponse) => any){
+        this.db.close();
+        callback( new DatabaseResponse(Status.success, {} , "Successfully closed database") );
     }
 
     validateToken(token:string,  callback: (res:DatabaseResponse) => any){

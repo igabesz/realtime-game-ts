@@ -2,21 +2,20 @@
  * Created by S on 2015.11.09..
  */
 import { User } from '../database/User';
-import { Database, DatabaseResponse, Status } from '../database/Database';
+import { IDatabase, DatabaseResponse, Status } from '../database/Database';
 // REST API imports:
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
+import { Router }  from 'express';
 
 export class Login {
 
-    private database: Database;
-    private router: any;
     private adminLogin: string;
     private adminPassword: string;
 
-    constructor(router, database:Database) {
+    constructor(private router: Router, private database:IDatabase) {
         this.database = database;
         this.router = router;
 
