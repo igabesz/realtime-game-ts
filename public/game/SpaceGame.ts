@@ -8,7 +8,7 @@ export class SpaceGame {
     socketservice: SocketService;
 	game: Phaser.Game;
     player: Ship;
-    enemies: Ship[];
+    enemies: {[name: string]: Ship};
     
     background: Phaser.TileSprite;
     cursors: Phaser.CursorKeys;
@@ -22,8 +22,7 @@ export class SpaceGame {
             update:this.update, render:this.render });
         
         this.socketservice = ss;
-        //is it a problem if I use the raw function?
-        //Angular doesn't need to know about ship positions on the canvas.
+        //I can use the raw function, because Angular doesn't need to know about ship positions on the canvas.
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));
         
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
@@ -48,9 +47,9 @@ export class SpaceGame {
         this.enemiesTotal = 10;
         this.enemiesAlive = this.enemiesTotal;
         
-        this.enemies = [];
+        this.enemies = {};
         for(let i=0; i<this.enemiesTotal; i++) {
-            this.enemies.push(new Ship(i, this.game));
+            this.enemies[i.toString()] = new Ship(i, this.game);
         }
 
         this.player.sprite.bringToTop();
@@ -124,12 +123,13 @@ export class SpaceGame {
     
     update() {        
         this.enemiesAlive = 0;
-        for (let i = 0; i < this.enemies.length; i++) {
-            if (this.enemies[i].alive) {
+        for (var name in this.enemies) {
+            var enemy = this.enemies[name];
+            if (enemy.alive) {
                 this.enemiesAlive++;
-                this.game.physics.arcade.collide(this.player.sprite, this.enemies[i].sprite);
-                this.game.physics.arcade.overlap(this.player.bullets, this.enemies[i].sprite, this.enemies[i].damage, null, this.enemies[i]);
-                this.enemies[i].update();
+                this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
+                this.game.physics.arcade.overlap(this.player.bullets, enemy.sprite, enemy.damage, null, enemy);
+                enemy.update();
             }
         }
         
@@ -140,7 +140,10 @@ export class SpaceGame {
     }
     
     refreshGame(spacegame:SpaceGame, res:SimulationResponse) {
+
         
+        
+        //todo: bullets
     }
     
     render() {
