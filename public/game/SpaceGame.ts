@@ -18,13 +18,9 @@ export class SpaceGame {
     enemiesTotal: number;
     enemiesAlive: number;
 	
-	constructor(ss: SocketService) {
+	constructor() {
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
-        
-        this.socketservice = ss;
-        //I can use the raw function, because Angular doesn't need to know about ship positions on the canvas.
-        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));
         
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
@@ -65,7 +61,11 @@ export class SpaceGame {
         this.cursors.left.onDown.add(SpaceGame.prototype.leftDown, this);
         this.cursors.left.onUp.add(SpaceGame.prototype.leftUp, this);
         this.cursors.down.onDown.add(SpaceGame.prototype.downDown, this);
-        this.cursors.down.onUp.add(SpaceGame.prototype.downUp, this);         
+        this.cursors.down.onUp.add(SpaceGame.prototype.downUp, this);
+        
+        this.socketservice = (<any>window).socketservice;
+        //I can use the raw function, because Angular doesn't need to know about ship positions on the canvas.
+        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));         
     }
     
     spaceDown() {
@@ -138,22 +138,22 @@ export class SpaceGame {
     }
     
     refreshGame(spacegame:SpaceGame, res:SimulationResponse) {
-        for(var player in res.players) {
+        for(var player of res.players) {
             var actual:Ship = null;
-            if(player.name.equals(this.name)) {
-                actual = this.player;
+            if(player.name == spacegame.name) {
+                actual = spacegame.player;
             } else {
-                actual = this.enemies[player.name];
+                actual = spacegame.enemies[player.name];
                 if(actual==undefined) {
-                    this.enemies[player.name] = new Ship(this.game);
-                    actual = this.enemies[player.name];
+                    spacegame.enemies[player.name] = new Ship(spacegame.game);
+                    actual = spacegame.enemies[player.name];
                 }
             }
             //position
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;
         }
-        this.enemiesTotal = res.players.length-1;
+        spacegame.enemiesTotal = res.players.length-1;
         
         //todo: bullets
     }

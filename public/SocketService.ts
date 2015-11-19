@@ -28,6 +28,7 @@ export class SocketService {
 	connect() {
 		this.socket = SocketIO.connect();
         (<any>window).socket = this.socket;
+		(<any>window).socketservice = this;
 	}
 
 	getPersonalInfo(token: string) {
