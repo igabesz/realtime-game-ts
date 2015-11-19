@@ -3,6 +3,8 @@ import { UserData, RoomData } from '../../admin/DataTypes';
 interface IAdminScope extends ng.IScope {
 	Users: Array<UserData>;
 	Rooms: Array<RoomData>;
+	room: RoomData; 
+	player: UserData;
 	Database: boolean;
 	refresh: string;
 	refreshtext: string;
@@ -24,6 +26,8 @@ export class AdminController {
 	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $interval: ng.IIntervalService, private $location: ng.ILocationService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
+		$scope.room = {host: '', name: '', players: [], state: ''};
+		$scope.player =  {playerName: '', room: '', state: '', isHost: false};
 		$scope.Database = false;
 		$scope.refresh = '0';
 		$scope.refreshtext = 'Off';
@@ -32,18 +36,6 @@ export class AdminController {
 		$scope.applyFunction = null;
 		$scope.message = null;
 		this.selectMenu($location.url().substring(1));
-	}
-	
-	/* Design */
-	
-	private hover(event: any): void {
-		let element: ng.IAugmentedJQuery = angular.element(event.target);
-		element.addClass('hover');
-	}
-	
-	private unhover(event: any): void {
-		let element: ng.IAugmentedJQuery = angular.element(event.target);
-		element.removeClass('hover');
 	}
 	
 	/* Frontend functionality */
@@ -71,11 +63,13 @@ export class AdminController {
 	
 	private selectMenu(menu: string): void {
 		let value: string = 'home';
-		let validMenus: Array<string> = ['players', 'rooms'];
-		for(let i: number = 0; i < validMenus.length; i++) {
-			if(menu === validMenus[i]) {
-				value = menu;
-			}
+		if(
+			menu === 'players' ||
+			menu.indexOf('player/') === 0 ||
+			menu === 'rooms' ||
+			menu.indexOf('room/') === 0
+			) {
+			value = menu;
 		}
 		this.$location.url('/' + value);
 		this.$scope.selectedMenu = value;
@@ -98,21 +92,27 @@ export class AdminController {
 	
 	private refreshAll(): void {
 		this.getDatabaseUp();
-		this.getUserData();
-		this.getRoomData();
+		this.getUsersData();
+		this.getRoomsData();
 	}
 	
 	private refresh(): void {
 		switch(this.$scope.selectedMenu) {
 			case 'home':
 				this.getDatabaseUp();
-				break;
+				return;
 			case 'players':
-				this.getUserData();
-				break;
+				this.getUsersData();
+				return;
 			case 'rooms':
-				this.getRoomData();
-				break;
+				this.getRoomsData();
+				return;
+		}
+		if(this.$scope.selectedMenu.indexOf('room/') === 0) {
+			this.getRoomData(this.$scope.selectedMenu.substring(5));
+		}
+		else if(this.$scope.selectedMenu.indexOf('player/') === 0) {
+			this.getUserData(this.$scope.selectedMenu.substring(7));
 		}
 	}
 	
@@ -140,8 +140,8 @@ export class AdminController {
 	/* Requests to server */
 	/* GET */
 	
-	private get(url: string, success: (any) => void): ng.IHttpPromise<any> {
-		return this.$http.get(url, {
+	private get(url: string, success: (any) => void): void {
+		this.$http.get(url, {
 			headers: {
 				'Authorization': sessionStorage.getItem('token'),
 				'Cache-Control': 'no-cache'
@@ -154,16 +154,13 @@ export class AdminController {
 	}
 	
 	private getDatabaseUp(): void {
-		
-		let promise: ng.IHttpPromise<boolean> = this.get('/admin/db',
-		(isUp: boolean) => {
+		this.get('/admin/db', (isUp: boolean) => {
 			this.$scope.Database = isUp;
 		});
 	}
 	
-	private getUserData(): void {
-		let promise: ng.IHttpPromise<Array<UserData>> = this.get('/admin/users',
-		(users: Array<UserData>) => {
+	private getUsersData(): void {
+		this.get('/admin/users', (users: Array<UserData>) => {
 			let newUsers: Array<UserData> = [];
 			for(let i: number = 0; i < users.length; i++) {
 				let user: UserData = users[i];
@@ -176,10 +173,21 @@ export class AdminController {
 		});
 	}
 	
-	private getRoomData(): void {
-		let promise: ng.IHttpPromise<Array<RoomData>> = this.get('/admin/rooms',
-		(rooms: Array<RoomData>) => {
+	private getUserData(playername: string): void {
+		this.get('/admin/user/' + playername, (data: UserData) => {
+			this.$scope.player = data;
+		});
+	}
+	
+	private getRoomsData(): void {
+		this.get('/admin/rooms', (rooms: Array<RoomData>) => {
 			this.$scope.Rooms = rooms;
+		});
+	}
+	
+	private getRoomData(roomid: string): void {
+		this.get('/admin/room/' + roomid, (data: RoomData) => {
+			this.$scope.room = data;
 		});
 	}
 	
