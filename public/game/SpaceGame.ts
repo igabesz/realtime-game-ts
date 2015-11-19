@@ -137,11 +137,18 @@ export class SpaceGame {
                 if(actual==undefined) {
                     spacegame.enemies[player.name] = new Ship(spacegame.game);
                     actual = spacegame.enemies[player.name];
+                    actual.sprite.acceleration = player.ship.acceleration;
+                    actual.sprite.angularAcceleration = player.ship.turnacc;
                 }
             }
             //position
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;
+            actual.sprite.rotation = player.ship.position.angle;
+            
+            actual.speed = Math.sqrt(Math.pow(player.ship.speed.x,2)+Math.pow(player.ship.speed.y, 2));
+            actual.sprite.angularVelocity = player.ship.speed.turn;
+            actual.health = player.ship.health;
         }
         spacegame.enemiesTotal = res.players.length-1;
         
@@ -150,8 +157,12 @@ export class SpaceGame {
     
     render() {
         //debugging info
-        this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 32);
-        this.game.debug.text('Health: ' + this.player.health + ' / ' + 3, 32, 50);
+        this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
+        this.game.debug.text('Health: ' + this.player.health, 32, 45);
+        this.game.debug.text('Position: ' + this.player.sprite.position.x + ', ' + this.player.sprite.position.y, 32, 60);
+        this.game.debug.text('Angle: ' + this.player.sprite.rotation, 32, 75);
+        this.game.debug.text('Speed: ' + this.player.speed, 32, 90);
+        this.game.debug.text('AngularVelocity: ' + this.player.sprite.angularVelocity, 32, 105);
     }
 
 }

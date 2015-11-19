@@ -41,28 +41,17 @@ export class Ship {
     
     update() {
         /*        
-        if (this.cursors.left) {
-            this.sprite.angle -= 5;
+        if (this.cursors.fire) {
+            this.fire();
         }
-        if (this.cursors.right) {
-            this.sprite.angle += 5;
-        }
-        
-        if (this.cursors.up) {
-            this.speed = 300;
-        } else if (this.cursors.down) {
-            this.speed -= 5;
-        }
+        */
+        //alive?
         
         if (this.speed > 0) {
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, this.speed, this.sprite.body.velocity);
         } else {
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 0, this.sprite.body.velocity);
         }
-        
-        if (this.cursors.fire) {
-            this.fire();
-        }  */ 
     }
     
     fire() {
