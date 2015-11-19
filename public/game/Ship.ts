@@ -8,17 +8,8 @@ export class Ship {
     fireRate: number;
     nextFire: number;
     alive: boolean;
-    cursors:any;
     
     constructor(game) {
-        
-        this.cursors = {
-            left:false,
-            right:false,
-            up:false,
-            down: false,
-            fire:false		
-        }
         
         this.game = game;
 
@@ -48,7 +39,8 @@ export class Ship {
         this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 0, this.sprite.body.velocity);
     }
     
-    update() {        
+    update() {
+        /*        
         if (this.cursors.left) {
             this.sprite.angle -= 5;
         }
@@ -70,7 +62,7 @@ export class Ship {
         
         if (this.cursors.fire) {
             this.fire();
-        }   
+        }  */ 
     }
     
     fire() {

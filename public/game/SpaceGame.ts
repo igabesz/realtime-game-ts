@@ -69,52 +69,42 @@ export class SpaceGame {
     }
     
     spaceDown() {
-        this.player.cursors.fire = true;
         var req:FireRequest = {action: KeyAction.pressed};
         this.socketservice.fire(req);
     }
     spaceUp() {
-        this.player.cursors.fire = false;
         var req:FireRequest = {action: KeyAction.released};
         this.socketservice.fire(req);
     }
     upDown() {
-        this.player.cursors.up = true;
         var req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     upUp() {
-        this.player.cursors.up = false;
         var req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     rightDown() {
-        this.player.cursors.right = true;
         var req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     rightUp() {
-        this.player.cursors.right = false;
         var req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     leftDown() {
-        this.player.cursors.left = true;
         var req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     leftUp() {
-        this.player.cursors.left = false;
         var req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     downDown() {
-        this.player.cursors.down = true;
         var req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     downUp() {
-        this.player.cursors.down = false;
         var req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
