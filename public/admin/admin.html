@@ -78,11 +78,15 @@
                             <th>Room</th>
                         </tr>
                         <tr ng-repeat="data in Users">
-                            <td>{{data.playerName}}</td>
+                            <td ng-click="ctrl.selectMenu('player/' + data.playerName)">{{data.playerName}}</td>
                             <td>{{data.state}}</td>
-                            <td>{{data.room}}</td>
+                            <td ng-click="ctrl.selectMenu('room/' + data.room)">{{data.room}}</td>
                         </tr>
                     </table>
+                </div>
+                
+                <div ng-show="selectedMenu.indexOf('players/') === 0">
+                    PLAYER DETAILS
                 </div>
                 
                 <div ng-show="selectedMenu==='rooms'">
@@ -93,11 +97,15 @@
                             <th>Number of players</th>
                         </tr>
                         <tr ng-repeat="data in Rooms">
-                            <td>{{data.name}}</td>
-                            <td>{{data.host}}</td>
+                            <td ng-click="ctrl.selectMenu('room/' + data.name)">{{data.name}}</td>
+                            <td ng-click="ctrl.selectMenu('player/' + data.host)">{{data.host}}</td>
                             <td>{{data.numOfPlayers}}</td>
                         </tr>
                     </table>
+                </div>
+                
+                <div ng-show="selectedMenu.indexOf('room/') === 0">
+                    ROOM DETAILS
                 </div>
             </td>
         </tr>

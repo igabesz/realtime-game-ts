@@ -2,6 +2,10 @@
 	display: none !important;	
 }
 
+[ng-click] {
+	cursor: pointer;
+}
+
 body {
 	background: url(space1.jpg);
 	color: white;

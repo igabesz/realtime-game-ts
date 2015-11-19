@@ -24,7 +24,9 @@ export class AdminController {
         
         router.get('/admin/db', (request: Request, response: Response, next) => this.db(request, response, next));
         router.get('/admin/users', (request: Request, response: Response, next) => this.users(request, response, next));
+        router.get('/admin/user/:playername', (request: Request, response: Response, next) => this.userdetails(request, response, next));
         router.get('/admin/rooms', (request: Request, response: Response, next) => this.rooms(request, response, next));
+        router.get('/admin/room/:roomid', (request: Request, response: Response, next) => this.roomdetails(request, response, next));
         
         router.post('/admin/stop', (request: Request, response: Response, next) => this.stop(request, response, next));
         router.post('/admin/allchat', (request: Request, response: Response, next) => this.allChat(request, response, next));
@@ -90,6 +92,21 @@ export class AdminController {
         });
     }
     
+    private userdetails(request: Request, response: Response, next): void {
+        this.adminAuthorization(request, response, (req: Request, res: Response) => {
+            let playername: string = req.params.playername;
+            let clients: Array<Client> = this.connectionController.getClients();
+            for(let i: number = 0; i < clients.length; i++) {
+                let client: Client = clients[i];
+                if(client.player.name === playername) {
+                    res.send('OK');
+                    return;
+                }
+            }
+            res.status(404).send('Not found');
+        });
+    }
+    
     private rooms(request: Request, response: Response, next): void {
         this.adminAuthorization(request, response, (req: Request, res: Response) => {
             let rooms: Array<Room> = this.connectionController.getRooms();
@@ -105,6 +122,21 @@ export class AdminController {
                 roomDatas.push(roomData);
             }
             res.send(roomDatas);
+        });
+    }
+    
+    private roomdetails(request: Request, response: Response, next): void {
+        this.adminAuthorization(request, response, (req: Request, res: Response) => {
+            let roomid: string = req.params.roomid;
+            let rooms: Array<Room> = this.connectionController.getRooms();
+            for(let i: number = 0; i < rooms.length; i++) {
+                let room: Room = rooms[i];
+                if(room.id === roomid) {
+                    res.send('OK');
+                    return;
+                }
+            }
+            res.status(404).send('Not found');
         });
     }
     
