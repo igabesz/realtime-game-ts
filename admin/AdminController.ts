@@ -3,6 +3,7 @@ import * as path from 'path';
 
 import { Room } from '../common/Room';
 import { AllChatMessage } from '../common/Message';
+import { Player } from '../common/Player';
 
 import { LifeCycleState } from '../game/LifeCycle';
 import { Client, ConnectionController } from '../game/ConnectionController';
@@ -74,19 +75,23 @@ export class AdminController {
         });
     }
     
+    private createUserData(client: Client): UserData {
+        let user: UserData = new UserData();
+        
+        user.playerName = (client.player === undefined || client.player.name === undefined) ? '' : client.player.name;
+        user.room = (client.isInRoom()) ? client.player.room.id : '';
+        user.state = LifeCycleState[client.lifeCycle.State];
+        user.isHost = client.player.room.host === client.player;
+        
+        return user;
+    }
+    
     private users(request: Request, response: Response, next): void {
         this.adminAuthorization(request, response, (req: Request, res: Response) => {
             let clients: Array<Client> = this.connectionController.getClients();
-            let users: Array<UserData> = []; 
+            let users: Array<UserData> = [];
             for(let i: number = 0; i < clients.length; i++) {
-                let client: Client = clients[i];
-                let user: UserData = new UserData();
-                
-                user.playerName = (client.player === undefined || client.player.name === undefined) ? '' : client.player.name;
-                user.room = (client.isInRoom()) ? client.player.room.id : '';
-                user.state = LifeCycleState[client.lifeCycle.State];
-                
-                users.push(user);
+                users.push(this.createUserData(clients[i]));
             }
             res.send(users);
         });
@@ -99,7 +104,7 @@ export class AdminController {
             for(let i: number = 0; i < clients.length; i++) {
                 let client: Client = clients[i];
                 if(client.player.name === playername) {
-                    res.send('OK');
+                    res.send(this.createUserData(client));
                     return;
                 }
             }
@@ -107,19 +112,35 @@ export class AdminController {
         });
     }
     
+    private createRoomData(room: Room): RoomData {
+        let roomData: RoomData = new RoomData();
+        
+        roomData.name = room.id;
+        roomData.host = room.host.name;
+        for(let i: number = 0; i < room.players.length; i++) {
+            roomData.players.push(room.players[i].name);
+        }
+        if(room.ready()) {
+            if(room.started) {
+                roomData.state = 'Started';
+            }
+            else {
+                roomData.state = 'All ready';
+            }
+        }
+        else {
+            roomData.state = 'Waiting for ready';
+        }
+        
+        return roomData;
+    }
+    
     private rooms(request: Request, response: Response, next): void {
         this.adminAuthorization(request, response, (req: Request, res: Response) => {
             let rooms: Array<Room> = this.connectionController.getRooms();
             let roomDatas: Array<RoomData> = []; 
             for(let i: number = 0; i < rooms.length; i++) {
-                let room: Room = rooms[i];
-                let roomData: RoomData = new RoomData();
-                
-                roomData.name = room.id;
-                roomData.host = room.host.name;
-                roomData.numOfPlayers = room.players.length;
-                
-                roomDatas.push(roomData);
+                roomDatas.push(this.createRoomData(rooms[i]));
             }
             res.send(roomDatas);
         });
@@ -132,7 +153,7 @@ export class AdminController {
             for(let i: number = 0; i < rooms.length; i++) {
                 let room: Room = rooms[i];
                 if(room.id === roomid) {
-                    res.send('OK');
+                    res.send(this.createRoomData(room));
                     return;
                 }
             }

@@ -12,3 +12,18 @@ mainModule.filter('capitalize', function() {
 	return '';
   }
 });
+
+mainModule.directive('hoverable', function() {
+  return {
+    restrict: 'A',
+    link: function(scope: ng.IScope, element: ng.IAugmentedJQuery) {
+      element.bind('mouseenter', (eventObject: JQueryEventObject) => {
+		    element.addClass('hover');
+      });
+      
+      element.bind('mouseleave', (eventObject: JQueryEventObject) => {
+		    element.removeClass('hover');
+      });
+    }
+  }
+});

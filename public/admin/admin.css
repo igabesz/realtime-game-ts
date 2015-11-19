@@ -11,7 +11,7 @@ body {
 	color: white;
 }
 
-button {
+button, .btn {
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
@@ -89,8 +89,8 @@ body > table table tr td {
 	padding: 10px;
 }
 
-.status-line {
-	padding: 15px 0px;
+.details {
+	font-size: 120%;
 }
 
 .status {
@@ -112,9 +112,7 @@ body > table table tr td {
 }
 
 .menu {
-	background-color: dodgerblue;
-	width: 100px;
-	margin: 20px 0px;
+	margin: 20px 10px;
 	text-align: center;
 }
 

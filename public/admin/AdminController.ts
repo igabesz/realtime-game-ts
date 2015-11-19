@@ -3,6 +3,8 @@ import { UserData, RoomData } from '../../admin/DataTypes';
 interface IAdminScope extends ng.IScope {
 	Users: Array<UserData>;
 	Rooms: Array<RoomData>;
+	room: RoomData; 
+	player: UserData;
 	Database: boolean;
 	refresh: string;
 	refreshtext: string;
@@ -24,6 +26,8 @@ export class AdminController {
 	constructor(private $scope: IAdminScope, private $http: ng.IHttpService, private $interval: ng.IIntervalService, private $location: ng.ILocationService) {
 		$scope.Users = [];
 		$scope.Rooms = [];
+		$scope.room = {host: '', name: '', players: [], state: ''};
+		$scope.player =  {playerName: '', room: '', state: '', isHost: false};
 		$scope.Database = false;
 		$scope.refresh = '0';
 		$scope.refreshtext = 'Off';
@@ -32,18 +36,6 @@ export class AdminController {
 		$scope.applyFunction = null;
 		$scope.message = null;
 		this.selectMenu($location.url().substring(1));
-	}
-	
-	/* Design */
-	
-	private hover(event: any): void {
-		let element: ng.IAugmentedJQuery = angular.element(event.target);
-		element.addClass('hover');
-	}
-	
-	private unhover(event: any): void {
-		let element: ng.IAugmentedJQuery = angular.element(event.target);
-		element.removeClass('hover');
 	}
 	
 	/* Frontend functionality */
@@ -182,8 +174,8 @@ export class AdminController {
 	}
 	
 	private getUserData(playername: string): void {
-		this.get('/admin/user/' + playername, (data) => {
-			console.log(data);
+		this.get('/admin/user/' + playername, (data: UserData) => {
+			this.$scope.player = data;
 		});
 	}
 	
@@ -194,8 +186,8 @@ export class AdminController {
 	}
 	
 	private getRoomData(roomid: string): void {
-		this.get('/admin/room/' + roomid, (data) => {
-			console.log(data);
+		this.get('/admin/room/' + roomid, (data: RoomData) => {
+			this.$scope.room = data;
 		});
 	}
 	
