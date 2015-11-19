@@ -4,13 +4,15 @@ import { PERSONAL_INFO_EVENT } from '../common/Connection';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT, ROOM_STATE_EVENT } from '../common/Room';
 import { Ship, ShipType } from '../common/GameObject';
 import { SpaceGame } from './game/SpaceGame';
+import { Response } from '../common/Message';
+import { Player } from '../common/Player';
 
 
 /**Extending IScope with the custom properties off the current $scope */
 interface IMainScope extends ng.IScope {
     rooms: Array<ListRoomItem>;
     ships: Array<any>;
-    players: Array<string>;
+    players: Array<Player>;
     username: string;
     roomLobbyView: boolean;
     inRoomView: boolean;
@@ -47,10 +49,17 @@ export class MainController {
 
 		socketService.connect();
 
-        socketService.addHandler(PERSONAL_INFO_EVENT, $timeout, (msg) => {
-            this.socketService.listRooms();
-            this.$scope.username = sessionStorage["user"];
-            this.timer = setInterval(() => {this.refreshRooms()}, 5000);
+        socketService.addHandler(PERSONAL_INFO_EVENT, $timeout, (msg: Response) => {
+            console.info("PERSONAL_INFO_EVENT ", msg);
+            if(msg.errors.length === 0) {
+                this.socketService.listRooms();
+                this.$scope.username = sessionStorage["user"];
+                this.timer = setInterval(() => {
+                    this.refreshRooms()
+                }, 5000);
+            } else {
+                this.logout();
+            }
         });
 
         socketService.addHandler(LIST_ROOM_EVENT, $timeout, (msg) => {
@@ -97,7 +106,7 @@ export class MainController {
 
             if("hostname" in msg) {
                 this.$scope.hostname = msg.hostname;
-                if(this.$scope.hostname == sessionStorage["user"]){
+                if(this.$scope.hostname === this.$scope.username){
                     $scope.isHost = true;
                 } else {
                     $scope.isHost = false;
@@ -108,20 +117,15 @@ export class MainController {
                 this.$scope.players = [];
                 for (var p in msg.players) {
                     if("hostname" in msg && msg.players[p].name == msg.hostname){
-                        this.$scope.players.push(msg.players[p].name + " (Host)");
+                        msg.players[p].name += " (Host)";
+                        this.$scope.players.push(msg.players[p]);
                     } else {
-                        this.$scope.players.push(msg.players[p].name);
+                        this.$scope.players.push(msg.players[p]);
                     }
                 }
             }
 
-
-        });
-
-        socketService.addHandler(START_ROOM_EVENT, $timeout, (msg) => {
-            console.info("START_ROOM_EVENT ", msg);
-
-
+            this.checkAllReady();
         });
 
         this.socketService.getPersonalInfo(sessionStorage['token']);
@@ -139,7 +143,6 @@ export class MainController {
 
     ready(shipType){
         this.socketService.ready(shipType);
-        this.$scope.isReady = true;
         this.$scope.choosedShip = shipType;
     }
 
@@ -155,6 +158,22 @@ export class MainController {
 
     start(){
         this.socketService.start();
+    }
+
+    logout(){
+        sessionStorage["token"] = "";
+        sessionStorage["user"] = "";
+        window.location.href = "/";
+    }
+
+    checkAllReady(){
+        for(var p in this.$scope.players){
+            if(this.$scope.players[p].ship === undefined){
+                this.$scope.isReady = false;
+                return;
+            }
+        }
+        this.$scope.isReady = true;
     }
 
     init($scope){

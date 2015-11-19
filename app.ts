@@ -9,16 +9,13 @@ import * as bodyParser from 'body-parser';
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './admin/AdminController';
 import { Login } from './login/login';
-import { Database } from './database/Database';
+import { IDatabase, Database } from './database/Database';
 
 // Creating Express and SocketIO server
 let app: express.Express = express();
 let server: http.Server = (<any>http).Server(app);
 let io: SocketIO.Server = socketIO(server);
 let router: express.Router = express.Router();
-
-let MongoServer = mongoDb.Server;
-let db: mongoDb.Db = new mongoDb.Db('routerme', new MongoServer('localhost', 27017));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,24 +33,19 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let database: Database = new Database(db);
+let db: mongoDb.Db = new mongoDb.Db('routerme', new mongoDb.Server('localhost', 27017));
+let database: IDatabase = new Database(db);
 let login = new Login(router, database);
 login.listen();
 
 // Instantiating services and controllers
 let connectionController: ConnectionController = new ConnectionController(io, database);
-let adminController: AdminController = new AdminController(connectionController, router);
+let adminController: AdminController = new AdminController(connectionController, router, database);
 adminController.setExit(function(): void {
     server.close();
-    db.close();
+    database.close(() => { });
     console.log('Server stopped by an admin');
     process.exit(0);
-});
-
-db.open(function(err, db) {
-    if(!err) {
-        adminController.DBConnected = true;
-    }
 });
 
 let port:number = 80;

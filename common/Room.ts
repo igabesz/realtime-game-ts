@@ -10,6 +10,19 @@ export class Room {
 	public projectiles: Array<Projectile> = [];
 	public started: boolean;
 	public size: {width:number, height:number};
+	
+	public ready(): boolean {
+		if(this.players.length < 2) {
+			return false;
+		}
+		for(let i: number = 0; i < this.players.length; i++) {
+			let player: Player = this.players[i];
+			if(!player.ready()) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 /** RoomService */

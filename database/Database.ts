@@ -4,12 +4,20 @@
 import { User } from './User';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
+import { Db }  from 'mongodb';
+
 
 export interface IDatabase {
 
+    isConnected: boolean;
+
     open(callback: (res:DatabaseResponse) => any) : void;
 
+    close(callback: (res:DatabaseResponse) => any) : void;
+
     validateToken(token: string, callback: (res:DatabaseResponse) => any) : void;
+
+    cleanSingleToken(token: string, callback: (res:DatabaseResponse) => any) : void;
 
     findUsers(username: string, callback: (res:DatabaseResponse) => any) : void;
 
@@ -38,25 +46,23 @@ export class DatabaseResponse{
 
 export class Database implements IDatabase {
 
-    private db: any;
     private users: any;
 
-    constructor(db){
-        this.db = db;
-        this.open((dbres:DatabaseResponse) => {
-            if(dbres.status == Status.success) {
-                console.log("Successfully connected to MongoDB!")
-                console.log(dbres.msg);
-            }
-            else console.info("ERROR: ", dbres.msg);
-        })
+    public isConnected: boolean = false;
+
+    constructor(private db: Db){
     }
 
     open(callback: (res:DatabaseResponse) => any){
         this.db.open((err, db) => {
             if(!err) {
+                this.isConnected = true;
                 this.users = db.collection("users");
                 callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
+
+                db.addListener('close', () => {
+                    this.isConnected = false;
+                })
                 return;
 
             } else {
@@ -65,6 +71,11 @@ export class Database implements IDatabase {
             }
 
         });
+    }
+
+    close(callback: (res:DatabaseResponse) => any){
+        this.db.close();
+        callback( new DatabaseResponse(Status.success, {} , "Successfully closed database") );
     }
 
     validateToken(token:string,  callback: (res:DatabaseResponse) => any){
@@ -178,7 +189,7 @@ export class Database implements IDatabase {
                         return;
                     }
                     else {
-                        console.log("wrong password, given: " + password + " expected: " + user.password);
+                        console.log("Wrong password, given!");
                         callback( new DatabaseResponse(Status.error, {} , "Wrong password for user: " + username) );
                         return;
                     }
@@ -214,14 +225,34 @@ export class Database implements IDatabase {
     updateUserToken(username:string, callback: (res:DatabaseResponse) => any){
 
         let token = this.generate_key();
+        if(username === "admin") console.log("Admin token updated: " + token);
 
         if (this.users != undefined) {
             this.users.updateOne({username: username}, {$set: {token: token}}, (err) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {token:token} , "User: " + username + "'s token successfully updated") );
+                    this.validateToken(token, (res2:DatabaseResponse) => {console.info("validate admin token",res2)});
                     return;
                 } else {
                     callback( new DatabaseResponse(Status.error, {} , "Could not update the token of user: " + username) );
+                    return;
+                }
+            });
+        } else {
+            callback( new DatabaseResponse(Status.error, {} , "Error: 'users' is undefined") );
+            return;
+        }
+    }
+
+    cleanSingleToken(token:string, callback: (res:DatabaseResponse) => any){
+
+        if (this.users != undefined) {
+            this.users.updateOne({token: token}, {$set: {token: ""}}, (err) => {
+                if (!err) {
+                    callback( new DatabaseResponse(Status.success, {} , "Token successfully cleaned") );
+                    return;
+                } else {
+                    callback( new DatabaseResponse(Status.error, {} , "Could not clean the token of user: ") );
                     return;
                 }
             });

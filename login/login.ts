@@ -2,40 +2,48 @@
  * Created by S on 2015.11.09..
  */
 import { User } from '../database/User';
-import { Database, DatabaseResponse, Status } from '../database/Database';
+import { IDatabase, DatabaseResponse, Status } from '../database/Database';
 // REST API imports:
 import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as hash from 'password-hash';
 import * as crypto from 'crypto';
+import { Router }  from 'express';
 
 export class Login {
 
-    private database: Database;
-    private router: any;
     private adminLogin: string;
     private adminPassword: string;
 
-    constructor(router, database:Database) {
+    constructor(private router: Router, private database:IDatabase) {
         this.database = database;
         this.router = router;
 
         this.adminLogin = "admin";
         this.adminPassword = "admin";
 
+        this.database.open((dbres:DatabaseResponse) => {
+            if(dbres.status == Status.success) {
+                console.log("Successfully connected to MongoDB!")
+                console.log(dbres.msg);
+
+                this.database.cleanTokens(() => {});
+
+                let pass = hash.generate(this.adminPassword);
+                var user:User = new User(this.adminLogin, pass, "", "", true);
+
+                this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
+                    if(dbres.status === Status.success){
+                        this.database.saveUser(user, (dbres: DatabaseResponse) => {});
+                    }
+                })
+            }
+            else console.info("ERROR: ", dbres.msg);
+        })
+
     }
 
     listen(){
-
-        setTimeout( () => {
-            var user:User = new User("admin", this.adminPassword, "", "", true);
-            this.database.doesUserExist("admin", (dbres:DatabaseResponse) => {
-                if(dbres.status === Status.success){
-                    var user:User = new User("admin", this.adminPassword, "", "", true);
-                    this.database.saveUser(user, () => {});
-                }
-            })
-        }, 5000);
 
         this.router.post('/', (req, res, next) => {
 

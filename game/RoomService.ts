@@ -161,7 +161,7 @@ export class RoomService {
 				}
 				for(let i: number = 0; i < room.players.length; i++) {
 					let player: Player = room.players[i];
-					if(!player.ready) {
+					if(!player.ready()) {
 						response.errors.push(player.name + ' is not ready yet');
 					}
 				}
