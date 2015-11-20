@@ -9,7 +9,7 @@ export class Room {
 	public players: Array<Player> = [];
 	public projectiles: Array<Projectile> = [];
 	public started: boolean;
-	public size: {width:number, height:number};
+	public size: {width:number, height:number} = {width:1000, height: 1000};
 	
 	public ready(): boolean {
 		if(this.players.length < 2) {

@@ -46,6 +46,8 @@ export enum ShipType {
 export abstract class Ship extends GameObject {
 	public type: ShipType;
 	public health: number;
+	public maxSpeed: number;
+	public maxTurn: number;
 	public turnacc: number;
 	public thruster: Thruster = new Thruster();
 	public projectile: Projectile = new Projectile();
@@ -59,8 +61,10 @@ export abstract class Ship extends GameObject {
 export class GeneralShip extends Ship {
 	public width: number = 10;
 	public height: number = 20;
-	public acceleration: number = 0.1;
-	public turnacc: number = 0.03;
+	public acceleration: number = 0.004;
+	public maxSpeed: number = 0.2;
+	public turnacc: number = 0.00004;
+	public maxTurn: number = 0.002;
 	public health: number = 100;
 	constructor() {
 		super();
@@ -76,8 +80,10 @@ export class GeneralShip extends Ship {
 export class FastShip extends Ship {
 	public width: number = 8;
 	public height: number = 15;
-	public acceleration: number = 0.15;
-	public turnacc: number = 0.05;
+	public acceleration: number = 0.005;
+	public maxSpeed: number = 0.25;
+	public turnacc: number = 0.00005;
+	public maxTurn: number = 0.0025;
 	public health: number = 50;
 	constructor() {
 		super();

@@ -13,7 +13,7 @@ export class SimulationService {
 	
 	constructor(private roomService: RoomService, private connectionController: ConnectionController) {
 		// start timer
-		this.timer = setInterval(() => this.step(), 20);
+		this.timer = setInterval(() => this.step(), 30);
 	}
 	
 	private step(): void {
@@ -38,7 +38,7 @@ export class SimulationService {
 		this.collisionDetection(room);
 	}
 	
-	private move(room: Room, deltaTime: number): void {
+	private move(room: Room, deltaTime: number): void {		
 		let players :Array<Player> = room.players;
 		for(let i: number = 0 ; i < players.length; i++) {
 			let ship: Ship = players[i].ship;
@@ -52,17 +52,25 @@ export class SimulationService {
 				ship.speed.y -= ship.acceleration * Math.sin(ship.position.angle);
 			}
 			
+			let speed: number = Math.pow(ship.speed.x, 2) + Math.pow(ship.speed.y, 2);
+			let maxSpeed: number = Math.pow(ship.maxSpeed, 2);
+			if(speed > maxSpeed || speed < -maxSpeed) {
+				ship.speed.x = ship.speed.x / speed * maxSpeed;
+				ship.speed.y = ship.speed.y / speed * maxSpeed;
+			}
+			
 			// calcluate turn speed
-			if(ship.thruster.left == KeyAction.pressed) {
+			let maxTurnSpeed: number = ship.maxTurn;
+			if(ship.thruster.right == KeyAction.pressed) {
 				ship.speed.turn += ship.turnacc;
-				while(ship.speed.turn >= 2 * Math.PI) {
-					ship.speed.turn -= 2 * Math.PI;
+				if(ship.speed.turn > maxTurnSpeed) {
+					ship.speed.turn = maxTurnSpeed;
 				}
 			}
-			if(ship.thruster.right == KeyAction.pressed) {
+			if(ship.thruster.left == KeyAction.pressed) {
 				ship.speed.turn -= ship.turnacc;
-				while(ship.speed.turn <= 2 * Math.PI) {
-					ship.speed.turn += 2 * Math.PI;
+				if(ship.speed.turn < -maxTurnSpeed) {
+					ship.speed.turn = -maxTurnSpeed;
 				}
 			}
 			
