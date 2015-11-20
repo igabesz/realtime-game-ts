@@ -171,7 +171,16 @@ export class SimulationService {
 				}
 			}
 			
-			if(players[i].player.ship.health === 0) {
+			if(	
+				players[i].player.ship.position.x > room.size.width / 2 ||
+				players[i].player.ship.position.x < -room.size.width / 2 ||
+				players[i].player.ship.position.y > room.size.height / 2 ||
+				players[i].player.ship.position.y < -room.size.height / 2
+				) {
+				players[i].player.ship.health -= room.healthDecay;
+			}
+			
+			if(players[i].player.ship.health <= 0) {
 				this.roomService.removePlayer(room, players[i].player);
 				players.splice(i, 1);
 				i--;

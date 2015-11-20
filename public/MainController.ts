@@ -89,7 +89,7 @@ export class MainController {
             console.info("ROOM_STATE_EVENT ", msg);
 
             if(msg.started === true) {
-                $scope.game = new SpaceGame(socketService);
+                $scope.game = new SpaceGame(socketService, msg.size);
 
                 $scope.roomLobbyView = false;
                 $scope.inRoomView = false;
