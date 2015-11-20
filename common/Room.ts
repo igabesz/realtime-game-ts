@@ -9,7 +9,8 @@ export class Room {
 	public players: Array<Player> = [];
 	public projectiles: Array<Projectile> = [];
 	public started: boolean;
-	public size: {width:number, height:number} = {width:1000, height: 1000};
+	public size: {width:number, height:number} = {width: 2500, height: 2500};
+	public healthDecay: number = 0.2;
 	
 	public ready(): boolean {
 		if(this.players.length < 2) {
@@ -34,6 +35,7 @@ export const ROOM_STATE_EVENT: string = 'roomstate';
 export const LEAVE_ROOM_EVENT: string = 'leaveroom';
 export const READY_ROOM_EVENT: string = 'readyroom';
 export const START_ROOM_EVENT: string = 'startroom';
+export const QUIT_ROOM_EVENT: string = 'quitroom';
 
 export class JoinRoomRequest extends Request {
 	public roomName: string;
@@ -47,6 +49,8 @@ export class RoomStateMessage extends Message {
 	public players: Array<Player> = [];
 	public hostname: string;
 	public started: boolean;
+	public size: {width:number, height:number};
+	public healthDecay: number;
 }
 
 export class ListRoomItem {
@@ -60,4 +64,8 @@ export class ListRoomResponse extends Response {
 
 export class ListShipsResponse extends Response {
 	public ships: Array<Ship> = [];
+}
+
+export class QuitRoomMessage extends Message {
+	public reason: string;
 }

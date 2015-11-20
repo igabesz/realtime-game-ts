@@ -1,7 +1,7 @@
 import { Player } from '../common/Player';
 import { ShipType, GeneralShip, FastShip, Speed, Position, Projectile } from '../common/GameObject';
 import { Response } from '../common/Message';
-import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ROOM_STATE_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse, RoomStateMessage } from '../common/Room';
+import { Room, ListRoomItem, LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ROOM_STATE_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT, LIST_SHIP_EVENT, QUIT_ROOM_EVENT, JoinRoomRequest, ReadyRoomRequest, ListRoomResponse, ListShipsResponse, RoomStateMessage, QuitRoomMessage } from '../common/Room';
 
 import { Client, ConnectionController } from './ConnectionController';
 
@@ -44,6 +44,8 @@ export class RoomService {
 		
 		rsm.hostname = room.host.name;
 		rsm.started = room.started;
+		rsm.size = room.size;
+		rsm.healthDecay = room.healthDecay;
 		
 		this.connectionCtrl.sendToRoom(room, ROOM_STATE_EVENT, rsm);
 	}
@@ -98,7 +100,7 @@ export class RoomService {
 			
 			// destroy room if empty
 			if(room.players.length == 0) {
-				this.rooms.splice(this.rooms.indexOf(room));
+				this.destroyRoom(room);
 			}
 			// promote new host if needed
 			else if(room.host === client.player) {
@@ -214,9 +216,28 @@ export class RoomService {
 		return this.rooms;
 	}
 	
+	public destroyRoom(room: Room): void {
+		this.rooms.splice(this.rooms.indexOf(room));
+	}
+	
 	public removePlayer(room: Room, player: Player): void {
+		// Remove Player
 		room.players.splice(room.players.indexOf(player), 1);
 		this.connectionCtrl.getClient(player).lifeCycle.die();
+		if(room.players.length === 0) {
+			this.destroyRoom(room);
+		}
+		
+		// Notify
+		let clients: Array<Client> = this.connectionCtrl.getClients();
+		for(let i: number = 0; i < clients.length; i++) {
+			if(clients[i].player === player) {
+				let qrm: QuitRoomMessage = new QuitRoomMessage();
+				qrm.reason = 'Died';
+				this.connectionCtrl.sendToClient(clients[i], QUIT_ROOM_EVENT, qrm);
+				break;
+			}
+		}
 	}
 	
 	public removeProjectile(room: Room, projectile: Projectile): void {
