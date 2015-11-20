@@ -8,16 +8,8 @@ export class Ship {
     fireRate: number;
     nextFire: number;
     alive: boolean;
-    cursors:any;
     
-    constructor(index, game) {
-        
-        this.cursors = {
-            left:false,
-            right:false,
-            up:false,
-            fire:false		
-        }
+    constructor(game) {
         
         this.game = game;
 
@@ -39,7 +31,6 @@ export class Ship {
         this.sprite = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, 'spaceship');
         this.sprite.anchor.set(0.5);
         
-        this.sprite.id = index;
         this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
         this.sprite.body.immovable = false;
         this.sprite.body.collideWorldBounds = true;
@@ -48,28 +39,19 @@ export class Ship {
         this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 0, this.sprite.body.velocity);
     }
     
-    update() {        
-        if (this.cursors.left) {
-            this.sprite.angle -= 5;
-        } else if (this.cursors.right) {
-            this.sprite.angle += 5;
+    update() {
+        /*        
+        if (this.cursors.fire) {
+            this.fire();
         }
-        
-        if (this.cursors.up) {
-            this.speed = 300;
-        } else if (this.speed > 0) {
-            this.speed -= 5;
-        }
+        */
+        //alive?
         
         if (this.speed > 0) {
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, this.speed, this.sprite.body.velocity);
         } else {
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 0, this.sprite.body.velocity);
         }
-        
-        if (this.cursors.fire) {
-            this.fire();
-        }   
     }
     
     fire() {
