@@ -19,7 +19,21 @@ export class SpaceGame {
     enemiesAlive: number;
 	
 	constructor() {
-		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
+        var resizeTimer;
+        window.onresize = () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
+        };
+        
+        //TODO
+        let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
+        let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
+                                                parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
+        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
+        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
+                                                parseInt(headerStyle.marginBottom)));
+        
+		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
         
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
@@ -35,7 +49,7 @@ export class SpaceGame {
             
     create() {
         this.game.world.setBounds(-1000, -1000, 2000, 2000);
-        this.background = this.game.add.tileSprite(0, 0, 800, 600, "background");
+        this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, "background");
         this.background.fixedToCamera = true;
         
         this.player = new Ship(this.game);
@@ -64,7 +78,6 @@ export class SpaceGame {
         this.cursors.down.onUp.add(SpaceGame.prototype.downUp, this);
         
         this.socketservice = (<any>window).socketservice;
-        //I can use the raw function, because Angular doesn't need to know about ship positions on the canvas.
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));         
     }
     
@@ -155,8 +168,30 @@ export class SpaceGame {
         //todo: bullets
     }
     
+    resizeGame() {
+        let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
+        let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
+                                                parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
+        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
+        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
+                                                parseInt(headerStyle.marginBottom)));
+                                                
+        this.game.canvas.width = width;
+        this.game.canvas.height = height;
+        this.game.stage.width = width;
+        this.game.stage.height = height;
+        this.game.scale.width = width;
+        this.game.scale.height = height;
+        this.game.scale.setGameSize(width, height);
+        this.game.camera.setSize(width, height);
+        this.game.renderer.resize(width, height);
+        //TODO
+        let bg = (<Phaser.TileSprite>this.game.world.children[0])
+        bg.width = width;
+        bg.height = height;
+    }
+    
     render() {
-        //debugging info
         this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
         this.game.debug.text('Health: ' + this.player.health, 32, 45);
         this.game.debug.text('Position: ' + this.player.sprite.position.x + ', ' + this.player.sprite.position.y, 32, 60);
