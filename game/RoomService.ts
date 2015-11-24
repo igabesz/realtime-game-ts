@@ -191,11 +191,11 @@ export class RoomService {
 			let player: Player = players[i];
 			player.ship.speed = new Speed();
 			player.ship.position = new Position();
-			player.ship.speed.x = i * 50;
-			player.ship.speed.y = i * 50;
+			player.ship.speed.x = 0;
+			player.ship.speed.y = 0;
 			player.ship.speed.turn = 0;
-			player.ship.position.x = 0;
-			player.ship.position.y = 0;
+			player.ship.position.x = i * 300;
+			player.ship.position.y = i * 300;
 			player.ship.position.angle = 0;
 			player.ship.currentAttackDelay = 0;
 		}
