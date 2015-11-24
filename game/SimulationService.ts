@@ -127,7 +127,7 @@ export class SimulationService {
 		
 		projectile.acceleration = ship.projectile.acceleration;
 		projectile.damage = ship.projectile.damage;
-		projectile.height = ship.projectile.height;
+		projectile.length = ship.projectile.length;
 		projectile.width = ship.projectile.width;
 		
 		return projectile;
@@ -145,6 +145,8 @@ export class SimulationService {
 			};
 			players.push(item);
 		}
+		
+		console.log(players[0].rectangle);
 		
 		// Create projectiles hitboxes
 		for(let i: number = 0; i < room.projectiles.length; i++) {
@@ -338,19 +340,26 @@ class Rectangle {
 	
 	public static createRectangle(object: GameObject): Rectangle {
 		let rectangle: Rectangle = new Rectangle();
-		let p: Point = new Point();
+		let p: Point;
 		
-		p.x = object.position.x + (object.height / 2 + object.width / 2) * Math.cos(object.position.angle);
-		p.y = object.position.y + (object.height / 2 + object.width / 2) * Math.sin(object.position.angle);
+		p = new Point();
+		p.x = object.position.x + object.length / 2 * Math.cos(object.position.angle) + object.width / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y + object.length / 2 * Math.sin(object.position.angle) + object.width / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
-		p.x = object.position.x + (object.height / 2 - object.width / 2) * Math.cos(object.position.angle);
-		p.y = object.position.y + (object.height / 2 - object.width / 2) * Math.sin(object.position.angle);
+		
+		p = new Point();
+		p.x = object.position.x + object.length / 2 * Math.cos(object.position.angle) - object.width / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y + object.length / 2 * Math.sin(object.position.angle) - object.width / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
-		p.x = object.position.x + (-object.height / 2 + object.width / 2) * Math.cos(object.position.angle);
-		p.y = object.position.y + (-object.height / 2 + object.width / 2) * Math.sin(object.position.angle);
+		
+		p = new Point();
+		p.x = object.position.x - object.length / 2 * Math.cos(object.position.angle) + object.width / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y - object.length / 2 * Math.sin(object.position.angle) + object.width / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
-		p.x = object.position.x + (-object.height / 2 - object.width / 2) * Math.cos(object.position.angle);
-		p.y = object.position.y + (-object.height / 2 - object.width / 2) * Math.sin(object.position.angle);
+		
+		p = new Point();
+		p.x = object.position.x - object.length / 2 * Math.cos(object.position.angle) - object.width / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y - object.length / 2 * Math.sin(object.position.angle) - object.width / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
 		
 		return rectangle;

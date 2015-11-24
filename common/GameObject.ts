@@ -7,7 +7,7 @@ export abstract class GameObject {
 	public speed: Speed;
 	public acceleration: number;
 	public width: number;
-	public height: number;
+	public length: number;
 }
 
 export class Position {
@@ -59,8 +59,8 @@ export abstract class Ship extends GameObject {
 /** Ship types */
 
 export class GeneralShip extends Ship {
-	public width: number = 10;
-	public height: number = 20;
+	public width: number = 100;
+	public length: number = 150;
 	public acceleration: number = 0.004;
 	public maxSpeed: number = 0.2;
 	public turnacc: number = 0.00004;
@@ -71,15 +71,15 @@ export class GeneralShip extends Ship {
 		this.type = ShipType.general;
 		this.projectile.acceleration = 0;
 		this.projectile.damage = 10;
-		this.projectile.height = 10;
+		this.projectile.length = 10;
 		this.projectile.width = 10;
 		this.attackDelay = 150;
 	}
 }
 
 export class FastShip extends Ship {
-	public width: number = 8;
-	public height: number = 15;
+	public width: number = 80;
+	public length: number = 120;
 	public acceleration: number = 0.005;
 	public maxSpeed: number = 0.25;
 	public turnacc: number = 0.00005;
@@ -90,7 +90,7 @@ export class FastShip extends Ship {
 		this.type = ShipType.fast;
 		this.projectile.acceleration = 0;
 		this.projectile.damage = 5;
-		this.projectile.height = 8;
+		this.projectile.length = 8;
 		this.projectile.width = 8;
 		this.attackDelay = 120;
 	}
