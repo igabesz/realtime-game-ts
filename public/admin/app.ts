@@ -17,17 +17,17 @@ mainModule.directive('tooltip', function($compile: ng.ICompileService) {
   return {
     restrict: 'A',
     link: function(scope: ng.IScope, element: ng.IAugmentedJQuery, attr: any/*ng.IAttributes*/) {
+      let tooltip: ng.IAugmentedJQuery = $compile('<div>')(scope);
+      tooltip.addClass('tooltip');
+      tooltip.text(attr.tooltip);
+      element.append(tooltip);
+      element.addClass('tooltipped');
       element.bind('mouseenter', (eventObject: JQueryEventObject) => {
-        let tooltip: ng.IAugmentedJQuery = $compile('<div>')(scope);
-        tooltip.addClass('tooltip');
-        tooltip.text(attr.tooltip);
-        element.append(tooltip);
-        element.addClass('tooltipped');
+        tooltip.addClass('visible');
       });
       
       element.bind('mouseleave', (eventObject: JQueryEventObject) => {
-        element.children('div.tooltip').remove();
-        element.removeClass('tooltipped');
+        tooltip.removeClass('visible');
       });
     }
   }
