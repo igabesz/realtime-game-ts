@@ -13,16 +13,21 @@ mainModule.filter('capitalize', function() {
   }
 });
 
-mainModule.directive('hoverable', function() {
+mainModule.directive('tooltip', function($compile: ng.ICompileService) {
   return {
-    restrict: 'C',
-    link: function(scope: ng.IScope, element: ng.IAugmentedJQuery) {
+    restrict: 'A',
+    link: function(scope: ng.IScope, element: ng.IAugmentedJQuery, attr: any/*ng.IAttributes*/) {
       element.bind('mouseenter', (eventObject: JQueryEventObject) => {
-		    element.addClass('hover');
+        let tooltip: ng.IAugmentedJQuery = $compile('<div>')(scope);
+        tooltip.addClass('tooltip');
+        tooltip.text(attr.tooltip);
+        element.append(tooltip);
+        element.addClass('tooltipped');
       });
       
       element.bind('mouseleave', (eventObject: JQueryEventObject) => {
-		    element.removeClass('hover');
+        element.children('div.tooltip').remove();
+        element.removeClass('tooltipped');
       });
     }
   }

@@ -67,7 +67,7 @@
                         <span>Auto refresh: ({{refreshtext}}) </span>
                         <input type="text" ng-model="refresh" ng-change="ctrl.change()"/>
                     </div>
-                    <button ng-click="ctrl.setQuestion('stopServer')" class="hoverable">Stop server</button>
+                    <button ng-click="ctrl.setQuestion('stopServer')" class="hoverable" tooltip="Sends stop signal to server">Stop server</button>
                 </div>
                 
                 <div ng-show="selectedMenu==='players'">
