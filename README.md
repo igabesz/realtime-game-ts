@@ -16,6 +16,6 @@
 
 * Run start.bat
 * You can choose:
-** E to exit the program without stopping the server
-** R to restart the node.js server
-** Q to quit and stop the server
+    E to exit the program without stopping the server
+    R to restart the node.js server
+    Q to quit and stop the server
