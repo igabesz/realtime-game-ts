@@ -1,4 +1,4 @@
-import { PersonalInfoRequest, PERSONAL_INFO_EVENT} from '../common/Connection';
+import { PersonalInfoRequest, PingRequest, PERSONAL_INFO_EVENT, PING_PONG_EVENT} from '../common/Connection';
 import { JoinRoomRequest, ReadyRoomRequest, LIST_ROOM_EVENT, LIST_SHIP_EVENT, JOIN_ROOM_EVENT, LEAVE_ROOM_EVENT, START_ROOM_EVENT, READY_ROOM_EVENT} from '../common/Room';
 import { MovementRequest, FireRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
 
@@ -27,6 +27,7 @@ export class LifeCycle {
 	public openConnection(): void {
 		if(this.state === null) {
 			this.client.socket.on('disconnect', () => this.connectionController.closeConnection(this.client));
+			this.client.socket.on(PING_PONG_EVENT, (request: PingRequest) => this.connectionController.responseTime(this.client, request));
 			this.client.socket.on(PERSONAL_INFO_EVENT, (data: PersonalInfoRequest) => this.connectionController.personalInfo(this.client, data));
 			
 			this.state = LifeCycleState.ConnectionOpen;
@@ -126,6 +127,7 @@ export class LifeCycle {
 		this.client.removeListener(JOIN_ROOM_EVENT);
 		
 		this.client.removeListener(PERSONAL_INFO_EVENT);
+		this.client.removeListener(PING_PONG_EVENT);
 		this.client.removeListener('disconnect');
 		
 		this.state = LifeCycleState.Disconnected;
