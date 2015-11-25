@@ -15,7 +15,7 @@ mainModule.filter('capitalize', function() {
 
 mainModule.directive('hoverable', function() {
   return {
-    restrict: 'A',
+    restrict: 'C',
     link: function(scope: ng.IScope, element: ng.IAugmentedJQuery) {
       element.bind('mouseenter', (eventObject: JQueryEventObject) => {
 		    element.addClass('hover');
