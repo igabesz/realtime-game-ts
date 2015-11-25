@@ -8,25 +8,39 @@
 
 body {
 	background: url(space1.jpg);
-	color: white;
+	color: #fff;
 }
 
 button, .btn {
-	color: white;
+	color: #fff;
 	padding: 10px;
 	border-radius: 10px;
-	background-color: dodgerblue;
+	background-color: #38f;
 	border-width: 0px;
 }
 
 input[type="text"] {
-	color: white;
+	color: #fff;
 	background: #404040;
 	border-width: 0px;
 	border-radius: 2px;
 	width: 40px;
 	margin: 20px 10px;
 	padding: 5px;
+}
+
+.tooltip {
+	position: absolute;
+	top: 40px;
+	left: 40px;
+	white-space: nowrap;
+	background-color: #404040;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+.tooltipped {
+	position: relative;
 }
 
 /* question background */
@@ -45,7 +59,7 @@ body > div > div {
 	margin-top: 200px;
 	padding: 10px;
 	display: inline-block;
-	background-color: gray;
+	background-color: #777;
 }
 
 /* question string */
@@ -94,17 +108,17 @@ body > table table tr td {
 }
 
 .status {
-	color: white;
+	color: #fff;
 	padding: 10px;
 	border-radius: 10px;
 }
 
 .success {
-	background-color: green;
+	background-color: #4b3;
 }
 
 .fail {
-	background-color: red;
+	background-color: #f21;
 }
 
 .chatbox[type="text"] {
@@ -116,7 +130,14 @@ body > table table tr td {
 	text-align: center;
 }
 
-.hover {
-	opacity: 0.7;
+.hoverable {
+	transition: background-color 0.3s linear;
+	-webkit-transition: background-color 0.3s linear;
+	-o-transition: background-color 0.3s linear;
+	-moz-transition: background-color 0.3s linear;
+}
+
+.hoverable:hover {
+	background-color: rgba(48, 128, 255, 0.8);
 	cursor: pointer;
 }
