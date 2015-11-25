@@ -3,8 +3,8 @@
 
 ## Install
 
-* Install node.js and make npm.exe is available globally
-* Install MongoDb and make mongod.exe is available globally
+* Install node.js and make npm.exe available globally
+* Install MongoDb and make mongod.exe available globally
 * Make sure that the project is not in the root directory
 * Run install.bat
 
