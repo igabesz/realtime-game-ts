@@ -3,15 +3,16 @@
 
 ## Install
 
-* `npm install`
-* `tsd install`
+* Install node.js and make npm.exe available globally
+* Install MongoDb and make mongod.exe available globally
+* Make sure that the project is not in the root directory
+* Run install.bat
 
 ## Build
 
-* `tsc -p . [-w]` in root
-* Make sure that `data/db` directory exists
+* Run compile.bat
 
 ## Start
 
-* `mongod.exe --dbpath data/db`
-* `node app`
+* Run start.bat
+* You can choose R for restart or Q for quit 
