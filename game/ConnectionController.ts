@@ -3,7 +3,7 @@ import * as socketIO from 'socket.io';
 import { Room } from '../common/Room';
 import { Player } from '../common/Player';
 import { Message, Response, AllChatMessage } from '../common/Message';
-import { PersonalInfoRequest, PersonalInfoResponse, PERSONAL_INFO_EVENT} from '../common/Connection';
+import { PersonalInfoRequest, PingRequest, PersonalInfoResponse, PongResponse, PERSONAL_INFO_EVENT, PING_PONG_EVENT} from '../common/Connection';
 
 import { IDatabase, DatabaseResponse, Status } from '../database/Database';
 import { User } from '../database/User';
@@ -49,6 +49,12 @@ export class ConnectionController {
 		}
 		client.lifeCycle.disconnect();
         // TO-DO delete token from db
+	}
+	
+	public responseTime(client: Client, request: PingRequest) {
+		let response: PongResponse = new PongResponse();
+		response.time = request.time;
+		this.sendToClient(client, PING_PONG_EVENT, response);
 	}
 	
 	public personalInfo(client: Client, request: PersonalInfoRequest): void {
