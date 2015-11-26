@@ -1,6 +1,6 @@
 import { AdminController } from './AdminController'; 
 
-var mainModule = angular.module('spacegame', []);
+var mainModule = angular.module('admin', []);
 
 mainModule.controller('AdminController', AdminController);
 

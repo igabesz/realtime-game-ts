@@ -6,7 +6,7 @@ start "Realtime game Node server" /MIN node.exe app
 echo Node.js started
 
 :WAITINPUT
-set command=X
+set command=E
 echo (E)xit the program without stopping the server
 echo (R)estart the node.js server
 echo (Q)uit and stop the server
