@@ -1,7 +1,8 @@
 import { Ship } from './Ship';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
-import { SimulationResponse, POSITION_EVENT } from '../../common/Simulation'
+import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
+import { PING_PONG_EVENT, PingRequest, PongResponse } from '../../common/Connection';
 
 export class SpaceGame {
     
@@ -35,7 +36,7 @@ export class SpaceGame {
         
 		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
-        
+            
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
 		//this.game.state.start("TitleScreenState", true, true);
@@ -78,7 +79,8 @@ export class SpaceGame {
         this.cursors.down.onUp.add(SpaceGame.prototype.downUp, this);
         
         this.socketservice = (<any>window).socketservice;
-        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));         
+        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => SpaceGame.prototype.refreshGame(this, res));
+        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => SpaceGame.prototype.pong(res));                
     }
     
     spaceDown() {
@@ -138,6 +140,20 @@ export class SpaceGame {
         
         this.background.tilePosition.x = -this.game.camera.x;
         this.background.tilePosition.y = -this.game.camera.y;
+        
+        //TODO
+        SpaceGame.prototype.ping(this.socketservice);
+    }
+    
+    ping(socket: SocketService) {
+        var req:PingRequest = new PingRequest();
+        socket.ping(req);
+    }
+    
+    pong(res:PongResponse) {
+        var time:Date = new Date(res.time.toString());
+        var pingTime:number = Date.now() - time.getTime();
+        console.info("Ping time:", pingTime, "ms");
     }
     
     refreshGame(spacegame:SpaceGame, res:SimulationResponse) {
