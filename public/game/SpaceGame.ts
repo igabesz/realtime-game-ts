@@ -168,9 +168,14 @@ export class SpaceGame {
                 if(actual==undefined) {
                     this.enemies[player.name] = new Ship(this.game);
                     actual = this.enemies[player.name];
+                }
+            }
+            if(actual.fireRate == undefined) {
                     actual.sprite.acceleration = player.ship.acceleration;
                     actual.sprite.angularAcceleration = player.ship.turnacc;
-                }
+                    actual.sprite.width = player.ship.width;
+                    actual.sprite.height = player.ship.length;
+                    actual.fireRate = player.ship.attackDelay;
             }
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;

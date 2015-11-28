@@ -3,7 +3,7 @@ export class Ship {
     game: any;
     sprite: any;
     speed: number;
-    health = 3;
+    health: number;
     bullets: any;
     fireRate: number;
     nextFire: number;
@@ -13,11 +13,8 @@ export class Ship {
         
         this.game = game;
 
-        this.health = 3;
-        this.fireRate = 500;
         this.nextFire = 0;
         this.alive = true;
-        this.speed = 0;
         
         this.bullets = this.game.add.group();
         this.bullets.enableBody = true;
