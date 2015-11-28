@@ -131,7 +131,7 @@ export class SpaceGame {
         this.enemiesAlive = 0;
         for (var name in this.enemies) {
             var enemy = this.enemies[name];
-            if (enemy.alive) {
+            if (enemy.sprite.alive) {
                 this.enemiesAlive++;
                 this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
                 this.game.physics.arcade.overlap(this.player.bullets, enemy.sprite, enemy.damage, null, enemy);
@@ -183,7 +183,7 @@ export class SpaceGame {
             
             actual.speed = Math.sqrt(Math.pow(player.ship.speed.x,2)+Math.pow(player.ship.speed.y, 2));
             actual.sprite.angularVelocity = player.ship.speed.turn;
-            actual.health = player.ship.health;
+            actual.sprite.health = player.ship.health;
         }
         this.enemiesTotal = res.players.length-1;
         
@@ -215,7 +215,7 @@ export class SpaceGame {
     
     render = () => {
         this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
-        this.game.debug.text('Health: ' + this.player.health, 32, 45);
+        this.game.debug.text('Health: ' + this.player.sprite.health, 32, 45);
         this.game.debug.text('Position: ' + this.player.sprite.position.x + ', ' + this.player.sprite.position.y, 32, 60);
         this.game.debug.text('Angle: ' + this.player.sprite.rotation, 32, 75);
         this.game.debug.text('Speed: ' + this.player.speed, 32, 90);

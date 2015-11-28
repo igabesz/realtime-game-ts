@@ -3,18 +3,15 @@ export class Ship {
     game: any;
     sprite: any;
     speed: number;
-    health: number;
     bullets: any;
     fireRate: number;
     nextFire: number;
-    alive: boolean;
     
     constructor(game) {
         
         this.game = game;
 
         this.nextFire = 0;
-        this.alive = true;
         
         this.bullets = this.game.add.group();
         this.bullets.enableBody = true;
@@ -52,7 +49,7 @@ export class Ship {
     }
     
     fire() {
-        if (!this.alive) return;
+        if (!this.sprite.alive) return;
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
             this.nextFire = this.game.time.now + this.fireRate;
             var bullet = this.bullets.getFirstDead();
@@ -65,18 +62,11 @@ export class Ship {
     damage(ship, bullet) {
         bullet.kill();
         
-        this.health -= 1;
-        if (this.health <= 0) {
-            this.kill();
-            return true;
+        this.sprite.health -= 1;
+        if (this.sprite.health <= 0) {
+            this.sprite.kill();
         }
         
-        return false;
-    }
-    
-    kill() {
-        this.alive = false;
-        this.sprite.kill();
     }
 
 };
