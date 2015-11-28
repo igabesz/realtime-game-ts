@@ -12,6 +12,7 @@ export class Ship {
         this.game = game;
 
         this.nextFire = 0;
+        this.speed = 0;
         
         this.bullets = this.game.add.group();
         this.bullets.enableBody = true;
@@ -59,14 +60,16 @@ export class Ship {
         }
     }
     
-    damage(ship, bullet) {
+    collideShipBullet(ship, bullet) {
         bullet.kill();
-        
-        this.sprite.health -= 1;
+        this.damage(1);        
+    }
+    
+    damage(amount: number) {
+        this.sprite.health -= amount;
         if (this.sprite.health <= 0) {
             this.sprite.kill();
         }
-        
     }
 
 };
