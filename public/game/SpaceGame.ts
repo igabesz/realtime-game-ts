@@ -15,12 +15,16 @@ export class SpaceGame {
     background: Phaser.TileSprite;
     cursors: Phaser.CursorKeys;
     space: Phaser.Key;
+    fieldsize: {width: number, height: number};
+    healthDecay: number;
     
     enemiesTotal: number;
     enemiesAlive: number;
 	
-	constructor(socketservice: SocketService, roomsize: {width:number, height:number}) {
+	constructor(socketservice: SocketService, roomsize: {width:number, height:number}, healthDecay: number) {
         this.socketservice = socketservice;
+        this.fieldsize = roomsize;
+        this.healthDecay = healthDecay;
         
         var resizeTimer;
         window.onresize = () => {
@@ -51,7 +55,8 @@ export class SpaceGame {
     }
             
     create = () => {
-        this.game.world.setBounds(-1000, -1000, 2000, 2000);
+        let worldsize:{width:number, height:number} = {width: this.fieldsize.width*1.5, height: this.fieldsize.height*1.5};
+        this.game.world.setBounds(-worldsize.width/2, -worldsize.height/2, worldsize.width, worldsize.height);
         this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, "background");
         this.background.fixedToCamera = true;
         
@@ -140,6 +145,10 @@ export class SpaceGame {
         }
         
         this.player.update();
+        if(this.player.sprite.position.x > this.fieldsize.width / 2 || this.player.sprite.position.x < -this.fieldsize.width / 2 ||
+			this.player.sprite.position.y > this.fieldsize.height / 2 || this.player.sprite.position.y < -this.fieldsize.height / 2) {
+				this.player.sprite.health -= this.healthDecay;
+		}
         
         this.background.tilePosition.x = -this.game.camera.x;
         this.background.tilePosition.y = -this.game.camera.y;
