@@ -9,7 +9,7 @@ export class PingRequest extends Request {
 }
 
 export class PongResponse extends Response {
-	public time: Date = new Date();
+	public time: Date;
 }
 
 export const PERSONAL_INFO_EVENT: string = 'personalinfo';

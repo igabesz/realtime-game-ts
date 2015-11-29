@@ -59,8 +59,8 @@ export abstract class Ship extends GameObject {
 /** Ship types */
 
 export class GeneralShip extends Ship {
-	public width: number = 100;
-	public length: number = 150;
+	public width: number = 214;
+	public length: number = 137;
 	public acceleration: number = 0.004;
 	public maxSpeed: number = 0.2;
 	public turnacc: number = 0.00004;
@@ -78,8 +78,8 @@ export class GeneralShip extends Ship {
 }
 
 export class FastShip extends Ship {
-	public width: number = 80;
-	public length: number = 120;
+	public width: number = 160;
+	public length: number = 103;
 	public acceleration: number = 0.005;
 	public maxSpeed: number = 0.25;
 	public turnacc: number = 0.00005;
