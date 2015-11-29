@@ -1,8 +1,8 @@
 import * as SocketIO from 'socket.io-client';
-import { PERSONAL_INFO_EVENT, PersonalInfoRequest } from '../common/Connection';
+import { PERSONAL_INFO_EVENT, PING_PONG_EVENT,  PersonalInfoRequest, PingRequest } from '../common/Connection';
 import { ShipType } from '../common/GameObject';
 import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest, LEAVE_ROOM_EVENT } from '../common/Room';
-import { MovementRequest, FireRequest, MOVEMENT_EVENT, FIRE_EVENT } from '../common/Movement';
+import { MOVEMENT_EVENT, FIRE_EVENT, MovementRequest, FireRequest } from '../common/Movement';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -80,6 +80,11 @@ export class SocketService {
 	fire(req: FireRequest) {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
 		this.socket.emit(FIRE_EVENT, req);
+	}
+	
+	ping(req: PingRequest) {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(PING_PONG_EVENT, req);
 	}
 
 	/**This is a tricky thing with the following tasks: 
