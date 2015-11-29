@@ -78,6 +78,20 @@ export class SimulationService {
 			ship.position.x += ship.speed.x * deltaTime;
 			ship.position.y += ship.speed.y * deltaTime;
 			
+			if(ship.position.x > room.bounds.width / 2) {
+				ship.position.x = room.bounds.width / 2;
+			}
+			else if(ship.position.x < -room.bounds.width / 2) {
+				ship.position.x = -room.bounds.width / 2;
+			}
+			
+			if(ship.position.y > room.bounds.height / 2) {
+				ship.position.y = room.bounds.height / 2;
+			}
+			else if(ship.position.y < -room.bounds.height / 2) {
+				ship.position.y = -room.bounds.height / 2;
+			}
+			
 			// calculate angle
 			ship.position.angle += ship.speed.turn * deltaTime;
 			while(ship.position.angle >= 2 * Math.PI) {

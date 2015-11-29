@@ -10,6 +10,7 @@ export class Room {
 	public projectiles: Array<Projectile> = [];
 	public started: boolean;
 	public size: {width:number, height:number} = {width: 2500, height: 2500};
+	public bounds: {width:number, height:number} = {width: 25000, height: 25000};
 	public healthDecay: number = 0.2;
 	
 	public ready(): boolean {
