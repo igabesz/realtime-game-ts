@@ -62,7 +62,7 @@ export class GeneralShip extends Ship {
 	public width: number = 214;
 	public length: number = 137;
 	public acceleration: number = 0.004;
-	public maxSpeed: number = 0.2;
+	public maxSpeed: number = Math.pow(0.2, 2);
 	public turnacc: number = 0.00004;
 	public maxTurn: number = 0.002;
 	public health: number = 100;
@@ -81,7 +81,7 @@ export class FastShip extends Ship {
 	public width: number = 160;
 	public length: number = 103;
 	public acceleration: number = 0.005;
-	public maxSpeed: number = 0.25;
+	public maxSpeed: number = Math.pow(0.25, 2);
 	public turnacc: number = 0.00005;
 	public maxTurn: number = 0.0025;
 	public health: number = 50;

@@ -53,7 +53,7 @@ export class SimulationService {
 			}
 			
 			let speed: number = Math.pow(ship.speed.x, 2) + Math.pow(ship.speed.y, 2);
-			let maxSpeed: number = Math.pow(ship.maxSpeed, 2);
+			let maxSpeed: number = ship.maxSpeed;
 			if(speed > maxSpeed || speed < -maxSpeed) {
 				ship.speed.x = ship.speed.x / speed * maxSpeed;
 				ship.speed.y = ship.speed.y / speed * maxSpeed;
