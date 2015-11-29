@@ -1,15 +1,20 @@
+import { SpaceGame } from './SpaceGame';
+
 export class Ship {
     
-    game: any;
-    sprite: any;
+    spaceGame: SpaceGame;
+    game: Phaser.Game;
+    sprite: Phaser.Sprite;
     speed: number;
+    //TODO not any
     bullets: any;
     fireRate: number;
     nextFire: number;
     
-    constructor(game) {
+    constructor(spacegame: SpaceGame) {
         
-        this.game = game;
+        this.spaceGame = spacegame;
+        this.game = this.spaceGame.game;
 
         this.nextFire = 0;
         this.speed = 0;
@@ -23,7 +28,8 @@ export class Ship {
         this.bullets.setAll('outOfBoundsKill', true);
         this.bullets.setAll('checkWorldBounds', true);
         
-        this.sprite = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, 'spaceship');
+        this.sprite = this.game.add.sprite(this.game.rnd.integerInRange(-this.spaceGame.fieldsize.width/2, this.spaceGame.fieldsize.width/2),
+                             this.game.rnd.integerInRange(-this.spaceGame.fieldsize.height/2, this.spaceGame.fieldsize.height/2), 'spaceship');
         this.sprite.anchor.set(0.5);
         
         this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
@@ -41,7 +47,7 @@ export class Ship {
         }
         */
         //alive?
-        
+        //TODO: acceleration
         if (this.speed > 0) {
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, this.speed, this.sprite.body.velocity);
         } else {
@@ -67,9 +73,12 @@ export class Ship {
     
     damage(amount: number) {
         this.sprite.health -= amount;
+        
         if (this.sprite.health <= 0) {
             this.sprite.kill();
         }
+        
+        this.spaceGame.damageEffect();
     }
 
 };
