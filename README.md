@@ -3,19 +3,19 @@
 
 ## Install
 
-* Install node.js and make npm.exe available globally
-* Install MongoDb and make mongod.exe available globally
-* Make sure that the project is not in the root directory
-* Run install.bat
+* Install node.js and make npm available globally
+* Install MongoDb
+* Run npm install
 
 ## Build
 
-* Run compile.bat
+* Run npm build
 
 ## Start
 
-* Run start.bat
-* You can choose:
+* Run mongod
+* Run npm start
+* Optionally run start.bat that starts mongod, node and opens a menu:
   * E to exit the program without stopping the server
   * R to restart the node.js server
   * Q to quit and stop the server
