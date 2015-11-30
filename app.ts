@@ -41,7 +41,7 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let db: mongoDb.Db = new mongoDb.Db(databaseName, new mongoDb.Server(databaseHost, databasePort));
+let db: mongoDb.Db = new mongoDb.Db(databaseName, new mongoDb.Server(databaseHost, databasePort, {auto_reconnect: true}));
 let database: IDatabase = new Database(db);
 let login = new Login(router, database);
 login.listen();
@@ -56,4 +56,5 @@ adminController.setExit(function(): void {
     process.exit(0);
 });
 
+console.log("Database: " + databaseHost + ":" + databasePort + "/" + databaseName);
 server.listen(expressPort, expressHost, () => console.log("Server started on http://" + expressHost +":" + expressPort + "/"));
