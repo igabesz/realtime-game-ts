@@ -25,7 +25,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "tsd install",
     "build": "tsc -p .",
-    "watch": "tsc -p . -w"
+    "watch": "tsc -p . -w",
+    "start": "node app"
   },
   "keywords": [
     "TypeScript",

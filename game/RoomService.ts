@@ -79,7 +79,7 @@ export class RoomService {
 			}
 		}
 		
-		if(response.success) {
+		if(response.success()) {
 			this.sendRoomState(room);
 		}
 		else {
@@ -111,7 +111,7 @@ export class RoomService {
 			client.player.room = undefined;
 		}
 		
-		if(response.success &&room.players.length !== 0) {
+		if(response.success() &&room.players.length !== 0) {
 			this.sendRoomState(room);
 		}
 		this.connectionCtrl.sendToClient(client, LEAVE_ROOM_EVENT, response);
@@ -131,7 +131,7 @@ export class RoomService {
 				response.errors.push('Invalid ship type');
 				break;
 		}
-		if(response.success) {
+		if(response.success()) {
 			client.lifeCycle.readyRoom();
 			this.sendRoomState(client.player.room);
 		}
@@ -170,7 +170,7 @@ export class RoomService {
 			}
 		}
 		
-		if(response.success) {
+		if(response.success()) {
 			this.initRoom(room);
 			let clients: Array<Client> = this.connectionCtrl.getClients();
 			for(let i: number = 0; i < clients.length; i++) {
@@ -224,6 +224,7 @@ export class RoomService {
 		// Remove Player
 		room.players.splice(room.players.indexOf(player), 1);
 		this.connectionCtrl.getClient(player).lifeCycle.die();
+		player.room = undefined;
 		if(room.players.length === 0) {
 			this.destroyRoom(room);
 		}
