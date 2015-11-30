@@ -66,7 +66,7 @@ export class Database implements IDatabase {
                     callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
                 }
                 else {
-                    db.authenticate(databaseUsername, databasePassword, {authdb: "admin"}, function(err: Error, res: any){
+                    db.authenticate(databaseUsername, databasePassword, {authdb: "admin"}, (err: Error, res: any) => {
                         this.isConnected = true;
                         this.users = db.collection("users");
                         callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
