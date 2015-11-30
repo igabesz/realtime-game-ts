@@ -13,6 +13,8 @@ export class SpaceGame {
     enemies: {[name: string]: Ship};
     
     background: Phaser.TileSprite;
+    border: Phaser.Sprite;
+    borderStop: number;
     cursors: Phaser.CursorKeys;
     space: Phaser.Key;
     fieldsize: {width: number, height: number};
@@ -52,6 +54,7 @@ export class SpaceGame {
         this.game.load.image("background", "images/tiled-space-bg.jpg");
         this.game.load.image("spaceship", "images/spaceship.png");
         this.game.load.image("bullet", "images/bullet.png");
+        this.game.load.image("border", "images/damage-border.png")
     }
             
     create = () => {
@@ -60,7 +63,13 @@ export class SpaceGame {
         this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, "background");
         this.background.fixedToCamera = true;
         
-        this.player = new Ship(this.game);
+        this.border = this.game.add.sprite(0, 0, "border");
+        this.border.width = this.game.width;
+        this.border.height = this.game.height;
+        this.border.fixedToCamera = true;
+        this.border.alpha = 0;
+        
+        this.player = new Ship(this);
         this.name = window.sessionStorage["user"];
         
         this.enemies = {};
@@ -156,6 +165,10 @@ export class SpaceGame {
         this.background.tilePosition.x = -this.game.camera.x;
         this.background.tilePosition.y = -this.game.camera.y;
         
+        if (this.game.time.now > this.borderStop) {
+            this.game.add.tween(this.border).to({ alpha: 0 }, 200, Phaser.Easing.Linear.None, true);
+        }
+        
         this.ping();
     }
     
@@ -178,12 +191,12 @@ export class SpaceGame {
             } else {
                 actual = this.enemies[player.name];
                 if(actual==undefined) {
-                    this.enemies[player.name] = new Ship(this.game);
+                    this.enemies[player.name] = new Ship(this);
                     actual = this.enemies[player.name];
                 }
             }
             if(actual.fireRate == undefined) {
-                    actual.sprite.acceleration = player.ship.acceleration;
+                    actual.sprite.body.acceleration = player.ship.acceleration;
                     actual.sprite.body.angularAcceleration = player.ship.turnacc;
                     actual.sprite.width = player.ship.width;
                     actual.sprite.height = player.ship.length;
@@ -209,7 +222,8 @@ export class SpaceGame {
         let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
         let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
                                                 parseInt(headerStyle.marginBottom)));
-                                                
+                                  
+        //TODO:ez mind tuti kell?              
         this.game.canvas.width = width;
         this.game.canvas.height = height;
         this.game.stage.width = width;
@@ -219,10 +233,17 @@ export class SpaceGame {
         this.game.scale.setGameSize(width, height);
         this.game.camera.setSize(width, height);
         this.game.renderer.resize(width, height);
-        //TODO
-        let bg = (<Phaser.TileSprite>this.game.world.children[0])
-        bg.width = width;
-        bg.height = height;
+        
+        this.background.width = width;
+        this.background.height = height;
+        this.border.width = width;
+        this.border.height = height;
+    }
+    
+    damageEffect(){
+        this.border.bringToTop();
+        this.game.add.tween(this.border).to({ alpha: 0.4 }, 200, Phaser.Easing.Linear.None, true);
+        this.borderStop = this.game.time.now + 500;
     }
     
     render = () => {
