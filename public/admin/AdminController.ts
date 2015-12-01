@@ -65,9 +65,9 @@ export class AdminController {
 		let value: string = 'home';
 		if(
 			menu === 'players' ||
-			menu.indexOf('player/') === 0 ||
+			(menu.indexOf('player/') === 0 && menu.substring(7).length !== 0 && menu.substring(7) !== 'Not identified yet') ||
 			menu === 'rooms' ||
-			menu.indexOf('room/') === 0
+			(menu.indexOf('room/') === 0 && menu.substring(5).length !== 0 && menu.substring(5) !== '')
 			) {
 			value = menu;
 		}
@@ -84,9 +84,9 @@ export class AdminController {
 				'Authorization': sessionStorage.getItem('token'),
 				'Cache-Control': 'no-cache'
 			}
-		}).success((data)=>{
+		}).success((data) => {
 			sessionStorage.clear();
-			location.href  = '/login.html';
+			location.href = '/';
 		});
 	}
 	
@@ -109,10 +109,15 @@ export class AdminController {
 				return;
 		}
 		if(this.$scope.selectedMenu.indexOf('room/') === 0) {
-			this.getRoomData(this.$scope.selectedMenu.substring(5));
+			let roomname: string = this.$scope.selectedMenu.substring(5);
+			if(roomname.length !== 0) { 
+				this.getRoomData(roomname);
+			}
 		}
 		else if(this.$scope.selectedMenu.indexOf('player/') === 0) {
-			this.getUserData(this.$scope.selectedMenu.substring(7));
+			let username: string = this.$scope.selectedMenu.substring(7);
+			if(username.length !== 0 && username != 'Not identified yet')
+			this.getUserData(username);
 		}
 	}
 	
@@ -169,6 +174,7 @@ export class AdminController {
 				}
 				newUsers.push(user);
 			}
+			console.log(users);
 			this.$scope.Users = newUsers;
 		});
 	}

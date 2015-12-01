@@ -34,7 +34,7 @@ export class ConnectionController {
 		let client: Client = new Client();
 		client.socket = socket;
 		this.clients.push(client);
-		console.log('Connected', this.clients.map(c => c.player ? c.player.name : 'unknown'));
+		//console.log('Connected', this.clients.map(c => c.player ? c.player.name : 'unknown'));
 		
 		client.lifeCycle = new LifeCycle(client, this, this.roomService, this.movementController);
 		client.lifeCycle.openConnection();
@@ -90,23 +90,23 @@ export class ConnectionController {
 	public sendToAll(event: string, message: Message): void {
 		this.ioServer.emit(event, message);
 		/** Test only */
-		console.log('All: ' + event);
-		this.ioServer.emit('test', { title:'All ' + event, body: message});
+		/*console.log('All: ' + event);
+		this.ioServer.emit('test', { title:'All ' + event, body: message});*/
 	}
 	
 	public sendToRoom(room: Room, event: string, message: Message): void {
 		this.ioServer.to(room.id).emit(event, message);
 		/** Test only */
-		console.log('Room ' + room.id + ': ' + event);
-		this.ioServer.to(room.id).emit('test', { title:'Room ' + event, body: message});
+		/*console.log('Room ' + room.id + ': ' + event);
+		this.ioServer.to(room.id).emit('test', { title:'Room ' + event, body: message});*/
 	}
 	
 	public sendToClient(client: Client, event: string, message: Message): void {
 		client.socket.emit(event, message);
 		/** Test only */
-		let name: string = client.player === undefined ? '' : client.player.name;
+		/*let name: string = client.player === undefined ? '' : client.player.name;
 		console.log('Client ' + name + ': ' + event);
-		client.socket.emit('test', { title:'Client ' + event, body: message});
+		client.socket.emit('test', { title:'Client ' + event, body: message});*/
 	}
 	
 	public getClient(player: Player): Client {

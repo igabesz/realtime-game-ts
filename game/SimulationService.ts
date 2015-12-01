@@ -160,8 +160,6 @@ export class SimulationService {
 			players.push(item);
 		}
 		
-		console.log(players[0].rectangle);
-		
 		// Create projectiles hitboxes
 		for(let i: number = 0; i < room.projectiles.length; i++) {
 			let item: {projectile: Projectile, rectangle: Rectangle};
