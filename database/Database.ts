@@ -6,6 +6,10 @@ import * as hash from 'password-hash';
 import * as crypto from 'crypto';
 import { Db }  from 'mongodb';
 
+// Constants
+
+const databaseUsername: string = process.env.OPENSHIFT_MONGODB_DB_USERNAME || null;
+const databasePassword: string = process.env.OPENSHIFT_MONGODB_DB_PASSWORD || null;
 
 export interface IDatabase {
 
@@ -56,13 +60,21 @@ export class Database implements IDatabase {
     open(callback: (res:DatabaseResponse) => any){
         this.db.open((err, db) => {
             if(!err) {
-                this.isConnected = true;
-                this.users = db.collection("users");
-                callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
-
+                if(databaseUsername === null) {
+                    this.isConnected = true;
+                    this.users = db.collection("users");
+                    callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
+                }
+                else {
+                    db.authenticate(databaseUsername, databasePassword, {authdb: "admin"}, (err: Error, res: any) => {
+                        this.isConnected = true;
+                        this.users = db.collection("users");
+                        callback( new DatabaseResponse(Status.success, {} , "Successfully opened 'users'") );
+                    });
+                }
                 db.addListener('close', () => {
                     this.isConnected = false;
-                })
+                });
                 return;
 
             } else {

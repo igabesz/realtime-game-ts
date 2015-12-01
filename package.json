@@ -24,8 +24,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "tsd install",
+    "_preinstall": "HOME=$HOME/app-root/runtime/repo && tsd install && (tsc -p . || true)",
     "build": "tsc -p .",
-    "watch": "tsc -p . -w"
+    "watch": "tsc -p . -w",
+    "start": "node app"
   },
   "keywords": [
     "TypeScript",

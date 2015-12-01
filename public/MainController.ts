@@ -1,7 +1,7 @@
 import { SocketService } from './SocketService';
 import * as _ from 'lodash';
 import { PERSONAL_INFO_EVENT } from '../common/Connection';
-import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT, ROOM_STATE_EVENT } from '../common/Room';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem, LIST_SHIP_EVENT, ListShipsResponse, START_ROOM_EVENT,READY_ROOM_EVENT, ROOM_STATE_EVENT, QUIT_ROOM_EVENT } from '../common/Room';
 import { Ship, ShipType } from '../common/GameObject';
 import { SpaceGame } from './game/SpaceGame';
 import { Response } from '../common/Message';
@@ -83,6 +83,12 @@ export class MainController {
             console.info("READY_ROOM_EVENT ", msg);
 
             this.socketService.start();
+        });
+
+        socketService.addHandler(QUIT_ROOM_EVENT, $timeout, (msg) => {
+            console.info("QUIT_ROOM_EVENT ", msg);
+
+            this.init(this.$scope);
         });
 
         socketService.addHandler(ROOM_STATE_EVENT, $timeout, (msg) => {

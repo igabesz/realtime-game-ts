@@ -11,6 +11,14 @@ import { AdminController } from './admin/AdminController';
 import { Login } from './login/login';
 import { IDatabase, Database, DatabaseResponse, Status } from './database/Database';
 
+// Constants
+
+const expressHost: string = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+const expressPort:number = process.env.OPENSHIFT_NODEJS_PORT || 80;
+const databaseName: string = process.env.OPENSHIFT_APP_NAME || 'routerme';
+const databaseHost: string = process.env.OPENSHIFT_MONGODB_DB_HOST || '127.0.0.1';
+const databasePort: number = parseInt(process.env.OPENSHIFT_MONGODB_DB_PORT) || 27017;
+
 // Creating Express and SocketIO server
 let app: express.Express = express();
 let server: http.Server = (<any>http).Server(app);
@@ -21,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Initiate DB
-let db: mongoDb.Db = new mongoDb.Db('routerme', new mongoDb.Server('localhost', 27017));
+let db: mongoDb.Db = new mongoDb.Db(databaseName, new mongoDb.Server(databaseHost, databasePort, {auto_reconnect: true}));
 let database: IDatabase = new Database(db);
 
 app.get('/', function (req, res) {
@@ -66,5 +74,5 @@ adminController.setExit(function(): void {
     process.exit(0);
 });
 
-let port:number = 80;
-server.listen(port, () => console.log("Server started on http://localhost:" + port + "/"));
+console.log("Database: " + databaseHost + ":" + databasePort + "/" + databaseName);
+server.listen(expressPort, expressHost, () => console.log("Server started on http://" + expressHost +":" + expressPort + "/"));
