@@ -81,7 +81,7 @@ export class AdminController {
         user.playerName = (client.player === undefined || client.player.name === undefined) ? '' : client.player.name;
         user.room = (client.isInRoom()) ? client.player.room.id : '';
         user.state = LifeCycleState[client.lifeCycle.State];
-        user.isHost = client.player.room.host === client.player;
+        user.isHost = client.isInRoom() ? client.player.room.host === client.player : false;
         
         return user;
     }

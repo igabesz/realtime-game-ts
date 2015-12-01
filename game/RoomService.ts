@@ -217,7 +217,7 @@ export class RoomService {
 	}
 	
 	public destroyRoom(room: Room): void {
-		this.rooms.splice(this.rooms.indexOf(room));
+		this.rooms.splice(this.rooms.indexOf(room), 1);
 	}
 	
 	public removePlayer(room: Room, player: Player, reason: string): void {
@@ -228,6 +228,8 @@ export class RoomService {
 		let winner: Player = null;
 		if(room.players.length === 1) {
 			winner = room.players[0];
+			this.connectionCtrl.getClient(winner).lifeCycle.die();
+			winner.room = undefined;
 			this.destroyRoom(room);
 		}
 		
