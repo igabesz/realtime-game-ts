@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html id="html">
+<head lang="en">
+    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/angular/angular.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <title>SpaceGame</title>
+    <link rel="stylesheet" href="/login/login.css">
+    <script src="/login/LoginController.js"></script>
+
+
+
+</head>
+
+<body id="body" ng-app="login" ng-controller="LoginController">
+<div class="tab">
+
+    <ul class="tab-group">
+        <li class="tab active" ng-class="{true:'active', false: ''}[isLoginView == true]">
+            <a ng-click="login.switchToLoginView()" >Login</a>
+        </li>
+        <li class="tab" ng-class="{true:'active', false: ''}[isSignupView == true]">
+            <a ng-click="login.switchToSignupView()" >Sign Up</a>
+        </li>
+    </ul>
+
+    <div>
+        <div class="" id="notifyable" style="display:block; width: 50%; margin: 0 auto; opacity: 1; ">
+        </div>
+    </div>
+
+    <div class="tab-content">
+        <div id="login" class="login" ng-show="isLoginView" ng-class="{true:'active', false: ''}[isLoginView == true]">
+            <div class="heading">
+                <form id="loginform" ng-submit="login.submitLogin()">
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" ng-model="loginUsername" class="form-control" name="username" autocomplete="off" placeholder="Username" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" ng-model="loginPassword" class="form-control" name="password" autocomplete="off" placeholder="Password" required>
+                    </div>
+
+                    <button class="float" >Log in</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="signup" class="login" ng-show="isSignupView" >
+            <div class="heading">
+                <form id="signupform" ng-submit="login.submitSignup()">
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                        <input type="text" name="email" ng-model="signupEmail" class="form-control" placeholder="Email" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" name="username" ng-model="signupUsername" class="form-control" placeholder="Username" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="p1" name="password" ng-model="signupPassword" class="form-control" placeholder="Password" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="p2" name="passwordconfirm" class="form-control" placeholder="Password Confirm" autocomplete="off" minlength="4" required>
+                    </div>
+
+                    <button class="float" >Sign up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var app = angular.module('login', []);
+    app.controller('LoginController', function($scope, $http) {
+        $scope.login = new LoginController($scope, $http);
+    });
+</script>
+</body>
+</html>

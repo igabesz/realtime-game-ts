@@ -231,7 +231,6 @@ export class Database implements IDatabase {
             this.users.updateOne({username: username}, {$set: {token: token}}, (err) => {
                 if (!err) {
                     callback( new DatabaseResponse(Status.success, {token:token} , "User: " + username + "'s token successfully updated") );
-                    this.validateToken(token, (res2:DatabaseResponse) => {console.info("validate admin token",res2)});
                     return;
                 } else {
                     callback( new DatabaseResponse(Status.error, {} , "Could not update the token of user: " + username) );

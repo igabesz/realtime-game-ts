@@ -45,22 +45,22 @@ export class Login {
 
     listen(){
 
-        this.router.post('/', (req, res, next) => {
+        this.router.get('/', (req, res, next) => {
 
-            let username = req.body.username;
-            let token = req.body.token;
+            let token: string = req.header('Authorization');
+            if(token === "" || token === undefined || token === null) {
+                res.status(401).send("error");
+                return;
+            }
 
-            if (username === undefined || token === undefined || username === "" || token === "")
-                res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-
-            this.database.validateUserWithToken(username, token, (dbres2:DatabaseResponse) => {
-                if (dbres2.status === Status.success) {
-                    let index = path.resolve(__dirname + '/../public/index.html');
-                    res.sendFile(path.resolve(__dirname + '/../public/index.html'));
-                    console.log("ok, sent: " + index);
+            this.database.validateToken(token, (dbres:DatabaseResponse) => {
+                if (dbres.status === Status.success) {
+                    res.status(200).send("ok");
+                    //res.sendFile(path.resolve(__dirname + '/../public/index.html'));
                 } else {
-                    res.sendFile(path.resolve(__dirname + '/../public/login.html'));
-                    console.info("ERROR: ", dbres2.msg);
+                    res.status(401).send("error");
+                    //res.sendFile(path.resolve(__dirname + '/login.html'));
+                    console.info("ERROR: ", dbres.msg);
                 }
             });
         });

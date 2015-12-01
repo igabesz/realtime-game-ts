@@ -9,7 +9,7 @@ import * as bodyParser from 'body-parser';
 import { ConnectionController } from './game/ConnectionController';
 import { AdminController } from './admin/AdminController';
 import { Login } from './login/login';
-import { IDatabase, Database } from './database/Database';
+import { IDatabase, Database, DatabaseResponse, Status } from './database/Database';
 
 // Creating Express and SocketIO server
 let app: express.Express = express();
@@ -19,8 +19,28 @@ let router: express.Router = express.Router();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+//Initiate DB
+let db: mongoDb.Db = new mongoDb.Db('routerme', new mongoDb.Server('localhost', 27017));
+let database: IDatabase = new Database(db);
+
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/login.html'));
+    let token: string = req.header('Authorization');
+    if(token === "" || token === undefined || token === null) {
+        res.sendFile(path.join(__dirname + '/public/login/login.html'));
+        console.log('1');
+        return;
+    }
+
+    database.validateToken(token, (dbres:DatabaseResponse) => {
+        if (dbres.status === Status.success) {
+            res.status(200).send("ok");
+            console.log('2');
+        } else {
+            res.sendFile(path.join(__dirname + '/public/login/login.html'));
+            console.info("ERROR: ", dbres.msg);
+        }
+    });
 });
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/public'));
@@ -33,8 +53,6 @@ router.get('/common/:file', function (req, res, next) {
 });
 
 // Instantiating login services
-let db: mongoDb.Db = new mongoDb.Db('routerme', new mongoDb.Server('localhost', 27017));
-let database: IDatabase = new Database(db);
 let login = new Login(router, database);
 login.listen();
 

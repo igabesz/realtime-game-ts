@@ -23,7 +23,7 @@
 
     <div ng-controller="MainController as ctrl" class="ng-cloak">
 
-        <div class="page-header">
+        <div class="page-header" ng-hide="gameView">
             <div style="margin-left: 10%">
                 <h1 class="text-muted pleasedontfloat">Captain Space Marshall {{username}}
                     <span ng-show="isHost"> (Host)</span>
