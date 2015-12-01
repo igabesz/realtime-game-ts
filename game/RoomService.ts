@@ -220,12 +220,14 @@ export class RoomService {
 		this.rooms.splice(this.rooms.indexOf(room));
 	}
 	
-	public removePlayer(room: Room, player: Player): void {
+	public removePlayer(room: Room, player: Player, reason: string): void {
 		// Remove Player
 		room.players.splice(room.players.indexOf(player), 1);
 		this.connectionCtrl.getClient(player).lifeCycle.die();
 		player.room = undefined;
-		if(room.players.length === 0) {
+		let winner: Player = null;
+		if(room.players.length === 1) {
+			winner = room.players[0];
 			this.destroyRoom(room);
 		}
 		
@@ -234,9 +236,13 @@ export class RoomService {
 		for(let i: number = 0; i < clients.length; i++) {
 			if(clients[i].player === player) {
 				let qrm: QuitRoomMessage = new QuitRoomMessage();
-				qrm.reason = 'Died';
+				qrm.reason = reason;
 				this.connectionCtrl.sendToClient(clients[i], QUIT_ROOM_EVENT, qrm);
-				break;
+			}
+			else if(winner && clients[i].player == winner) {
+				let qrm: QuitRoomMessage = new QuitRoomMessage();
+				qrm.reason = 'You have won';
+				this.connectionCtrl.sendToClient(clients[i], QUIT_ROOM_EVENT, qrm);
 			}
 		}
 	}

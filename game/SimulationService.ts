@@ -177,7 +177,7 @@ export class SimulationService {
 					players[i].player.ship.health = 0;
 					players[j].player.ship.health = 0;
 					if(players[j].player.ship.health === 0) {
-						this.roomService.removePlayer(room, players[j].player);
+						this.roomService.removePlayer(room, players[j].player, 'You have died');
 						players.splice(j, 1);
 						j--;
 					}
@@ -197,7 +197,7 @@ export class SimulationService {
 			}
 			
 			if(players[i].player.ship.health <= 0) {
-				this.roomService.removePlayer(room, players[i].player);
+				this.roomService.removePlayer(room, players[i].player, 'You have died');
 				players.splice(i, 1);
 				i--;
 				continue;
@@ -219,7 +219,7 @@ export class SimulationService {
 					
 					if(room.players[i].ship.health <= 0) {
 						room.players[i].ship.health = 0;
-						this.roomService.removePlayer(room, players[i].player);
+						this.roomService.removePlayer(room, players[i].player, 'You have died');
 						players.splice(i, 1);
 						i--;
 						break;
