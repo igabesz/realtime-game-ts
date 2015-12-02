@@ -190,15 +190,7 @@ export class SpaceGame {
             let actual:Ship = null;
             if(player.name == this.name) {
                 if(this.player == undefined) {
-                    let sp:Phaser.Sprite;
-                    //TODO separate func
-                    if(player.ship.type == ShipType.general) {
-                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
-                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'general');
-                    } else if(player.ship.type == ShipType.fast) {
-                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
-                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'fast');
-                    }
+                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
                     this.player = new Ship(this, sp);
                     this.game.camera.follow(this.player.sprite);
                 }
@@ -206,14 +198,7 @@ export class SpaceGame {
             } else {
                 actual = this.enemies[player.name];
                 if(actual==undefined) {
-                    let sp:Phaser.Sprite;
-                    if(player.ship.type == ShipType.general) {
-                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
-                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'general');
-                    } else if(player.ship.type == ShipType.fast) {
-                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
-                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'fast');
-                    }
+                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
                     this.enemies[player.name] = new Ship(this, sp);
                     actual = this.enemies[player.name];
                 }
@@ -236,6 +221,11 @@ export class SpaceGame {
         this.enemiesTotal = res.players.length-1;
         
         //todo: bullets
+    }
+    
+    initializeSprite = (key) : Phaser.Sprite => {
+        return this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                        this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), key);
     }
     
     resizeGame = () => {
