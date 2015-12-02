@@ -11,7 +11,7 @@ export class Ship {
     fireRate: number;
     nextFire: number;
     
-    constructor(spacegame: SpaceGame) {
+    constructor(spacegame: SpaceGame, sprite: Phaser.Sprite) {
         
         this.spaceGame = spacegame;
         this.game = this.spaceGame.game;
@@ -28,8 +28,7 @@ export class Ship {
         this.bullets.setAll('outOfBoundsKill', true);
         this.bullets.setAll('checkWorldBounds', true);
         
-        this.sprite = this.game.add.sprite(this.game.rnd.integerInRange(-this.spaceGame.fieldsize.width/2, this.spaceGame.fieldsize.width/2),
-                             this.game.rnd.integerInRange(-this.spaceGame.fieldsize.height/2, this.spaceGame.fieldsize.height/2), 'spaceship');
+        this.sprite = sprite;
         this.sprite.anchor.set(0.5);
         
         this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);

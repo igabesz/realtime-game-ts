@@ -3,6 +3,7 @@ import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
 import { PING_PONG_EVENT, PingRequest, PongResponse } from '../../common/Connection';
+import { ShipType } from '../../common/GameObject';
 
 export class SpaceGame {
     
@@ -52,7 +53,8 @@ export class SpaceGame {
     
     preload = () => {
         this.game.load.image("background", "images/tiled-space-bg.jpg");
-        this.game.load.image("spaceship", "images/spaceship.png");
+        this.game.load.image("general", "images/spaceship.png");
+        this.game.load.image("fast", "images/fast-spaceship.png")
         this.game.load.image("bullet", "images/bullet.png");
         this.game.load.image("border", "images/damage-border.png")
     }
@@ -68,8 +70,7 @@ export class SpaceGame {
         this.border.height = this.game.height;
         this.border.fixedToCamera = true;
         this.border.alpha = 0;
-        
-        this.player = new Ship(this);
+              
         this.name = window.sessionStorage["user"];
         
         this.enemies = {};
@@ -79,7 +80,6 @@ export class SpaceGame {
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         
-        this.game.camera.follow(this.player.sprite);
         this.game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
         this.game.camera.focusOnXY(0, 0);
 
@@ -154,12 +154,14 @@ export class SpaceGame {
             }
         }
         
+        if(this.player) { //TODO
         if(this.player.sprite.alive) {
             this.player.update();
             if(this.player.sprite.position.x > this.fieldsize.width / 2 || this.player.sprite.position.x < -this.fieldsize.width / 2 ||
                 this.player.sprite.position.y > this.fieldsize.height / 2 || this.player.sprite.position.y < -this.fieldsize.height / 2) {
                     this.player.damage(this.healthDecay);
             }
+        }
         }
         
         this.background.tilePosition.x = -this.game.camera.x;
@@ -187,20 +189,41 @@ export class SpaceGame {
         for(var player of res.players) {
             var actual:Ship = null;
             if(player.name == this.name) {
+                if(this.player == undefined) {
+                    let sp:Phaser.Sprite;
+                    //TODO separate func
+                    if(player.ship.type == ShipType.general) {
+                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'general');
+                    } else if(player.ship.type == ShipType.fast) {
+                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'fast');
+                    }
+                    this.player = new Ship(this, sp);
+                    this.game.camera.follow(this.player.sprite);
+                }
                 actual = this.player;
             } else {
                 actual = this.enemies[player.name];
                 if(actual==undefined) {
-                    this.enemies[player.name] = new Ship(this);
+                    let sp:Phaser.Sprite;
+                    if(player.ship.type == ShipType.general) {
+                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'general');
+                    } else if(player.ship.type == ShipType.fast) {
+                        sp = this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                             this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), 'fast');
+                    }
+                    this.enemies[player.name] = new Ship(this, sp);
                     actual = this.enemies[player.name];
                 }
             }
             if(actual.fireRate == undefined) {
-                    actual.sprite.body.acceleration = player.ship.acceleration;
-                    actual.sprite.body.angularAcceleration = player.ship.turnacc;
-                    actual.sprite.width = player.ship.width;
-                    actual.sprite.height = player.ship.length;
-                    actual.fireRate = player.ship.attackDelay;
+                actual.sprite.body.acceleration = player.ship.acceleration;
+                actual.sprite.body.angularAcceleration = player.ship.turnacc;
+                actual.sprite.width = player.ship.width;
+                actual.sprite.height = player.ship.length;
+                actual.fireRate = player.ship.attackDelay;
             }
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;
@@ -247,12 +270,14 @@ export class SpaceGame {
     }
     
     render = () => {
+        if(this.player) { //TODO
         this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
         this.game.debug.text('Health: ' + this.player.sprite.health.toFixed(), 32, 45);
         this.game.debug.text('Position: ' + this.player.sprite.position.x.toFixed() + ', ' + this.player.sprite.position.y.toFixed(), 32, 60);
         this.game.debug.text('Angle: ' + this.player.sprite.rotation.toFixed(3), 32, 75);
         this.game.debug.text('Speed: ' + this.player.speed.toFixed(3), 32, 90);
         this.game.debug.text('AngularVelocity: ' + this.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
+        }
     }
 
 }
