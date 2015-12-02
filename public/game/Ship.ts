@@ -58,7 +58,7 @@ export class Ship {
         if (!this.sprite.alive) return;
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
             this.nextFire = this.game.time.now + this.fireRate;
-            var bullet = this.bullets.getFirstDead();
+            let bullet = this.bullets.getFirstDead();
             bullet.reset(this.sprite.x, this.sprite.y);
 			bullet.rotation = this.sprite.rotation;
             this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 400, bullet.body.velocity);

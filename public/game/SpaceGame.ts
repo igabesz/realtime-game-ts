@@ -29,7 +29,7 @@ export class SpaceGame {
         this.fieldsize = roomsize;
         this.healthDecay = healthDecay;
         
-        var resizeTimer;
+        let resizeTimer;
         window.onresize = () => {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
@@ -101,50 +101,50 @@ export class SpaceGame {
     }
     
     spaceDown = () => {
-        var req:FireRequest = {action: KeyAction.pressed};
+        let req:FireRequest = {action: KeyAction.pressed};
         this.socketservice.fire(req);
     }
     spaceUp = () => {
-        var req:FireRequest = {action: KeyAction.released};
+        let req:FireRequest = {action: KeyAction.released};
         this.socketservice.fire(req);
     }
     upDown = () => {
-        var req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     upUp = () => {
-        var req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     rightDown = () => {
-        var req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     rightUp = () => {
-        var req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     leftDown = () => {
-        var req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     leftUp = () => {
-        var req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     downDown = () => {
-        var req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     downUp = () => {
-        var req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     
     update = () => {        
         this.enemiesAlive = 0;
-        for (var name in this.enemies) {
-            var enemy = this.enemies[name];
+        for (let name in this.enemies) {
+            let enemy = this.enemies[name];
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
                 this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
@@ -175,19 +175,19 @@ export class SpaceGame {
     }
     
     ping = () => {
-        var req:PingRequest = new PingRequest();
+        let req:PingRequest = new PingRequest();
         this.socketservice.ping(req);
     }
     
     pong = (res:PongResponse) => {
-        var time:Date = new Date(res.time.toString());
-        var pingTime:number = Date.now() - time.getTime();
+        let time:Date = new Date(res.time.toString());
+        let pingTime:number = Date.now() - time.getTime();
         console.info("RTT:", pingTime, "ms");
     }
     
     refreshGame = (res:SimulationResponse) => {
-        for(var player of res.players) {
-            var actual:Ship = null;
+        for(let player of res.players) {
+            let actual:Ship = null;
             if(player.name == this.name) {
                 if(this.player == undefined) {
                     let sp:Phaser.Sprite;
