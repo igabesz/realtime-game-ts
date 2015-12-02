@@ -29,22 +29,14 @@ export class SpaceGame {
         this.fieldsize = roomsize;
         this.healthDecay = healthDecay;
         
+		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
+            update:this.update, render:this.render });
+            
         let resizeTimer;
         window.onresize = () => {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
         };
-        
-        //TODO
-        let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
-        let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
-                                                parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
-        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
-        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
-                                                parseInt(headerStyle.marginBottom)));
-        
-		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
-            update:this.update, render:this.render });
             
         //this.game.state.add("TitleScreenState", TitleScreenState, false);
 		//this.game.state.add("GameRunningState", GameRunningState, false);
@@ -97,7 +89,9 @@ export class SpaceGame {
         
         //adding handlers here, because they should not be called before proper inicialization
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.refreshGame(res));
-        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));              
+        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));  
+        
+        this.resizeGame();            
     }
     
     spaceDown = () => {
@@ -149,7 +143,6 @@ export class SpaceGame {
                 this.enemiesAlive++;
                 this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
                 this.game.physics.arcade.overlap(this.player.bullets, enemy.sprite, enemy.collideShipBullet, null, enemy);
-                //TODO take out
                 enemy.update();
             }
         }
@@ -232,9 +225,7 @@ export class SpaceGame {
         let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
         let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
                                                 parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
-        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
-        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
-                                                parseInt(headerStyle.marginBottom)));
+        let height:number = 0.9*(window.innerHeight);
                                   
         //TODO:ez mind tuti kell?              
         this.game.canvas.width = width;
@@ -253,7 +244,7 @@ export class SpaceGame {
         this.border.height = height;
     }
     
-    damageEffect(){
+    damageEffect = () => {
         this.border.bringToTop();
         this.game.add.tween(this.border).to({ alpha: 0.4 }, 200, Phaser.Easing.Linear.None, true);
         this.borderStop = this.game.time.now + 500;
