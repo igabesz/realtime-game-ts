@@ -34,6 +34,7 @@ export class Thruster {
 export class Projectile extends GameObject {
 	public damage: number;
 	public owner: Player;
+	public ID: number;
 }
 
 /** Ship superclass */
