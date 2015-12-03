@@ -37,10 +37,6 @@ export class SpaceGame {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
         };
-            
-        //this.game.state.add("TitleScreenState", TitleScreenState, false);
-		//this.game.state.add("GameRunningState", GameRunningState, false);
-		//this.game.state.start("TitleScreenState", true, true);
 	}
     
     preload = () => {
@@ -262,36 +258,3 @@ export class SpaceGame {
     }
 
 }
-
-/*
-export class TitleScreenState extends Phaser.State {
-        
-    game: Phaser.Game;
-		
-    constructor() {
-        super();
-    }
-
-    preload() {
-        this.game.load.image("title", "images/space1.jpg");
-    }
-		
-    create() {
-        this.game.add.sprite(0, 0, "title");
-        this.game.input.onTap.addOnce(this.titleClicked,this);
-    }
-		
-    titleClicked (){
-        this.game.state.start("GameRunningState");
-    }
-        
-}
-
-export class GameRunningState extends Phaser.State {
-        
-        constructor() {
-            super();
-        }
-
-}
-*/	
