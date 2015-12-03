@@ -1,4 +1,5 @@
 import { Ship } from './Ship';
+import { Bullet } from './Bullet';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
@@ -11,7 +12,9 @@ export class SpaceGame {
     socketservice: SocketService;
     player: Ship;
     name: string;
+    
     enemies: {[name: string]: Ship};
+    bullets: {[ID: number]: Bullet};
     
     background: Phaser.TileSprite;
     border: Phaser.Sprite;
@@ -209,7 +212,28 @@ export class SpaceGame {
         }
         this.enemiesTotal = res.players.length-1;
         
-        //todo: bullets
+        for(let projectile of res.projectiles) {
+            let actual:Bullet = null;
+            actual = this.bullets[projectile.ID];
+            if(actual == undefined) {
+                let sp:Phaser.Sprite = this.game.add.sprite(projectile.position.x, projectile.position.y, "bullet");
+                this.bullets[projectile.ID] = new Bullet(this.game, sp);
+                actual = this.bullets[projectile.ID];
+                
+                actual.sprite.body.acceleration = projectile.acceleration;
+                actual.damage = projectile.damage;
+                actual.sprite.width = projectile.width;
+                actual.sprite.height = projectile.length;
+                
+                if(projectile.owner.name == this.name) actual.owner = this.player;
+                else actual.owner = this.enemies[projectile.owner.name];
+            }
+            actual.sprite.position.x = projectile.position.x;
+            actual.sprite.position.y = projectile.position.y;
+            actual.sprite.rotation = projectile.position.angle;
+            actual.speed = Math.sqrt(Math.pow(projectile.speed.x,2)+Math.pow(projectile.speed.y, 2));
+            actual.sprite.body.angularVelocity = projectile.speed.turn;                        
+        }
     }
     
     initializeSprite = (key) : Phaser.Sprite => {
