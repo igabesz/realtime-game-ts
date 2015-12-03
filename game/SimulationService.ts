@@ -46,7 +46,9 @@ export class SimulationService {
 	private simulateRoom(room: Room, deltaTime: number): void {
 		this.move(room, deltaTime);
 		this.fire(room, deltaTime);
+		console.log('EC');
 		this.collisionDetection(room);
+		console.log('LC');
 	}
 	
 	private move(room: Room, deltaTime: number): void {		
@@ -133,8 +135,8 @@ export class SimulationService {
 				let projectile: Projectile = this.createProjectile(player.ship);
 				projectile.owner = player;
 				projectile.speed = new Speed();
-				projectile.speed.x = player.ship.speed.x * 1.3;
-				projectile.speed.y = player.ship.speed.y * 1.3;
+				projectile.speed.x = player.ship.speed.x / Math.sqrt(Math.pow(player.ship.speed.x, 2) + Math.pow(player.ship.speed.y, 2)) * 0.5;
+				projectile.speed.y = player.ship.speed.y / Math.sqrt(Math.pow(player.ship.speed.x, 2) + Math.pow(player.ship.speed.y, 2)) * 0.5;
 				projectile.speed.turn = 0;
 				projectile.position = new Position();
 				projectile.position.x = player.ship.position.x;
@@ -174,7 +176,7 @@ export class SimulationService {
 		
 		// Create projectiles hitboxes
 		for(let i: number = 0; i < room.projectiles.length; i++) {
-			let item: {projectile: Projectile, rectangle: Rectangle};
+			let item: {projectile: Projectile, rectangle: Rectangle} = {projectile: undefined, rectangle: undefined};
 			item.projectile = room.projectiles[i];
 			item.rectangle = Rectangle.createRectangle(item.projectile);
 			projectiles.push(item);
@@ -244,8 +246,8 @@ export class SimulationService {
 				if(this.intersect(projectiles[i].rectangle, projectiles[j].rectangle)) {
 					this.roomService.removeProjectile(room, projectiles[i].projectile);
 					this.roomService.removeProjectile(room, projectiles[j].projectile);
-					room.projectiles.splice(j, 1);
-					room.projectiles.splice(i, 1);
+					projectiles.splice(j, 1);
+					projectiles.splice(i, 1);
 					i--;
 					break;
 				}
@@ -342,13 +344,22 @@ export class SimulationService {
 	
 	private sendPosition(room: Room): void {
 		let response: SimulationResponse = new SimulationResponse();
-		for( let i: number = 0; i < room.players.length; i++) {
+		for(let i: number = 0; i < room.players.length; i++) {
 			let player: Player = new Player();
 			player.name = room.players[i].name;
 			player.ship = room.players[i].ship;
 			response.players.push(player);
 		}
-		response.projectiles = room.projectiles;
+		for(let i: number = 0; i < room.projectiles.length; i++) {
+			let projectile: Projectile = new Projectile();
+			projectile.acceleration = room.projectiles[i].acceleration;
+			projectile.damage = room.projectiles[i].damage;
+			projectile.length = room.projectiles[i].length;
+			projectile.position = room.projectiles[i].position;
+			projectile.speed = room.projectiles[i].speed;
+			projectile.width = room.projectiles[i].width;
+			response.projectiles.push(projectile);
+		}
 		
 		this.connectionController.sendToRoom(room, POSITION_EVENT, response);
 	}
