@@ -13,6 +13,8 @@ export class SimulationService {
 	private intervalms: number = 30;
 	private deltaTime: number = 0;
 	
+	private lastProjectileID: number = 0;
+	
 	constructor(private roomService: RoomService, private connectionController: ConnectionController) {
 		// start timer
 		this.timer = setInterval(() => this.step(), this.intervalms);
@@ -151,6 +153,8 @@ export class SimulationService {
 		projectile.damage = ship.projectile.damage;
 		projectile.length = ship.projectile.length;
 		projectile.width = ship.projectile.width;
+		
+		projectile.ID = this.lastProjectileID++;
 		
 		return projectile;
 	}

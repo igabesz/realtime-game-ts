@@ -1,8 +1,10 @@
 import { Ship } from './Ship';
+import { Bullet } from './Bullet';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
 import { PING_PONG_EVENT, PingRequest, PongResponse } from '../../common/Connection';
+import { ShipType } from '../../common/GameObject';
 
 export class SpaceGame {
     
@@ -10,7 +12,9 @@ export class SpaceGame {
     socketservice: SocketService;
     player: Ship;
     name: string;
+    
     enemies: {[name: string]: Ship};
+    bullets: {[ID: number]: Bullet};
     
     background: Phaser.TileSprite;
     border: Phaser.Sprite;
@@ -28,31 +32,20 @@ export class SpaceGame {
         this.fieldsize = roomsize;
         this.healthDecay = healthDecay;
         
-        var resizeTimer;
+		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
+            update:this.update, render:this.render });
+            
+        let resizeTimer;
         window.onresize = () => {
             if (resizeTimer) clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
         };
-        
-        //TODO
-        let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
-        let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
-                                                parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
-        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
-        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
-                                                parseInt(headerStyle.marginBottom)));
-        
-		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
-            update:this.update, render:this.render });
-            
-        //this.game.state.add("TitleScreenState", TitleScreenState, false);
-		//this.game.state.add("GameRunningState", GameRunningState, false);
-		//this.game.state.start("TitleScreenState", true, true);
 	}
     
     preload = () => {
         this.game.load.image("background", "images/tiled-space-bg.jpg");
-        this.game.load.image("spaceship", "images/spaceship.png");
+        this.game.load.image("general", "images/spaceship.png");
+        this.game.load.image("fast", "images/fast-spaceship.png")
         this.game.load.image("bullet", "images/bullet.png");
         this.game.load.image("border", "images/damage-border.png")
     }
@@ -68,8 +61,7 @@ export class SpaceGame {
         this.border.height = this.game.height;
         this.border.fixedToCamera = true;
         this.border.alpha = 0;
-        
-        this.player = new Ship(this);
+              
         this.name = window.sessionStorage["user"];
         
         this.enemies = {};
@@ -79,7 +71,6 @@ export class SpaceGame {
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         
-        this.game.camera.follow(this.player.sprite);
         this.game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
         this.game.camera.focusOnXY(0, 0);
 
@@ -97,69 +88,72 @@ export class SpaceGame {
         
         //adding handlers here, because they should not be called before proper inicialization
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.refreshGame(res));
-        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));              
+        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));  
+        
+        this.resizeGame();            
     }
     
     spaceDown = () => {
-        var req:FireRequest = {action: KeyAction.pressed};
+        let req:FireRequest = {action: KeyAction.pressed};
         this.socketservice.fire(req);
     }
     spaceUp = () => {
-        var req:FireRequest = {action: KeyAction.released};
+        let req:FireRequest = {action: KeyAction.released};
         this.socketservice.fire(req);
     }
     upDown = () => {
-        var req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.up, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     upUp = () => {
-        var req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.up, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     rightDown = () => {
-        var req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.right, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     rightUp = () => {
-        var req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.right, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     leftDown = () => {
-        var req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.left, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     leftUp = () => {
-        var req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.left, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     downDown = () => {
-        var req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
+        let req:MovementRequest = {direction: Direction.down, action: KeyAction.pressed}; 
         this.socketservice.move(req);
     }
     downUp = () => {
-        var req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
+        let req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
         this.socketservice.move(req);
     }
     
     update = () => {        
         this.enemiesAlive = 0;
-        for (var name in this.enemies) {
-            var enemy = this.enemies[name];
+        for (let name in this.enemies) {
+            let enemy = this.enemies[name];
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
                 this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
                 this.game.physics.arcade.overlap(this.player.bullets, enemy.sprite, enemy.collideShipBullet, null, enemy);
-                //TODO take out
                 enemy.update();
             }
         }
         
+        if(this.player) { //TODO
         if(this.player.sprite.alive) {
             this.player.update();
             if(this.player.sprite.position.x > this.fieldsize.width / 2 || this.player.sprite.position.x < -this.fieldsize.width / 2 ||
                 this.player.sprite.position.y > this.fieldsize.height / 2 || this.player.sprite.position.y < -this.fieldsize.height / 2) {
                     this.player.damage(this.healthDecay);
             }
+        }
         }
         
         this.background.tilePosition.x = -this.game.camera.x;
@@ -173,34 +167,40 @@ export class SpaceGame {
     }
     
     ping = () => {
-        var req:PingRequest = new PingRequest();
+        let req:PingRequest = new PingRequest();
         this.socketservice.ping(req);
     }
     
     pong = (res:PongResponse) => {
-        var time:Date = new Date(res.time.toString());
-        var pingTime:number = Date.now() - time.getTime();
+        let time:Date = new Date(res.time.toString());
+        let pingTime:number = Date.now() - time.getTime();
         console.info("RTT:", pingTime, "ms");
     }
     
     refreshGame = (res:SimulationResponse) => {
-        for(var player of res.players) {
-            var actual:Ship = null;
+        for(let player of res.players) {
+            let actual:Ship = null;
             if(player.name == this.name) {
+                if(this.player == undefined) {
+                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
+                    this.player = new Ship(this, sp);
+                    this.game.camera.follow(this.player.sprite);
+                }
                 actual = this.player;
             } else {
                 actual = this.enemies[player.name];
                 if(actual==undefined) {
-                    this.enemies[player.name] = new Ship(this);
+                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
+                    this.enemies[player.name] = new Ship(this, sp);
                     actual = this.enemies[player.name];
                 }
             }
             if(actual.fireRate == undefined) {
-                    actual.sprite.body.acceleration = player.ship.acceleration;
-                    actual.sprite.body.angularAcceleration = player.ship.turnacc;
-                    actual.sprite.width = player.ship.width;
-                    actual.sprite.height = player.ship.length;
-                    actual.fireRate = player.ship.attackDelay;
+                actual.sprite.body.acceleration = player.ship.acceleration;
+                actual.sprite.body.angularAcceleration = player.ship.turnacc;
+                actual.sprite.width = player.ship.width;
+                actual.sprite.height = player.ship.length;
+                actual.fireRate = player.ship.attackDelay;
             }
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;
@@ -212,16 +212,40 @@ export class SpaceGame {
         }
         this.enemiesTotal = res.players.length-1;
         
-        //todo: bullets
+        for(let projectile of res.projectiles) {
+            let actual:Bullet = null;
+            actual = this.bullets[projectile.ID];
+            if(actual == undefined) {
+                let sp:Phaser.Sprite = this.game.add.sprite(projectile.position.x, projectile.position.y, "bullet");
+                this.bullets[projectile.ID] = new Bullet(this.game, sp);
+                actual = this.bullets[projectile.ID];
+                
+                actual.sprite.body.acceleration = projectile.acceleration;
+                actual.damage = projectile.damage;
+                actual.sprite.width = projectile.width;
+                actual.sprite.height = projectile.length;
+                
+                if(projectile.owner.name == this.name) actual.owner = this.player;
+                else actual.owner = this.enemies[projectile.owner.name];
+            }
+            actual.sprite.position.x = projectile.position.x;
+            actual.sprite.position.y = projectile.position.y;
+            actual.sprite.rotation = projectile.position.angle;
+            actual.speed = Math.sqrt(Math.pow(projectile.speed.x,2)+Math.pow(projectile.speed.y, 2));
+            actual.sprite.body.angularVelocity = projectile.speed.turn;                        
+        }
+    }
+    
+    initializeSprite = (key) : Phaser.Sprite => {
+        return this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
+                        this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), key);
     }
     
     resizeGame = () => {
         let containerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("container")[0]);
         let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
                                                 parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
-        let headerStyle:CSSStyleDeclaration = window.getComputedStyle(document.getElementsByClassName("page-header")[0]);
-        let height:number = 0.95*(window.innerHeight - (parseInt(headerStyle.height) + parseInt(headerStyle.marginTop) + 
-                                                parseInt(headerStyle.marginBottom)));
+        let height:number = 0.9*(window.innerHeight);
                                   
         //TODO:ez mind tuti kell?              
         this.game.canvas.width = width;
@@ -240,52 +264,21 @@ export class SpaceGame {
         this.border.height = height;
     }
     
-    damageEffect(){
+    damageEffect = () => {
         this.border.bringToTop();
         this.game.add.tween(this.border).to({ alpha: 0.4 }, 200, Phaser.Easing.Linear.None, true);
         this.borderStop = this.game.time.now + 500;
     }
     
     render = () => {
+        if(this.player) { //TODO
         this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
         this.game.debug.text('Health: ' + this.player.sprite.health.toFixed(), 32, 45);
         this.game.debug.text('Position: ' + this.player.sprite.position.x.toFixed() + ', ' + this.player.sprite.position.y.toFixed(), 32, 60);
         this.game.debug.text('Angle: ' + this.player.sprite.rotation.toFixed(3), 32, 75);
         this.game.debug.text('Speed: ' + this.player.speed.toFixed(3), 32, 90);
         this.game.debug.text('AngularVelocity: ' + this.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
-    }
-
-}
-
-/*
-export class TitleScreenState extends Phaser.State {
-        
-    game: Phaser.Game;
-		
-    constructor() {
-        super();
-    }
-
-    preload() {
-        this.game.load.image("title", "images/space1.jpg");
-    }
-		
-    create() {
-        this.game.add.sprite(0, 0, "title");
-        this.game.input.onTap.addOnce(this.titleClicked,this);
-    }
-		
-    titleClicked (){
-        this.game.state.start("GameRunningState");
-    }
-        
-}
-
-export class GameRunningState extends Phaser.State {
-        
-        constructor() {
-            super();
         }
+    }
 
 }
-*/	
