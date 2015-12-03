@@ -10,26 +10,34 @@ import { ConnectionController } from './ConnectionController';
 export class SimulationService {
 	private timer: NodeJS.Timer;
 	private time: Date = new Date();
+	private intervalms: number = 30;
+	private deltaTime: number = 0;
 	
 	private lastProjectileID: number = 0;
 	
 	constructor(private roomService: RoomService, private connectionController: ConnectionController) {
 		// start timer
-		this.timer = setInterval(() => this.step(), 30);
+		this.timer = setInterval(() => this.step(), this.intervalms);
 	}
 	
 	private step(): void {
 		// calculate time since last update
 		let now: Date = new Date();
-		let deltaTime: number = (now.getTime() - this.time.getTime());
+		this.deltaTime += now.getTime() - this.time.getTime();
 		this.time = now;
+		
+		// step count
+		let stepcount: number = Math.floor(this.deltaTime / this.intervalms);
+		this.deltaTime -= stepcount * this.intervalms;
 		
 		// update every started room then send the new positions
 		let rooms: Array<Room> = this.roomService.getRooms();
 		for(let i: number = 0 ; i < rooms.length; i++) {
 			let room: Room = rooms[i];
 			if(room.started) {
-				this.simulateRoom(room, deltaTime);
+				for(let j: number = 0; j < stepcount; j++) {
+					this.simulateRoom(room, this.intervalms);
+				}
 				this.sendPosition(room);
 			}
 		}
@@ -37,6 +45,7 @@ export class SimulationService {
 	
 	private simulateRoom(room: Room, deltaTime: number): void {
 		this.move(room, deltaTime);
+		this.fire(room, deltaTime);
 		this.collisionDetection(room);
 	}
 	
@@ -118,8 +127,7 @@ export class SimulationService {
 		for(let i: number = 0; i < room.players.length; i++) {
 			let player: Player = room.players[i];
 			player.ship.currentAttackDelay -= deltaTime;
-			// REVIEW consider while
-			if(player.ship.currentAttackDelay <= 0) {
+			if(player.ship.currentAttackDelay <= 0 && player.ship.fire == KeyAction.pressed) {
 				player.ship.currentAttackDelay = player.ship.attackDelay;
 				
 				let projectile: Projectile = this.createProjectile(player.ship);
