@@ -67,6 +67,7 @@ export class SpaceGame {
         this.enemies = {};
         this.enemiesTotal = 0;
         this.enemiesAlive = 0;
+        this.bullets = {};
         
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
