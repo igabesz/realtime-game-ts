@@ -46,9 +46,7 @@ export class SimulationService {
 	private simulateRoom(room: Room, deltaTime: number): void {
 		this.move(room, deltaTime);
 		this.fire(room, deltaTime);
-		console.log('EC');
 		this.collisionDetection(room);
-		console.log('LC');
 	}
 	
 	private move(room: Room, deltaTime: number): void {		
@@ -135,8 +133,8 @@ export class SimulationService {
 				let projectile: Projectile = this.createProjectile(player.ship);
 				projectile.owner = player;
 				projectile.speed = new Speed();
-				projectile.speed.x = player.ship.speed.x / Math.sqrt(Math.pow(player.ship.speed.x, 2) + Math.pow(player.ship.speed.y, 2)) * 0.5;
-				projectile.speed.y = player.ship.speed.y / Math.sqrt(Math.pow(player.ship.speed.x, 2) + Math.pow(player.ship.speed.y, 2)) * 0.5;
+				projectile.speed.x = Math.cos(player.ship.position.angle) * 0.5;
+				projectile.speed.y = Math.sin(player.ship.position.angle) * 0.5;
 				projectile.speed.turn = 0;
 				projectile.position = new Position();
 				projectile.position.x = player.ship.position.x;
@@ -352,6 +350,8 @@ export class SimulationService {
 		}
 		for(let i: number = 0; i < room.projectiles.length; i++) {
 			let projectile: Projectile = new Projectile();
+			projectile.owner = new Player();
+			projectile.owner.name = room.projectiles[i].owner.name;
 			projectile.acceleration = room.projectiles[i].acceleration;
 			projectile.damage = room.projectiles[i].damage;
 			projectile.length = room.projectiles[i].length;
