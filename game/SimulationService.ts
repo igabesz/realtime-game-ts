@@ -187,8 +187,7 @@ export class SimulationService {
 					players[i].player.ship.health = 0;
 					players[j].player.ship.health = 0;
 					if(players[j].player.ship.health === 0) {
-						this.roomService.removePlayer(room, players[j].player, 'You have died');
-						players.splice(j, 1);
+						this.killPlayer(room, players[j].player, players);
 						j--;
 					}
 					if(players[i].player.ship.health === 0) {
@@ -207,8 +206,7 @@ export class SimulationService {
 			}
 			
 			if(players[i].player.ship.health <= 0) {
-				this.roomService.removePlayer(room, players[i].player, 'You have died');
-				players.splice(i, 1);
+				this.killPlayer(room, players[i].player, players);
 				i--;
 				continue;
 			}
@@ -229,8 +227,7 @@ export class SimulationService {
 					
 					if(room.players[i].ship.health <= 0) {
 						room.players[i].ship.health = 0;
-						this.roomService.removePlayer(room, players[i].player, 'You have died');
-						players.splice(i, 1);
+						this.killPlayer(room, players[i].player, players);
 						i--;
 						break;
 					}
@@ -248,6 +245,17 @@ export class SimulationService {
 					projectiles.splice(i, 1);
 					i--;
 					break;
+				}
+			}
+		}
+	}
+	
+	private killPlayer(room: Room, player: Player, list: Array<{player: Player, rectangle: Rectangle}>): void {
+		if(room.players.length > 1) {
+			this.roomService.removePlayer(room, player, 'You have died');
+			for(let i: number = 0; i < list.length; i++) {
+				if(list[i].player === player) {
+					list.splice(i, 1);
 				}
 			}
 		}
