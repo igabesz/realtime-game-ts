@@ -1,17 +1,18 @@
 import { Ship } from './Ship';
 import { Bullet } from './Bullet';
 import { Client } from './Client';
+import { PositionListener } from './PositionListener';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
 import { PING_PONG_EVENT, PingRequest, PongResponse } from '../../common/Connection';
-import { ShipType } from '../../common/GameObject';
 
 export class SpaceGame {
     
 	game: Phaser.Game;
     socketservice: SocketService;
     client: Client;
+    listener: PositionListener;
     
     enemies: {[name: string]: Ship};
     bullets: {[ID: number]: Bullet};
@@ -31,6 +32,11 @@ export class SpaceGame {
         this.socketservice = socketservice;
         this.fieldsize = roomsize;
         this.healthDecay = healthDecay;
+        
+        let name = window.sessionStorage["user"];
+        this.client = new Client(name);
+        
+        this.listener = new PositionListener(this);
         
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
@@ -62,9 +68,6 @@ export class SpaceGame {
         this.border.fixedToCamera = true;
         this.border.alpha = 0;
               
-        let name = window.sessionStorage["user"];
-        this.client = new Client(name);
-        
         this.enemies = {};
         this.enemiesTotal = 0;
         this.enemiesAlive = 0;
@@ -89,7 +92,7 @@ export class SpaceGame {
         this.cursors.down.onUp.add(this.downUp, this);  
         
         //adding handlers here, because they should not be called before proper inicialization
-        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.refreshGame(res));
+        this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.listener.refreshGame(res));
         this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));  
         
         this.resizeGame();            
@@ -143,7 +146,7 @@ export class SpaceGame {
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
                 this.game.physics.arcade.collide(this.client.player.sprite, enemy.sprite);
-                this.game.physics.arcade.overlap(this.client.player.bullets, enemy.sprite, enemy.collideShipBullet, null, enemy);
+                //this.game.physics.arcade.overlap(this.client.player.bullets, enemy.sprite, this.collideShipBullet, null, enemy);
                 enemy.update();
             }
         }
@@ -169,6 +172,12 @@ export class SpaceGame {
         this.ping();
     }
     
+    collideShipBullet(ship, bullet) {
+        bullet.destroy();
+        //bullet damage
+        ship.damage(1);        
+    }
+    
     ping = () => {
         let req:PingRequest = new PingRequest();
         this.socketservice.ping(req);
@@ -178,70 +187,6 @@ export class SpaceGame {
         let time:Date = new Date(res.time.toString());
         let pingTime:number = Date.now() - time.getTime();
         //console.info("RTT:", pingTime, "ms");
-    }
-    
-    refreshGame = (res:SimulationResponse) => {
-        for(let player of res.players) {
-            let actual:Ship = null;
-            if(player.name == this.client.name) {
-                if(this.client.player == undefined) {
-                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
-                    this.client.player = new Ship(this, sp);
-                    this.game.camera.follow(this.client.player.sprite);
-                }
-                actual = this.client.player;
-            } else {
-                actual = this.enemies[player.name];
-                if(actual==undefined) {
-                    let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
-                    this.enemies[player.name] = new Ship(this, sp);
-                    actual = this.enemies[player.name];
-                }
-            }
-            if(actual.fireRate == undefined) {
-                actual.sprite.body.acceleration = player.ship.acceleration;
-                actual.sprite.body.angularAcceleration = player.ship.turnacc;
-                actual.sprite.width = player.ship.width;
-                actual.sprite.height = player.ship.length;
-                actual.fireRate = player.ship.attackDelay;
-            }
-            actual.sprite.position.x = player.ship.position.x;
-            actual.sprite.position.y = player.ship.position.y;
-            actual.sprite.rotation = player.ship.position.angle;
-            
-            actual.speed = Math.sqrt(Math.pow(player.ship.speed.x,2)+Math.pow(player.ship.speed.y, 2));
-            actual.sprite.body.angularVelocity = player.ship.speed.turn;
-            actual.sprite.health = player.ship.health;
-        }
-        this.enemiesTotal = res.players.length-1;
-        
-        for(let projectile of res.projectiles) {
-            let actual:Bullet = null;
-            actual = this.bullets[projectile.ID];
-            if(actual == undefined) {
-                let sp:Phaser.Sprite = this.game.add.sprite(projectile.position.x, projectile.position.y, "bullet");
-                this.bullets[projectile.ID] = new Bullet(this.game, sp);
-                actual = this.bullets[projectile.ID];
-                
-                actual.sprite.body.acceleration = projectile.acceleration;
-                actual.damage = projectile.damage;
-                actual.sprite.width = projectile.width;
-                actual.sprite.height = projectile.length;
-                
-                if(projectile.owner.name == this.client.name) actual.owner = this.client.player;
-                else actual.owner = this.enemies[projectile.owner.name];
-            }
-            actual.sprite.position.x = projectile.position.x;
-            actual.sprite.position.y = projectile.position.y;
-            actual.sprite.rotation = projectile.position.angle;
-            actual.speed = Math.sqrt(Math.pow(projectile.speed.x,2)+Math.pow(projectile.speed.y, 2));
-            actual.sprite.body.angularVelocity = projectile.speed.turn;                        
-        }
-    }
-    
-    initializeSprite = (key) : Phaser.Sprite => {
-        return this.game.add.sprite(this.game.rnd.integerInRange(-this.fieldsize.width/2, this.fieldsize.width/2),
-                        this.game.rnd.integerInRange(-this.fieldsize.height/2, this.fieldsize.height/2), key);
     }
     
     resizeGame = () => {
