@@ -186,13 +186,9 @@ export class SimulationService {
 				if(this.intersect(players[i].rectangle, players[j].rectangle)) {
 					players[i].player.ship.health = 0;
 					players[j].player.ship.health = 0;
-					if(players[j].player.ship.health === 0) {
-						this.killPlayer(room, players[j].player, players);
-						j--;
-					}
-					if(players[i].player.ship.health === 0) {
-						break;
-					}
+					this.killPlayer(room, players[j].player, players);
+					j--;
+					break;
 				}
 			}
 			
@@ -253,10 +249,10 @@ export class SimulationService {
 	private killPlayer(room: Room, player: Player, list: Array<{player: Player, rectangle: Rectangle}>): void {
 		if(room.players.length > 1) {
 			this.roomService.removePlayer(room, player, 'You have died');
-			for(let i: number = 0; i < list.length; i++) {
-				if(list[i].player === player) {
-					list.splice(i, 1);
-				}
+		}
+		for(let i: number = 0; i < list.length; i++) {
+			if(list[i].player === player) {
+				list.splice(i, 1);
 			}
 		}
 	}
@@ -382,27 +378,29 @@ class Rectangle {
 	public vertices: Array<Point> = [];
 	
 	public static createRectangle(object: GameObject): Rectangle {
+		const sizemodifier = 0.8;
+		
 		let rectangle: Rectangle = new Rectangle();
 		let p: Point;
 		
 		p = new Point();
-		p.x = object.position.x + object.length / 2 * Math.cos(object.position.angle) + object.width / 2 * Math.sin(object.position.angle);
-		p.y = object.position.y + object.length / 2 * Math.sin(object.position.angle) + object.width / 2 * Math.cos(object.position.angle);
+		p.x = object.position.x + object.length * sizemodifier / 2 * Math.cos(object.position.angle) + object.width * sizemodifier / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y + object.length * sizemodifier / 2 * Math.sin(object.position.angle) + object.width * sizemodifier / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
 		
 		p = new Point();
-		p.x = object.position.x + object.length / 2 * Math.cos(object.position.angle) - object.width / 2 * Math.sin(object.position.angle);
-		p.y = object.position.y + object.length / 2 * Math.sin(object.position.angle) - object.width / 2 * Math.cos(object.position.angle);
+		p.x = object.position.x + object.length * sizemodifier / 2 * Math.cos(object.position.angle) - object.width * sizemodifier / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y + object.length * sizemodifier / 2 * Math.sin(object.position.angle) - object.width * sizemodifier / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
 		
 		p = new Point();
-		p.x = object.position.x - object.length / 2 * Math.cos(object.position.angle) + object.width / 2 * Math.sin(object.position.angle);
-		p.y = object.position.y - object.length / 2 * Math.sin(object.position.angle) + object.width / 2 * Math.cos(object.position.angle);
+		p.x = object.position.x - object.length * sizemodifier / 2 * Math.cos(object.position.angle) + object.width * sizemodifier / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y - object.length * sizemodifier / 2 * Math.sin(object.position.angle) + object.width * sizemodifier / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
 		
 		p = new Point();
-		p.x = object.position.x - object.length / 2 * Math.cos(object.position.angle) - object.width / 2 * Math.sin(object.position.angle);
-		p.y = object.position.y - object.length / 2 * Math.sin(object.position.angle) - object.width / 2 * Math.cos(object.position.angle);
+		p.x = object.position.x - object.length * sizemodifier / 2 * Math.cos(object.position.angle) - object.width * sizemodifier / 2 * Math.sin(object.position.angle);
+		p.y = object.position.y - object.length * sizemodifier / 2 * Math.sin(object.position.angle) - object.width * sizemodifier / 2 * Math.cos(object.position.angle);
 		rectangle.vertices.push(p);
 		
 		return rectangle;
