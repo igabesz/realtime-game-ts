@@ -1,6 +1,6 @@
 import { SpaceGame } from './SpaceGame';
 
-export class Body {
+export abstract class Body {
     
     game: Phaser.Game;
     
