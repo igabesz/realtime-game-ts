@@ -27,36 +27,37 @@ export class PositionListener {
         return this.spaceGame.game.add.sprite(this.spaceGame.game.rnd.integerInRange(-this.spaceGame.fieldsize.width/2, this.spaceGame.fieldsize.width/2),
                         this.spaceGame.game.rnd.integerInRange(-this.spaceGame.fieldsize.height/2, this.spaceGame.fieldsize.height/2), key);
     }
+    
+    initializeConstantValues(sprite:Phaser.Sprite, player) {
+        sprite.body.acceleration = player.ship.acceleration;
+        sprite.body.angularAcceleration = player.ship.turnacc;
+        sprite.width = player.ship.width;
+        sprite.height = player.ship.length;
+    }
 	
 	refreshGame(res:SimulationResponse) {
-        
         this.refreshPlayers(res.players);
         this.refreshProjectiles(res.projectiles);
-        
     }
     
     refreshPlayers(players) {
         for(let player of players) {
             let actual:Ship = null;
+            
             if(player.name == this.spaceGame.client.name) {
                 if(this.spaceGame.client.player == undefined) {
                     this.initializeClient(ShipType[player.ship.type]);
                 }
                 actual = this.spaceGame.client.player;
+                this.initializeConstantValues(actual.sprite, player);
             } else {
-                actual = this.spaceGame.enemies[player.name];
-                if(actual==undefined) {
+                if(this.spaceGame.enemies[player.name] == undefined) {
                     this.initializeEnemy(ShipType[player.ship.type], player.name);
-                    actual = this.spaceGame.enemies[player.name];
                 }
+                actual = this.spaceGame.enemies[player.name];
+                this.initializeConstantValues(actual.sprite, player);
             }
-            if(actual.fireRate == undefined) {
-                actual.sprite.body.acceleration = player.ship.acceleration;
-                actual.sprite.body.angularAcceleration = player.ship.turnacc;
-                actual.sprite.width = player.ship.width;
-                actual.sprite.height = player.ship.length;
-                actual.fireRate = player.ship.attackDelay;
-            }
+            
             actual.sprite.position.x = player.ship.position.x;
             actual.sprite.position.y = player.ship.position.y;
             actual.sprite.rotation = player.ship.position.angle;
