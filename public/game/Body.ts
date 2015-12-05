@@ -31,7 +31,7 @@ export abstract class Body {
     }
     
     kill() {
-        this.sprite.destroy();
+        this.sprite.kill();
     }
 
 };

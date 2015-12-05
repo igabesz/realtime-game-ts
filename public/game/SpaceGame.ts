@@ -194,7 +194,7 @@ export class SpaceGame {
         let width:number = window.innerWidth - (parseInt(containerStyle.marginLeft) + parseInt(containerStyle.marginRight) + 
                                                 parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
         let height:number = 0.9*(window.innerHeight);
-                                  
+                                
         //TODO:ez mind tuti kell?              
         this.game.canvas.width = width;
         this.game.canvas.height = height;
@@ -228,5 +228,17 @@ export class SpaceGame {
         this.game.debug.text('AngularVelocity: ' + this.client.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
         }
     }    
+    
+    destroy() {
+        this.game.destroy();
+        
+        this.client.name = this.client.player = null;
+        this.enemies = {};
+        this.bullets = {};
+        
+        this.socketservice.deleteHandlers(POSITION_EVENT);
+        this.socketservice.deleteHandlers(PING_PONG_EVENT);
+        window.onresize = null;
+    }
 
 }
