@@ -72,8 +72,8 @@ export class GeneralShip extends Ship {
 		this.type = ShipType.general;
 		this.projectile.acceleration = 0;
 		this.projectile.damage = 10;
-		this.projectile.length = 10;
-		this.projectile.width = 10;
+		this.projectile.length = 17;
+		this.projectile.width = 54;
 		this.attackDelay = 150;
 	}
 }
@@ -91,8 +91,8 @@ export class FastShip extends Ship {
 		this.type = ShipType.fast;
 		this.projectile.acceleration = 0;
 		this.projectile.damage = 5;
-		this.projectile.length = 8;
-		this.projectile.width = 8;
+		this.projectile.length = 13;
+		this.projectile.width = 40;
 		this.attackDelay = 120;
 	}
 }

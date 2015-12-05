@@ -1,5 +1,6 @@
 import { Ship } from './Ship';
 import { Bullet } from './Bullet';
+import { Client } from './Client';
 import { SocketService } from '../SocketService';
 import { Direction, KeyAction, MovementRequest, FireRequest } from '../../common/Movement';
 import { POSITION_EVENT, SimulationResponse } from '../../common/Simulation'
@@ -10,8 +11,7 @@ export class SpaceGame {
     
 	game: Phaser.Game;
     socketservice: SocketService;
-    player: Ship;
-    name: string;
+    client: Client;
     
     enemies: {[name: string]: Ship};
     bullets: {[ID: number]: Bullet};
@@ -62,7 +62,8 @@ export class SpaceGame {
         this.border.fixedToCamera = true;
         this.border.alpha = 0;
               
-        this.name = window.sessionStorage["user"];
+        let name = window.sessionStorage["user"];
+        this.client = new Client(name);
         
         this.enemies = {};
         this.enemiesTotal = 0;
@@ -141,18 +142,19 @@ export class SpaceGame {
             let enemy = this.enemies[name];
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
-                this.game.physics.arcade.collide(this.player.sprite, enemy.sprite);
-                this.game.physics.arcade.overlap(this.player.bullets, enemy.sprite, enemy.collideShipBullet, null, enemy);
+                this.game.physics.arcade.collide(this.client.player.sprite, enemy.sprite);
+                this.game.physics.arcade.overlap(this.client.player.bullets, enemy.sprite, enemy.collideShipBullet, null, enemy);
                 enemy.update();
             }
         }
         
-        if(this.player) { //TODO
-        if(this.player.sprite.alive) {
-            this.player.update();
-            if(this.player.sprite.position.x > this.fieldsize.width / 2 || this.player.sprite.position.x < -this.fieldsize.width / 2 ||
-                this.player.sprite.position.y > this.fieldsize.height / 2 || this.player.sprite.position.y < -this.fieldsize.height / 2) {
-                    this.player.damage(this.healthDecay);
+        if(this.client.player) { //TODO
+        if(this.client.player.sprite.alive) {
+            this.client.player.update();
+            //TODO: put this in Ship
+            if(this.client.player.sprite.position.x > this.fieldsize.width / 2 || this.client.player.sprite.position.x < -this.fieldsize.width / 2 ||
+                this.client.player.sprite.position.y > this.fieldsize.height / 2 || this.client.player.sprite.position.y < -this.fieldsize.height / 2) {
+                    this.client.player.damage(this.healthDecay);
             }
         }
         }
@@ -175,19 +177,19 @@ export class SpaceGame {
     pong = (res:PongResponse) => {
         let time:Date = new Date(res.time.toString());
         let pingTime:number = Date.now() - time.getTime();
-        console.info("RTT:", pingTime, "ms");
+        //console.info("RTT:", pingTime, "ms");
     }
     
     refreshGame = (res:SimulationResponse) => {
         for(let player of res.players) {
             let actual:Ship = null;
-            if(player.name == this.name) {
-                if(this.player == undefined) {
+            if(player.name == this.client.name) {
+                if(this.client.player == undefined) {
                     let sp:Phaser.Sprite = this.initializeSprite(ShipType[player.ship.type]);
-                    this.player = new Ship(this, sp);
-                    this.game.camera.follow(this.player.sprite);
+                    this.client.player = new Ship(this, sp);
+                    this.game.camera.follow(this.client.player.sprite);
                 }
-                actual = this.player;
+                actual = this.client.player;
             } else {
                 actual = this.enemies[player.name];
                 if(actual==undefined) {
@@ -226,7 +228,7 @@ export class SpaceGame {
                 actual.sprite.width = projectile.width;
                 actual.sprite.height = projectile.length;
                 
-                if(projectile.owner.name == this.name) actual.owner = this.player;
+                if(projectile.owner.name == this.client.name) actual.owner = this.client.player;
                 else actual.owner = this.enemies[projectile.owner.name];
             }
             actual.sprite.position.x = projectile.position.x;
@@ -272,14 +274,14 @@ export class SpaceGame {
     }
     
     render = () => {
-        if(this.player) { //TODO
+        if(this.client.player) { //TODO
         this.game.debug.text('Enemies: ' + this.enemiesAlive + ' / ' + this.enemiesTotal, 32, 30);
-        this.game.debug.text('Health: ' + this.player.sprite.health.toFixed(), 32, 45);
-        this.game.debug.text('Position: ' + this.player.sprite.position.x.toFixed() + ', ' + this.player.sprite.position.y.toFixed(), 32, 60);
-        this.game.debug.text('Angle: ' + this.player.sprite.rotation.toFixed(3), 32, 75);
-        this.game.debug.text('Speed: ' + this.player.speed.toFixed(3), 32, 90);
-        this.game.debug.text('AngularVelocity: ' + this.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
+        this.game.debug.text('Health: ' + this.client.player.sprite.health.toFixed(), 32, 45);
+        this.game.debug.text('Position: ' + this.client.player.sprite.position.x.toFixed() + ', ' + this.client.player.sprite.position.y.toFixed(), 32, 60);
+        this.game.debug.text('Angle: ' + this.client.player.sprite.rotation.toFixed(3), 32, 75);
+        this.game.debug.text('Speed: ' + this.client.player.speed.toFixed(3), 32, 90);
+        this.game.debug.text('AngularVelocity: ' + this.client.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
         }
-    }
+    }    
 
 }
