@@ -12,27 +12,33 @@ export class PositionListener {
         this.spaceGame = spacegame;
     }
     
-    initializeClient(shipType:string) {
-        let sp:Phaser.Sprite = this.initializeSprite(shipType);
+    initializeBullet(x, y, ID) {
+        let sp:Phaser.Sprite = this.initializeSprite(x, y, "bullet");
+        this.spaceGame.bullets[ID] = new Bullet(this.spaceGame.game, sp);
+    }
+    
+    initializeClient(shipType:string, position) {
+        let sp:Phaser.Sprite = this.initializeSprite(position.x, position.y, shipType);
         this.spaceGame.client.player = new Ship(this.spaceGame, sp);
         this.spaceGame.game.camera.follow(this.spaceGame.client.player.sprite);
     }
     
-    initializeEnemy(shipType:string, name:string) {
-        let sp:Phaser.Sprite = this.initializeSprite(shipType);
+    initializeEnemy(shipType:string, name:string, position) {
+        let sp:Phaser.Sprite = this.initializeSprite(position.x, position.y, shipType);
         this.spaceGame.enemies[name] = new Ship(this.spaceGame, sp);
     }
     
-    initializeSprite(key):Phaser.Sprite {
-        return this.spaceGame.game.add.sprite(this.spaceGame.game.rnd.integerInRange(-this.spaceGame.fieldsize.width/2, this.spaceGame.fieldsize.width/2),
-                        this.spaceGame.game.rnd.integerInRange(-this.spaceGame.fieldsize.height/2, this.spaceGame.fieldsize.height/2), key);
+    initializeSprite(x, y, key):Phaser.Sprite {
+        return this.spaceGame.game.add.sprite(x, y, key);
     }
     
-    initializeConstantValues(sprite:Phaser.Sprite, player) {
-        sprite.body.acceleration = player.ship.acceleration;
-        sprite.body.angularAcceleration = player.ship.turnacc;
-        sprite.width = player.ship.width;
-        sprite.height = player.ship.length;
+    initializeConstantValues(sprite:Phaser.Sprite, body) {
+        sprite.width = body.width;
+        sprite.height = body.length;
+        sprite.body.acceleration = body.acceleration;
+        if(body.turnacc) {
+            sprite.body.angularAcceleration = body.turnacc;
+        }
     }
 	
 	refreshGame(res:SimulationResponse) {
@@ -46,24 +52,19 @@ export class PositionListener {
             
             if(player.name == this.spaceGame.client.name) {
                 if(this.spaceGame.client.player == undefined) {
-                    this.initializeClient(ShipType[player.ship.type]);
+                    this.initializeClient(ShipType[player.ship.type], player.ship.position);
+                    this.initializeConstantValues(this.spaceGame.client.player.sprite, player.ship);
                 }
                 actual = this.spaceGame.client.player;
-                this.initializeConstantValues(actual.sprite, player);
             } else {
                 if(this.spaceGame.enemies[player.name] == undefined) {
-                    this.initializeEnemy(ShipType[player.ship.type], player.name);
+                    this.initializeEnemy(ShipType[player.ship.type], player.name, player.ship.position);
+                    this.initializeConstantValues(this.spaceGame.enemies[player.name].sprite, player.ship);
                 }
                 actual = this.spaceGame.enemies[player.name];
-                this.initializeConstantValues(actual.sprite, player);
             }
             
-            actual.sprite.position.x = player.ship.position.x;
-            actual.sprite.position.y = player.ship.position.y;
-            actual.sprite.rotation = player.ship.position.angle;
-            
-            actual.speed = Math.sqrt(Math.pow(player.ship.speed.x,2)+Math.pow(player.ship.speed.y, 2));
-            actual.sprite.body.angularVelocity = player.ship.speed.turn;
+            this.refreshProperties(actual, player.ship);
             actual.sprite.health = player.ship.health;
         }
         this.spaceGame.enemiesTotal = players.length-1;
@@ -73,25 +74,32 @@ export class PositionListener {
         for(let projectile of projectiles) {
             let actual:Bullet = null;
             actual = this.spaceGame.bullets[projectile.ID];
+            
             if(actual == undefined) {
-                let sp:Phaser.Sprite = this.spaceGame.game.add.sprite(projectile.position.x, projectile.position.y, "bullet");
-                this.spaceGame.bullets[projectile.ID] = new Bullet(this.spaceGame.game, sp);
+                this.initializeBullet(projectile.position.x, projectile.position.y, projectile.ID)
                 actual = this.spaceGame.bullets[projectile.ID];
                 
-                actual.sprite.body.acceleration = projectile.acceleration;
+                this.initializeConstantValues(actual.sprite, projectile);
                 actual.damage = projectile.damage;
-                actual.sprite.width = projectile.width;
-                actual.sprite.height = projectile.length;
                 
-                if(projectile.owner.name == this.spaceGame.client.name) actual.owner = this.spaceGame.client.player;
-                else actual.owner = this.spaceGame.enemies[projectile.owner.name];
+                if(projectile.owner.name == this.spaceGame.client.name) {
+                    actual.owner = this.spaceGame.client.player;
+                } else {
+                    actual.owner = this.spaceGame.enemies[projectile.owner.name];
+                }
             }
-            actual.sprite.position.x = projectile.position.x;
-            actual.sprite.position.y = projectile.position.y;
-            actual.sprite.rotation = projectile.position.angle;
-            actual.speed = Math.sqrt(Math.pow(projectile.speed.x,2)+Math.pow(projectile.speed.y, 2));
-            actual.sprite.body.angularVelocity = projectile.speed.turn;                        
+            
+            this.refreshProperties(actual, projectile);                     
         }
+    }
+    
+    refreshProperties(oldObject, newObject) {
+        oldObject.sprite.position.x = newObject.position.x;
+        oldObject.sprite.position.y = newObject.position.y;
+        oldObject.sprite.rotation = newObject.position.angle;
+        
+        oldObject.speed = Math.sqrt(Math.pow(newObject.speed.x,2)+Math.pow(newObject.speed.y, 2));
+        oldObject.sprite.body.angularVelocity = newObject.speed.turn;
     }
 	
 }
