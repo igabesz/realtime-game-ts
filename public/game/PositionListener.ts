@@ -14,17 +14,22 @@ export class PositionListener {
     
     initializeBullet(x, y, ID) {
         let sp:Phaser.Sprite = this.initializeSprite(x, y, "bullet");
+        this.spaceGame.bulletGroup.add(sp);
         this.spaceGame.bullets[ID] = new Bullet(this.spaceGame.game, sp);
+        
+        this.spaceGame.game.world.bringToTop(this.spaceGame.playerGroup);
     }
     
     initializeClient(shipType:string, position) {
         let sp:Phaser.Sprite = this.initializeSprite(position.x, position.y, shipType);
+        this.spaceGame.playerGroup.add(sp);
         this.spaceGame.client.player = new Ship(this.spaceGame, sp);
         this.spaceGame.game.camera.follow(this.spaceGame.client.player.sprite);
     }
     
     initializeEnemy(shipType:string, name:string, position) {
         let sp:Phaser.Sprite = this.initializeSprite(position.x, position.y, shipType);
+        this.spaceGame.playerGroup.add(sp);
         this.spaceGame.enemies[name] = new Ship(this.spaceGame, sp);
     }
     

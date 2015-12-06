@@ -15,7 +15,9 @@ export class SpaceGame {
     listener: PositionListener;
     
     enemies: {[name: string]: Ship};
+    playerGroup: Phaser.Group;
     bullets: {[ID: number]: Bullet};
+    bulletGroup: Phaser.Group;
     
     background: Phaser.TileSprite;
     border: Phaser.Sprite;
@@ -27,6 +29,7 @@ export class SpaceGame {
     
     enemiesTotal: number;
     enemiesAlive: number;
+    bulletCount: number;
 	
 	constructor(socketservice: SocketService, roomsize: {width:number, height:number}, healthDecay: number) {
         this.socketservice = socketservice;
@@ -65,7 +68,11 @@ export class SpaceGame {
         this.enemies = {};
         this.enemiesTotal = 0;
         this.enemiesAlive = 0;
+        this.playerGroup = this.game.add.group();
+        
         this.bullets = {};
+        this.bulletCount = 0;
+        this.bulletGroup = this.game.add.group();
         
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -139,26 +146,35 @@ export class SpaceGame {
         this.socketservice.move(req);
     }
     
-    update = () => {        
+    update = () => {
+        
+        this.game.physics.arcade.collide(this.bulletGroup, this.bulletGroup, this.collideBulletBullet, null, this);
+        this.game.physics.arcade.collide(this.playerGroup, this.playerGroup, this.collideShipShip, null, this);
+        this.game.physics.arcade.collide(this.playerGroup, this.bulletGroup, this.collideShipBullet, null, this);
+        
         this.enemiesAlive = 0;
         for (let name in this.enemies) {
             let enemy = this.enemies[name];
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
-                this.game.physics.arcade.collide(this.client.player.sprite, enemy.sprite);
-                //this.game.physics.arcade.overlap(this.client.player.bullets, enemy.sprite, this.collideShipBullet, null, enemy);
                 enemy.update();
+            }
+        }
+        this.bulletCount = 0;
+        for(let ID in this.bullets) {
+            let bullet = this.bullets[ID];
+            if(bullet.sprite.alive) {
+                this.bulletCount++;
+                bullet.update();
             }
         }
         
         if(this.client.player) { //TODO
-        if(this.client.player.sprite.alive) {
             this.client.player.update();
             if(this.client.player.sprite.position.x > this.fieldsize.width / 2 || this.client.player.sprite.position.x < -this.fieldsize.width / 2 ||
                 this.client.player.sprite.position.y > this.fieldsize.height / 2 || this.client.player.sprite.position.y < -this.fieldsize.height / 2) {
                     this.client.player.damage(this.healthDecay);
             }
-        }
         }
         
         this.background.tilePosition.x = -this.game.camera.x;
@@ -171,10 +187,54 @@ export class SpaceGame {
         this.ping();
     }
     
-    collideShipBullet(ship, bullet) {
-        bullet.destroy();
-        //bullet damage
-        ship.damage(1);        
+    collideBulletBullet(bullet1: Phaser.Sprite, bullet2:Phaser.Sprite) {
+        for(let ID in this.bullets) {
+            let bullet:Bullet = this.bullets[ID];
+            if(bullet.sprite.renderOrderID == bullet1.renderOrderID || bullet.sprite.renderOrderID == bullet2.renderOrderID) {
+                bullet.kill();
+            }
+        }
+    }
+    
+    collideShipBullet(ship1:Phaser.Sprite, bullet1:Phaser.Sprite) {
+        let bulletDamage:number;
+        let bulletOwner:Ship;
+        for(let ID in this.bullets) {
+            let bullet:Bullet = this.bullets[ID];
+            if(bullet.sprite.renderOrderID == bullet1.renderOrderID) {
+                bulletDamage = bullet.damage;
+                bulletOwner = bullet.owner;
+                bullet.kill();
+            }
+        }
+        
+        if(this.client.player.sprite.renderOrderID == ship1.renderOrderID) {
+            if(this.client.player != bulletOwner) {
+                this.client.player.damage(bulletDamage);
+            }
+        } else {        
+            for(let name in this.enemies) {
+                let enemy:Ship = this.enemies[name];
+                if(enemy.sprite.renderOrderID == ship1.renderOrderID) {
+                    if(enemy != bulletOwner) {
+                        enemy.damage(bulletDamage);
+                    }
+                }
+            }
+        }       
+    }
+    
+    collideShipShip(ship1:Phaser.Sprite, ship2:Phaser.Sprite) {
+        if(this.client.player.sprite.renderOrderID == ship1.renderOrderID || this.client.player.sprite.renderOrderID == ship2.renderOrderID) {
+            this.client.player.kill();
+        }
+        
+        for(let name in this.enemies) {
+            let enemy:Ship = this.enemies[name];
+            if(enemy.sprite.renderOrderID == ship1.renderOrderID || enemy.sprite.renderOrderID == ship2.renderOrderID) {
+                enemy.kill();
+            }
+        }
     }
     
     ping = () => {
@@ -225,6 +285,7 @@ export class SpaceGame {
         this.game.debug.text('Angle: ' + this.client.player.sprite.rotation.toFixed(3), 32, 75);
         this.game.debug.text('Speed: ' + this.client.player.speed.toFixed(3), 32, 90);
         this.game.debug.text('AngularVelocity: ' + this.client.player.sprite.body.angularVelocity.toFixed(3), 32, 105);
+        this.game.debug.text('Bullets: ' + this.bulletCount, 32, 120);
         }
     }    
     

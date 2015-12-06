@@ -21,7 +21,9 @@ export class Ship extends Body {
             this.kill();
         }
         
-        this.spaceGame.damageEffect();
+        if(this.spaceGame.client.player == this) {
+            this.spaceGame.damageEffect();
+        }
     }
 
 };
