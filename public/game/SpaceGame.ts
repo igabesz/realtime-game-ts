@@ -40,12 +40,6 @@ export class SpaceGame {
         
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {preload: this.preload, create: this.create,
             update:this.update, render:this.render });
-            
-        let resizeTimer;
-        window.onresize = () => {
-            if (resizeTimer) clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
-        };
 	}
     
     preload = () => {
@@ -53,7 +47,7 @@ export class SpaceGame {
         this.game.load.image("general", "images/spaceship.png");
         this.game.load.image("fast", "images/fast-spaceship.png")
         this.game.load.image("bullet", "images/bullet.png");
-        this.game.load.image("border", "images/damage-border.png")
+        this.game.load.image("border", "images/damage-border.png");
     }
             
     create = () => {
@@ -93,7 +87,13 @@ export class SpaceGame {
         
         //adding handlers here, because they should not be called before proper inicialization
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.listener.refreshGame(res));
-        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));  
+        this.socketservice.addHandlerRaw(PING_PONG_EVENT, (res:PongResponse) => this.pong(res));
+        
+        let resizeTimer;
+        window.onresize = () => {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
+        };
         
         this.resizeGame();            
     }
@@ -154,7 +154,6 @@ export class SpaceGame {
         if(this.client.player) { //TODO
         if(this.client.player.sprite.alive) {
             this.client.player.update();
-            //TODO: put this in Ship
             if(this.client.player.sprite.position.x > this.fieldsize.width / 2 || this.client.player.sprite.position.x < -this.fieldsize.width / 2 ||
                 this.client.player.sprite.position.y > this.fieldsize.height / 2 || this.client.player.sprite.position.y < -this.fieldsize.height / 2) {
                     this.client.player.damage(this.healthDecay);
