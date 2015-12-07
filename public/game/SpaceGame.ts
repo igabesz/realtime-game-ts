@@ -64,6 +64,7 @@ export class SpaceGame {
         this.border.height = this.game.height;
         this.border.fixedToCamera = true;
         this.border.alpha = 0;
+        this.borderStop = 0;
               
         this.enemies = {};
         this.enemiesTotal = 0;
@@ -158,6 +159,10 @@ export class SpaceGame {
             if (enemy.sprite.alive) {
                 this.enemiesAlive++;
                 enemy.update();
+                if(enemy.sprite.position.x > this.fieldsize.width / 2 || enemy.sprite.position.x < -this.fieldsize.width / 2 ||
+                  enemy.sprite.position.y > this.fieldsize.height / 2 || enemy.sprite.position.y < -this.fieldsize.height / 2) {
+                    enemy.damage(this.healthDecay);
+                }
             }
         }
         this.bulletCount = 0;
@@ -254,13 +259,6 @@ export class SpaceGame {
                                                 parseInt(containerStyle.paddingLeft) + parseInt(containerStyle.paddingRight));
         let height:number = 0.9*(window.innerHeight);
                                 
-        //TODO:ez mind tuti kell?              
-        this.game.canvas.width = width;
-        this.game.canvas.height = height;
-        this.game.stage.width = width;
-        this.game.stage.height = height;
-        this.game.scale.width = width;
-        this.game.scale.height = height;
         this.game.scale.setGameSize(width, height);
         this.game.camera.setSize(width, height);
         this.game.renderer.resize(width, height);
@@ -273,7 +271,9 @@ export class SpaceGame {
     
     damageEffect = () => {
         this.border.bringToTop();
-        this.game.add.tween(this.border).to({ alpha: 0.4 }, 200, Phaser.Easing.Linear.None, true);
+        if(this.borderStop <= this.game.time.now) {
+            this.game.add.tween(this.border).to({ alpha: 0.4 }, 200, Phaser.Easing.Linear.None, true);
+        }
         this.borderStop = this.game.time.now + 500;
     }
     
