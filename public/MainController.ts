@@ -88,6 +88,7 @@ export class MainController {
         socketService.addHandler(QUIT_ROOM_EVENT, $timeout, (msg) => {
             console.info("QUIT_ROOM_EVENT ", msg);
 
+            $scope.game.destroy();
             this.init(this.$scope);
         });
 

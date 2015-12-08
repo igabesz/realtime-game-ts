@@ -106,4 +106,10 @@ export class SocketService {
 		if (!this.socket) { return console.error('Cannot attach event handler -- not initialized'); }
 		this.socket.on(name, handler);
 	}
+	
+	//deletes ALL listeners of an event
+	deleteHandlers(name: string) {
+		if (!this.socket) { return console.error('Cannot attach event handler -- not initialized'); }
+		this.socket.removeAllListeners(name);
+	}
 }
