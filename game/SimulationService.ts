@@ -209,6 +209,19 @@ export class SimulationService {
 			
 			// Collision Player-Projectile
 			for (let j: number = 0; j < projectiles.length; j++) {
+				
+				if(	
+					projectiles[j].projectile.position.x > room.bounds.width / 2 ||
+					projectiles[j].projectile.position.x < -room.bounds.width / 2 ||
+					projectiles[j].projectile.position.y > room.bounds.height / 2 ||
+					projectiles[j].projectile.position.y < -room.bounds.height / 2
+					) {
+					this.roomService.removeProjectile(room, projectiles[j].projectile);
+					projectiles.splice(j, 1);
+					j--;
+				}
+			
+				
 				// Disable self damage
 				if(projectiles[j].projectile.owner === players[i].player) {
 					continue;
