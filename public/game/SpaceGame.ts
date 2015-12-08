@@ -24,6 +24,8 @@ export class SpaceGame {
     borderStop: number;
     cursors: Phaser.CursorKeys;
     space: Phaser.Key;
+    button: Phaser.Button;
+    
     fieldsize: {width: number, height: number};
     healthDecay: number;
     
@@ -51,6 +53,7 @@ export class SpaceGame {
         this.game.load.image("fast", "images/fast-spaceship.png")
         this.game.load.image("bullet", "images/bullet.png");
         this.game.load.image("border", "images/damage-border.png");
+        this.game.load.image("fsbutton", "images/fullscreen.png");
     }
             
     create = () => {
@@ -89,9 +92,14 @@ export class SpaceGame {
         this.cursors.right.onUp.add(this.rightUp, this);
         this.cursors.left.onDown.add(this.leftDown, this);
         this.cursors.left.onUp.add(this.leftUp, this);
-        
         this.cursors.down.onDown.add(this.downDown, this);
         this.cursors.down.onUp.add(this.downUp, this);  
+        
+        this.button = this.game.add.button(this.game.width-35, 10, "fsbutton", () => { this.game.scale.startFullScreen(true); }, this);
+        this.button.width = 25;
+        this.button.height = 25;
+        
+        this.resizeGame();            
         
         //adding handlers here, because they should not be called before proper inicialization
         this.socketservice.addHandlerRaw(POSITION_EVENT, (res:SimulationResponse) => this.listener.refreshGame(res));
@@ -103,7 +111,7 @@ export class SpaceGame {
             resizeTimer = setTimeout(() => {this.resizeGame();}, 100);
         };
         
-        this.resizeGame();            
+        this.game.scale.onFullScreenChange.add(() => { this.onFullScreenChange(); }, this);
     }
     
     spaceDown = () => {
@@ -145,6 +153,12 @@ export class SpaceGame {
     downUp = () => {
         let req:MovementRequest = {direction: Direction.down, action: KeyAction.released}; 
         this.socketservice.move(req);
+    }
+    
+    onFullScreenChange() {
+        this.button.visible = !this.game.scale.isFullScreen;
+        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+        this.game.scale.refresh();
     }
     
     update = () => {
@@ -267,6 +281,8 @@ export class SpaceGame {
         this.background.height = height;
         this.border.width = width;
         this.border.height = height;
+        this.button.position.set(width-35, 10);
+        this.button.fixedToCamera = true;
     }
     
     damageEffect = () => {
