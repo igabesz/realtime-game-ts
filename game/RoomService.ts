@@ -14,10 +14,12 @@ export class RoomService {
 		let response: ListRoomResponse = new ListRoomResponse();
 		
 		for(let i: number = 0; i < this.rooms.length; i++) {
-			let item: ListRoomItem = new ListRoomItem();
-			item.id = this.rooms[i].id;
-			item.playerCount = this.rooms[i].players.length;
-			response.rooms.push(item);
+			if(!this.rooms[i].started) {
+				let item: ListRoomItem = new ListRoomItem();
+				item.id = this.rooms[i].id;
+				item.playerCount = this.rooms[i].players.length;
+				response.rooms.push(item);
+			}
 		}
 		
 		this.connectionCtrl.sendToClient(client, LIST_ROOM_EVENT, response);
