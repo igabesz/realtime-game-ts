@@ -25,10 +25,7 @@ export abstract class Body {
         this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, 0, this.sprite.body.velocity);
     }
     
-    update() {
-        this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, this.speed, this.sprite.body.velocity);
-        //this.game.physics.arcade.accelerationFromRotation(this.sprite.rotation, this.speed, this.sprite.body.acceleration);
-    }
+    
     
     kill() {
         this.sprite.kill();

@@ -15,4 +15,9 @@ export class Bullet extends Body{
 
     }
     
+    update() {
+        this.game.physics.arcade.velocityFromRotation(this.sprite.rotation, this.speed, this.sprite.body.velocity);
+        //this.game.physics.arcade.accelerationFromRotation(this.sprite.rotation, this.speed, this.sprite.body.acceleration);
+    }
+    
 };
