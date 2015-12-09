@@ -52,6 +52,8 @@ export class PositionListener {
     }
     
     refreshPlayers(players) {
+        let playersAlive:Ship[] =[];
+        
         for(let player of players) {
             let actual:Ship = null;
             
@@ -68,11 +70,20 @@ export class PositionListener {
                 }
                 actual = this.spaceGame.enemies[player.name];
             }
+            playersAlive.push(actual);
             
             this.refreshProperties(actual, player.ship);
             actual.sprite.health = player.ship.health;
         }
         this.spaceGame.enemiesTotal = players.length-1;
+        
+        for(let name in this.spaceGame.enemies) {
+            let enemy = this.spaceGame.enemies[name];
+            if(playersAlive.indexOf(enemy) == -1) {
+                enemy.sprite.health = 0;
+            }   
+        }
+        if(playersAlive.indexOf(this.spaceGame.client.player) == -1) this.spaceGame.client.player.sprite.health = 0;
     }
     
     refreshProjectiles(projectiles) {

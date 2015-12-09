@@ -54,6 +54,7 @@ export class SpaceGame {
         this.game.load.image("bullet", "images/bullet.png");
         this.game.load.image("border", "images/damage-border.png");
         this.game.load.image("fsbutton", "images/fullscreen.png");
+        this.game.load.spritesheet('explosion', 'images/explosion.png', 64, 64, 23);
     }
             
     create = () => {
