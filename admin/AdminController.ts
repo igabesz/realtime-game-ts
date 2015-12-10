@@ -47,17 +47,13 @@ export class AdminController {
                     return;
                 }
             }
-            response.status(401).send('Unauthorized');
+            response.status(403).send('Unauthorized');
         });
     }
 
     /* html request */
 
     private admin(request: Request, response: Response, next): void {
-        // TO-DO add authorization to redirect
-        /*this.adminAuthorization(request, response, (req: Request, res: Response) => {
-            res.sendFile(path.join(__dirname + '/../public/admin/admin.html'));
-        });*/
         response.sendFile(path.join(__dirname + '/../public/admin/admin.html'));
     } 
     
