@@ -1,27 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-	<!--Angular is loaded to the global namespace, not using System.js-->
-	<!--Some background: http://stackoverflow.com/questions/32257101/why-system-js-returns-an-empty-object-instead-of-angularjs-->
-	<script src="/angular/angular.js"></script> 
+    <!--Angular is loaded to the global namespace, not using System.js-->
+    <!--Some background: http://stackoverflow.com/questions/32257101/why-system-js-returns-an-empty-object-instead-of-angularjs-->
+    <script src="/angular/angular.js"></script>
 
-	<!--This is the main module loader-->
-	<script src="/systemjs/dist/system.js"></script>
+    <!--This is the main module loader-->
+    <script src="/systemjs/dist/system.js"></script>
 
-	<!--System.js config settings and angular bootstrap-->
-	<script src="/bootstrap.js"></script>
+    <!--System.js config settings and angular bootstrap-->
+    <script src="/bootstrap.js"></script>
 
-	<link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lobby.css">
+
     <title>SpaceGame</title>
+
 </head>
 
-<!--No ng-app, because it is initialized after page load-->
-<body> 
-	<div ng-controller="MainController as ctrl" class="ng-cloak">
-		<button class="btn btn-primary" ng-click="ctrl.left()">left</button>
-		<button class="btn btn-primary" ng-click="ctrl.right()">right</button>
-		{{player.x}}:{{player.y}}
-	</div>
-	
+<body id="body">
+<div class="container">
+
+    <div ng-controller="MainController as ctrl" class="ng-cloak">
+
+        <div class="page-header" ng-hide="gameView">
+            <div style="margin-left: 10%">
+                <h1 class="text-muted pleasedontfloat">Captain Space Marshall {{username}}
+                    <span ng-show="isHost"> (Host)</span>
+                    <p class="pull-right" ng-show="inRoomView" class="pleasedontfloat">In room: {{roomJoined}}
+                        <button ng-click="ctrl.leaveRoom()" class="btn btn-primary" role="button">Leave Room</button>
+                    </p>
+                    <p class="pull-right" ng-show="roomLobbyView" class="pleasedontfloat">
+                        <button ng-click="ctrl.logout()" class="btn btn-primary" role="button">Logout</button>
+                    </p>
+                </h1>
+            </div>
+        </div>
+
+        <div class="room" ng-show="roomLobbyView">
+
+            <div class="rooms">
+                <div style="margin-left: 10%">
+                    <h2 class="text-muted">Rooms  <button ng-click="ctrl.refreshRooms()" class="btn btn-primary" role="button">Refresh</button></h2>
+                </div>
+                <div class="col-lg-4 pull-right pr">
+                    <div class="input-group">
+                        <input class="form-control" type="text" ng-model="roomName" placeholder="Enter room name"/>
+                    <span class="input-group-btn">
+                    <button ng-click="ctrl.createRoom()" class="btn btn-primary" role="button">Create Room</button>
+                    </span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Players</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="room in rooms">
+                    <td>{{ room.id }}</td>
+                    <td>{{ room.playerCount }}</td>
+                    <td><button class="btn btn-primary" ng-click="ctrl.joinRoom(room.id)">Join</button></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="room" ng-show="inRoomView">
+                <div style="margin-left: 10%">
+                    <h1 class="text-muted">Ships</h1>
+                </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Health</th>
+                    <th>Acceleration</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tr ng-repeat="ship in ships">
+                    <td>{{ ship.type }}</td>
+                    <td>{{ ship.health }}</td>
+                    <td>{{ ship.acceleration }}</td>
+                    <td><button class="btn btn-primary" ng-class="{true:'disabled', false:'enabled'}[isReady]" ng-click="ctrl.ready(ship.type)">Ready</button></td>
+                    <td><span class="glyphicon glyphicon-ok green" ng-class="{true:'visible', false: 'invisible'}[choosedShip == ship.type]"></span></td>
+                </tr>
+            </table>
+            <div style="margin-left: 10%">
+                <h1 class="text-muted">Players</h1>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tr ng-repeat="player in players">
+                    <td>{{ player.name }}</td>
+                    <td class="label label-success col-sm-6" ng-class="{true:'visible', false: 'invisible'}[player.ship !== undefined]">Ready</td>
+                </tr>
+            </table>
+
+            <div ng-show="isHost">
+                <button class="btn btn-success btn-lg" ng-class="{true:'enabled', false:'disabled'}[isReady]" ng-click="ctrl.start()">Start Game</button></td>
+            </div>
+        </div>
+
+        <div id="content" ng-show="gameView">
+            <div style="margin-top: 4%">
+        </div>
+    </div>
+</div>
+
+
 </body>
+
+
 </html>

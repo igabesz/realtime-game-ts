@@ -1,0 +1,152 @@
+.ng-cloak {
+	display: none !important;	
+}
+
+[ng-click] {
+	cursor: pointer;
+}
+
+body {
+	background: url(space1.jpg);
+	color: #fff;
+}
+
+button, .btn {
+	color: #fff;
+	padding: 10px;
+	border-radius: 10px;
+	background-color: #38f;
+	border-width: 0px;
+}
+
+input[type="text"] {
+	color: #fff;
+	background: #404040;
+	border-width: 0px;
+	border-radius: 2px;
+	width: 40px;
+	margin: 20px 10px;
+	padding: 5px;
+}
+
+.tooltip {
+	position: absolute;
+	top: 40px;
+	left: 40px;
+	white-space: nowrap;
+	background-color: #404040;
+	border-radius: 5px;
+	padding: 5px;
+	opacity: 0;
+	transition: opacity 0.5s linear 1s;
+	-webkit-transition: opacity 0.5s linear 1s;
+	-o-transition: opacity 0.5s linear 1s;
+	-moz-transition: opacity 0.5s linear 1s;
+}
+
+.tooltip.visible {
+	opacity: 1;
+}
+
+.tooltipped {
+	position: relative;
+}
+
+/* question background */
+body > div {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background-color: rgba(127, 127, 127, 0.7);
+	text-align: center;
+}
+
+/* question body */ 
+body > div > div {
+	margin-top: 200px;
+	padding: 10px;
+	display: inline-block;
+	background-color: #777;
+}
+
+/* question string */
+body > div > div > span:first-child {
+	font-size: 150%;
+}
+
+/* question options */
+body > div > div > span:last-child {
+	text-align: right;
+	display: block;
+}
+
+/* question buttons */
+body > div > div > span > button {
+	width: 100px;
+	margin: 10px;
+}
+
+body > table {
+	width: 100%;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+body > table tr:first-child > td:first-child {
+	width: 150px;
+}
+
+body > table td {
+	vertical-align: top;
+}
+
+body > table table tr th {
+	font-size: 130%;
+	font-weight: bold;
+	text-align: left;
+	padding: 10px;
+}
+
+body > table table tr td {
+	padding: 10px;
+}
+
+.details {
+	font-size: 120%;
+}
+
+.status {
+	color: #fff;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.success {
+	background-color: #4b3;
+}
+
+.fail {
+	background-color: #f21;
+}
+
+.chatbox[type="text"] {
+	width: 300px;
+}
+
+.menu {
+	margin: 20px 10px;
+	text-align: center;
+}
+
+.hoverable {
+	transition: background-color 0.3s linear;
+	-webkit-transition: background-color 0.3s linear;
+	-o-transition: background-color 0.3s linear;
+	-moz-transition: background-color 0.3s linear;
+}
+
+.hoverable:hover {
+	background-color: rgba(48, 128, 255, 0.8);
+	cursor: pointer;
+}

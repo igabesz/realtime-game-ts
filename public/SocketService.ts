@@ -1,5 +1,8 @@
 import * as SocketIO from 'socket.io-client';
-
+import { PERSONAL_INFO_EVENT, PING_PONG_EVENT,  PersonalInfoRequest, PingRequest } from '../common/Connection';
+import { ShipType } from '../common/GameObject';
+import { LIST_ROOM_EVENT, JOIN_ROOM_EVENT, ListRoomItem,JoinRoomRequest, LIST_SHIP_EVENT, ListShipsResponse,START_ROOM_EVENT, READY_ROOM_EVENT, ReadyRoomRequest, LEAVE_ROOM_EVENT } from '../common/Room';
+import { MOVEMENT_EVENT, FIRE_EVENT, MovementRequest, FireRequest } from '../common/Movement';
 
 /**Wrapper class for SocketIO. 
  * Create new functions if further commands are required.
@@ -23,15 +26,67 @@ export class SocketService {
 	
 	/**Starts SocketIO connection */
 	connect() {
-		this.socket = SocketIO.connect();		
+		this.socket = SocketIO.connect();
+        (<any>window).socket = this.socket;
+		(<any>window).socketservice = this;
 	}
-	
-	/**Move command to the server */
-	move(direction: string) {
+
+	getPersonalInfo(token: string) {
 		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
-		this.socket.emit('move', { direction });
+        var pir = new PersonalInfoRequest();
+        pir.token = token;
+		this.socket.emit(PERSONAL_INFO_EVENT, pir);
+	}
+
+    listRooms() {
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LIST_ROOM_EVENT);
+    }
+
+    joinRoom(id: string) {
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        var jrr = new JoinRoomRequest();
+        jrr.roomName = id;
+        this.socket.emit(JOIN_ROOM_EVENT, jrr);
+    }
+
+    leaveRoom(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LEAVE_ROOM_EVENT);
+    }
+
+    listShips(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(LIST_SHIP_EVENT);
+    }
+
+    ready(shipType){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        var rrr = new ReadyRoomRequest();
+        rrr.shipType = shipType == "general" ? ShipType.general : ShipType.fast;
+        this.socket.emit(READY_ROOM_EVENT, rrr);
+    }
+
+    start(){
+        if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+        this.socket.emit(START_ROOM_EVENT);
+    }
+
+	move(req: MovementRequest) {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(MOVEMENT_EVENT, req);
 	}
 	
+	fire(req: FireRequest) {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(FIRE_EVENT, req);
+	}
+	
+	ping(req: PingRequest) {
+		if (!this.socket) { return console.error('Cannot send message -- not initialized'); }
+		this.socket.emit(PING_PONG_EVENT, req);
+	}
+
 	/**This is a tricky thing with the following tasks: 
 	 * - registering a SocketIO listener
 	 * - auto-calling $timeout for you. Without this Angular would not notice that 
@@ -50,5 +105,11 @@ export class SocketService {
 	addHandlerRaw(name: string, handler: (msg: any) => any) {
 		if (!this.socket) { return console.error('Cannot attach event handler -- not initialized'); }
 		this.socket.on(name, handler);
+	}
+	
+	//deletes ALL listeners of an event
+	deleteHandlers(name: string) {
+		if (!this.socket) { return console.error('Cannot attach event handler -- not initialized'); }
+		this.socket.removeAllListeners(name);
 	}
 }

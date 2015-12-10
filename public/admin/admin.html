@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <!--Angular is loaded to the global namespace, not using System.js-->
+    <!--Some background: http://stackoverflow.com/questions/32257101/why-system-js-returns-an-empty-object-instead-of-angularjs-->
+    <script src="../angular/angular.js"></script>
+
+    <!--This is the main module loader-->
+    <script src="../systemjs/dist/system.js"></script>
+
+    <!--System.js config settings and angular bootstrap-->
+    <script src="./bootstrap.js"></script>
+    
+    <link rel="stylesheet" href="admin.css">
+    <title>SpaceGame - Admin</title>
+</head>
+<body ng-controller="AdminController as ctrl" class="ng-cloak">
+    <div ng-show="question !== null || message !== null">
+        <div ng-show="question !==null">
+            <span>
+                {{question}}
+            </span>
+            <br />
+            <span>
+                <button ng-click="ctrl.answerQuestion(true)" class="hoverable">Yes</button>
+                <button ng-click="ctrl.answerQuestion(false)" class="hoverable">No</button>
+            </span>
+        </div>
+        <div ng-show="message !==null">
+            <span>
+                {{message}}
+            </span>
+            <br />
+            <span>
+                <button ng-click="message = null" class="hoverable">OK</button>
+            </span>
+        </div>
+    </div>
+    <table>
+        <tr>
+            <td>
+                <div class="menu btn hoverable" ng-click="ctrl.selectMenu('home')">Home</div>
+                <div class="menu btn hoverable" ng-click="ctrl.selectMenu('players')">Players</div>
+                <div class="menu btn hoverable" ng-click="ctrl.selectMenu('rooms')">Rooms</div>
+                <div class="menu btn hoverable" ng-click="ctrl.setQuestion('logout')">Logout</div>
+            </td>
+            <td>
+                <h2>
+                    <span>{{selectedMenu | capitalize}}</span>
+                    <button ng-click="ctrl.refresh()" class="hoverable">Refresh</button>
+                </h2>
+                <div ng-show="selectedMenu==='home'">
+                    <div class="status-line">
+                        <span ng-if="Database" class="success status">Database is connected</span>
+                        <span ng-if="!Database" class="fail status">Database is disconnected</span>
+                    </div>
+                    <div>
+                        <span>Send text to all clients: </span>
+                        <input type="text" ng-model="allChatText" class="chatbox" ng-keyup="$event.keyCode === 13 && ctrl.allChat()"/>
+                        <button ng-click="ctrl.allChat()" class="hoverable">Send</button>
+                    </div>
+                    <div>
+                        <span>Auto refresh: ({{refreshtext}}) </span>
+                        <input type="text" ng-model="refresh" ng-change="ctrl.change()"/>
+                    </div>
+                    <button ng-click="ctrl.setQuestion('stopServer')" class="hoverable" tooltip="Sends stop signal to server">Stop server</button>
+                </div>
+                
+                <div ng-show="selectedMenu==='players'">
+                    <table>
+                        <tr>
+                            <th>Player</th>
+                            <th>State</th>
+                            <th>Room</th>
+                            <th>Host</th>
+                        </tr>
+                        <tr ng-repeat="data in Users">
+                            <td ng-click="ctrl.selectMenu('player/' + data.playerName)" class="hoverable">{{data.playerName}}</td>
+                            <td>{{data.state}}</td>
+                            <td ng-click="ctrl.selectMenu('room/' + data.room)" class="hoverable">{{data.room}}</td>
+                            <td>{{data.isHost}}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div ng-show="selectedMenu.indexOf('player/') === 0" class="details">
+                    <span>Player name: {{player.playerName}}</span><br />
+                    <span>State: {{player.state}}</span><br />
+                    <span ng-click="ctrl.selectMenu('room/' + player.room)" class="hoverable">Room: {{player.room}}</span>
+                    <span>{{player.isHost ? 'Host' : ''}}</span><br />
+                </div>
+                
+                <div ng-show="selectedMenu==='rooms'">
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>State</th>
+                            <th>Host</th>
+                            <th>Number of players</th>
+                        </tr>
+                        <tr ng-repeat="data in Rooms">
+                            <td ng-click="ctrl.selectMenu('room/' + data.name)" class="hoverable">{{data.name}}</td>
+                            <td>{{data.state}}</td>
+                            <td ng-click="ctrl.selectMenu('player/' + data.host)" class="hoverable">{{data.host}}</td>
+                            <td>{{data.players.length}}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div ng-show="selectedMenu.indexOf('room/') === 0" class="details">
+                    <span>Name: {{room.name}}</span><br />
+                    <span>State: {{room.state}}</span><br />
+                    <span ng-click="ctrl.selectMenu('player/' + room.host)" class="hoverable">Host: {{room.host}}</span><br />
+                    <span>Players:</span>
+                    <ul>
+                        <li ng-repeat="player in room.players" ng-click="ctrl.selectMenu('player/' + player)" class="hoverable">
+                            {{player}} {{ player === room.host ? '(host)' : '' }}
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>

@@ -1,0 +1,31 @@
+.room {
+    margin-left: 30px; margin-top: 30px
+}
+.pr {
+    margin-top: -3em;
+}
+.mr {
+    margin-right: 80px;
+}
+table{
+    margin-left: 30px; margin-top: 30px
+}
+
+.rooms{
+    margin-top: 80px;
+}
+.pleasedontfloat {
+    clear: both;
+}
+
+.green {
+    color: green;
+}
+
+.visible{
+    display: block;
+}
+
+.invisible{
+    display:none;
+}
